@@ -1,7 +1,7 @@
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QApplication, QWidget, QFrame
 from mainwindow import MainWindow
-import sys,imsp
+import sys, inspect
 from modulefinder import  ModuleFinder
 testvar = "hi"
 
@@ -14,11 +14,19 @@ class Main(MainWindow):
 
     def get_imports(self, file):
         finder = ModuleFinder()
-        finder.run_script("main.py")
+        finder.run_script(file)
         im = []
         for name, mod in finder.modules.items():
             im.append(name)
         return im
+
+    def get_functions(self, file):
+        try:
+            importvar = __import__(file)
+            dirvar = importvar
+        except ImportError:
+            importvar = __import__(file.split(".")[0])
+            dirvar = getattr(importvar, file.split(".")[1])
 
     def get_vars(self, file):
         inherited = []
@@ -32,10 +40,11 @@ class Main(MainWindow):
             dirvar = getattr(importvar, file.split(".")[1])
             returnvar = dir(dirvar)
         for attr in returnvar:
-            if getattr(dirvar, attr) == getattr(super(dirvar), attr):
-                inherited.append(attr)
+            if not callable(getattr(dirvar, attr)):
+                defined.append(attr)
             else:
-                defined.append()
+                print(attr)
+        returnvar = defined
         return returnvar
 
 
