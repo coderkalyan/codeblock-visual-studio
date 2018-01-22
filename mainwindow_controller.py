@@ -10,6 +10,7 @@ class Main(MainWindow):
         super().__init__()
         lib = self.get_imports("mainwindow.py")
         print(self.get_vars("mainwindow.MainWindow"))
+        print(self.get_functions("mainwindow.MainWindow"))
         print(lib)
 
     def get_imports(self, file):
@@ -27,6 +28,15 @@ class Main(MainWindow):
         except ImportError:
             importvar = __import__(file.split(".")[0])
             dirvar = getattr(importvar, file.split(".")[1])
+        functions = {}
+        for i in dir(dirvar):
+            if inspect.isroutine(getattr(dirvar, i)):
+                try:
+                    functions[i] = inspect.getsourcelines(getattr(dirvar, i))
+                except TypeError:
+                    pass
+        return functions
+
 
     def get_vars(self, file):
         inherited = []
