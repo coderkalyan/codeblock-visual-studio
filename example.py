@@ -6,8 +6,6 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QAction, QStatusBar, QLab
     QWidget, QHeaderView, QGridLayout, QFrame, QComboBox, QHBoxLayout, QDockWidget, QFileDialog, QMenu
 
 # noinspection PyUnresolvedReferences
-import icons_rc
-
 
 class MainWindow(QMainWindow):
     shortcuts = {

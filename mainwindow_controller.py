@@ -10,7 +10,10 @@ class Main(MainWindow):
         super().__init__()
         lib = self.get_imports("mainwindow.py")
         print(self.get_vars("mainwindow.MainWindow"))
-        print(self.get_functions("mainwindow.MainWindow"))
+        funcs = self.get_functions("example.MainWindow")['__init__']
+        print(funcs)
+        for i in funcs:
+            print(i)
         print(lib)
 
     def get_imports(self, file):
@@ -32,7 +35,7 @@ class Main(MainWindow):
         for i in dir(dirvar):
             if inspect.isroutine(getattr(dirvar, i)):
                 try:
-                    functions[i] = inspect.getsourcelines(getattr(dirvar, i))
+                    functions[i] = inspect.getsource(getattr(dirvar, i)).splitlines()
                 except TypeError:
                     pass
         return functions
