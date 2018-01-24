@@ -8,7 +8,7 @@
 
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QSizePolicy, QTabWidget, QMenuBar, QStatusBar, QApplication, QTreeWidget, \
-    QTreeWidgetItem, QVBoxLayout, QScrollArea
+    QTreeWidgetItem, QVBoxLayout, QScrollArea, QFrame
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -123,9 +123,13 @@ class MainWindow(QMainWindow):
         self.statusbar.setObjectName("statusbar")
         self.setStatusBar(self.statusbar)
 
+        self.frameLayout = QHBoxLayout(self.tab_3)
+        self.codeArea = QFrame()
+        self.frameLayout.addWidget(self.codeArea)
+
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), "Tab 1")
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), "Tab 2")
-        self.tabWidget_3.setTabText(self.tabWidget_2.indexOf(self.tab_3), "Tab 1")
+        self.tabWidget_3.setTabText(self.tabWidget_2.indexOf(self.tab_3), "Code Area")
         self.tabWidget_3.setTabText(self.tabWidget_2.indexOf(self.tab_4), "Tab 2")
         self.tabWidget_2.setTabText(self.tabWidget_3.indexOf(self.tab_5), "Tab 1")
         self.tabWidget_2.setTabText(self.tabWidget_3.indexOf(self.tab_6), "Tab 2")

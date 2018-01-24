@@ -1,8 +1,10 @@
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QApplication, QWidget, QFrame
+from PyQt5.QtSvg import QSvgWidget
 from mainwindow import MainWindow
 import sys, inspect
 from modulefinder import  ModuleFinder
+from blocks import *
 testvar = "hi"
 
 class Main(MainWindow):
@@ -11,6 +13,8 @@ class Main(MainWindow):
         lib = self.get_imports("mainwindow.py")
         print(self.get_vars("mainwindow.MainWindow"))
         funcs = self.get_functions("example.MainWindow")['__init__']
+        svgWidget = HatBlock(self.codeArea)
+        svgWidget.show()
         print(funcs)
         for i in funcs:
             print(i)
