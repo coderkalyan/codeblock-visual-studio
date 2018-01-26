@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QApplication
 from PyQt5.QtCore import QRect, QPoint, QSize
+from PyQt5.QtGui import QPainter, QFont, QColor, QImage
 from PyQt5.QtSvg import QSvgWidget
 
 class AbstractDraggableBlock(QSvgWidget):
@@ -36,12 +37,24 @@ class AbstractDraggableBlock(QSvgWidget):
 class HatBlock(AbstractDraggableBlock):
     def __init__(self, parent, *args, **kwargs):
         super().__init__("./icons/hat.svg", parent=parent, *args, *kwargs)
+        self.img = QImage("./icons/hat.svg")
+        self.img = self.img.smoothScaled(200,60)
+
+    def paintEvent(self, QPaintEvent):
+        painter = QPainter()
+        painter.begin(self)
+        painter.setPen(QColor("blue"))
+        painter.setFont(QFont("Comic Sans MS", 30))
+        painter.drawImage(0, 0, self.img)
+        painter.drawText(0, 50, "hello")
+        painter.end()
+
 
 if __name__ == "__main__":
     app = QApplication([])
 
     w = QWidget()
-    label = AbstractDraggableBlock("./icons/hat.svg", draggable=True, parent=w)
+    label = HatBlock(parent=w)
     w.show()
     w.raise_()
 
