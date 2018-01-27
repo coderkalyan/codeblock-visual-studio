@@ -13,7 +13,7 @@ class Main(MainWindow):
         lib = self.get_imports("mainwindow.py")
         print(self.get_vars("mainwindow.MainWindow"))
         funcs = self.get_functions("example.MainWindow")['__init__']
-        svgWidget = HatBlock(self.codeArea)
+        svgWidget = HatBlock("def x():", self.codeArea)
         svgWidget.show()
         print(funcs)
         for i in funcs:

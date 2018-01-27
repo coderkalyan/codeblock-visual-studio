@@ -36,10 +36,11 @@ class AbstractDraggableBlock(QSvgWidget):
 
 
 class HatBlock(AbstractDraggableBlock):
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, text, parent, *args, **kwargs):
         super().__init__("./blocks/hat.svg", parent=parent, *args, *kwargs)
         self.img = QImage("./blocks/hat.svg")
-        self.img = self.img.smoothScaled(200,60)
+        self.img = self.img.smoothScaled(self.geometry().size().width(), self.geometry().size().height())
+        self.text = text
 
     def paintEvent(self, QPaintEvent):
         painter = QPainter()
@@ -47,7 +48,7 @@ class HatBlock(AbstractDraggableBlock):
         painter.setPen(QColor("white"))
         painter.setFont(QFont("Comic Sans MS", 15))
         painter.drawImage(0, 0, self.img)
-        painter.drawText(50, self.img.height()/2, "hello")
+        painter.drawText(20, self.img.height()/2 + 5, self.text)
         painter.end()
 
 
