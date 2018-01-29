@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QApplication, QWidget, QFrame
 from PyQt5.QtSvg import QSvgWidget
@@ -12,13 +13,21 @@ class Main(MainWindow):
         super().__init__()
         lib = self.get_imports("mainwindow.py")
         print(self.get_vars("mainwindow.MainWindow"))
-        funcs = self.get_functions("example.MainWindow")['__init__']
-        svgWidget = HatBlock("def x():", self.codeArea)
+        funcs = self.get_functions("example.MainWindow")
+        svgWidget = HatBlock("def x():", self.codeArea, 0)
         svgWidget.show()
-        print(funcs)
+        # self.generate_function_blocks(funcs.keys())
+        print(funcs, "FUNCS")
         for i in funcs:
-            print(i)
+            print(i, "func")
         print(lib)
+
+    def generate_function_blocks(self, funcs):
+        function_blocks = []
+        for func in funcs:
+            if func != "":
+                function_blocks.append(HatBlock("def " + func.strip() + "():", self.codeArea, 0))
+                print(len(function_blocks), " yes")
 
     def get_imports(self, file):
         finder = ModuleFinder()

@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from PyQt5.QtWidgets import QWidget, QApplication
 from PyQt5.QtCore import QRect, QPoint, QSize
 from PyQt5.QtGui import QPainter, QFont, QColor, QImage
@@ -36,7 +37,7 @@ class AbstractDraggableBlock(QSvgWidget):
 
 
 class HatBlock(AbstractDraggableBlock):
-    def __init__(self, text, parent, *args, **kwargs):
+    def __init__(self, text, parent, gridindex, *args, **kwargs):
         super().__init__("./blocks/hat.svg", parent=parent, *args, *kwargs)
         self.img = QImage("./blocks/hat.svg")
         self.img = self.img.smoothScaled(self.geometry().size().width(), self.geometry().size().height())
@@ -45,9 +46,17 @@ class HatBlock(AbstractDraggableBlock):
     def paintEvent(self, QPaintEvent):
         painter = QPainter()
         painter.begin(self)
-        painter.setPen(QColor("white"))
+        painter.setPen(QColor("dark green"))
+        painter.setBrush(QColor("dark green"))
         painter.setFont(QFont("Comic Sans MS", 15))
+
+        textsize = painter.boundingRect(self.geometry(), 1, self.text)
+
         painter.drawImage(0, 0, self.img)
+        painter.setRenderHint(QPainter.Antialiasing)
+        painter.drawChord(QRect(0,0,200,60), 15*16, 150*16)
+
+        painter.setPen(QColor("white"))
         painter.drawText(20, self.img.height()/2 + 5, self.text)
         painter.end()
 
