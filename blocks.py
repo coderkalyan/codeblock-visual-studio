@@ -14,7 +14,6 @@ class AbstractDraggableBlock(QSvgWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._dragging = False
-        self.setGeometry(0, 0, self.geometry().size().width()*2, self.geometry().size().height()*2)
         self.offset = QSize(self.geometry().width()/2, self.geometry().height()/2)
         print(self.offset, self.geometry().size())
 
@@ -40,24 +39,33 @@ class HatBlock(AbstractDraggableBlock):
     def __init__(self, text, parent, gridindex, *args, **kwargs):
         super().__init__("./blocks/hat.svg", parent=parent, *args, *kwargs)
         self.img = QImage("./blocks/hat.svg")
+        self.setGeometry(0, 0, self.geometry().size().width() * 2, self.geometry().size().height() * 2.5)
         self.img = self.img.smoothScaled(self.geometry().size().width(), self.geometry().size().height())
         self.text = text
+        self.scale = 1
 
     def paintEvent(self, QPaintEvent):
         painter = QPainter()
         painter.begin(self)
         painter.setPen(QColor("dark green"))
         painter.setBrush(QColor("dark green"))
-        painter.setFont(QFont("Comic Sans MS", 15))
+        painter.setFont(QFont("Comic Sans MS", 15*self.scale))
 
-        textsize = painter.boundingRect(self.geometry(), 1, self.text)
+        textsize = painter.boundingRect(self.geometry(), 1, "def" + self.text + "():")
+        print(textsize)
+        if textsize.width() > 200:
+            rectwidth = textsize.width()
+            self.setFixedWidth(textsize.width())
+        else:
+            rectwidth = 200
 
-        painter.drawImage(0, 0, self.img)
         painter.setRenderHint(QPainter.Antialiasing)
-        painter.drawChord(QRect(0,0,200,60), 15*16, 150*16)
+        painter.drawChord(QRect(0, 0, rectwidth*self.scale, 60*self.scale), 0*16, 180*16)
+        painter.drawRect(QRect(0, 30*self.scale, rectwidth*self.scale, 30*self.scale))
+        painter.drawChord(QRect(20*self.scale, 28*self.scale, 45*self.scale, 45*self.scale), 180*16, 180*16)
 
         painter.setPen(QColor("white"))
-        painter.drawText(20, self.img.height()/2 + 5, self.text)
+        painter.drawText(20*self.scale, (self.img.height()/2 + 5)*self.scale, self.text)
         painter.end()
 
 

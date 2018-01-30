@@ -16,7 +16,7 @@ class Main(MainWindow):
         funcs = self.get_functions("example.MainWindow")
         svgWidget = HatBlock("def x():", self.codeArea, 0)
         svgWidget.show()
-        # self.generate_function_blocks(funcs.keys())
+        self.generate_function_blocks(funcs.keys())
         print(funcs, "FUNCS")
         for i in funcs:
             print(i, "func")
