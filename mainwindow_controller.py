@@ -13,20 +13,20 @@ class Main(MainWindow):
         super().__init__()
         lib = self.get_imports("mainwindow.py")
         print(self.get_vars("mainwindow.MainWindow"))
-        funcs = self.get_functions("example.MainWindow")
+        funcs = self.get_functions("blocks.HatBlock")
         svgWidget = HatBlock("def x():", self.codeArea, 0)
         svgWidget.show()
-        self.generate_function_blocks(funcs.keys())
+        self.generate_function_blocks(funcs)
         print(funcs, "FUNCS")
-        for i in funcs:
-            print(i, "func")
+        for i in funcs.items():
+            print(i[1][0], "func")
         print(lib)
 
     def generate_function_blocks(self, funcs):
         function_blocks = []
-        for func in funcs:
+        for func in funcs.items():
             if func != "":
-                function_blocks.append(HatBlock("def " + func.strip() + "():", self.codeArea, 0))
+                function_blocks.append(HatBlock(func[1][0].strip(), self.codeArea, 0))
                 print(len(function_blocks), " yes")
 
     def get_imports(self, file):
