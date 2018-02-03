@@ -13,21 +13,23 @@ class Main(MainWindow):
         super().__init__()
         lib = self.get_imports("mainwindow.py")
         print(self.get_vars("mainwindow.MainWindow"))
-        funcs = self.get_functions("blocks.HatBlock")
-        svgWidget = HatBlock("def x():", self.codeArea, 0)
+        funcs = self.get_functions("example.MainWindow")
+        self.function_blocks = []
+        # self.generate_function_blocks(funcs)
+        svgWidget = HatBlock("test", None, self.codeArea, 0)
+        parent = HatBlock("test", svgWidget, self.codeArea, 0)
+        parent.show()
         svgWidget.show()
-        self.generate_function_blocks(funcs)
         print(funcs, "FUNCS")
         for i in funcs.items():
             print(i[1][0], "func")
         print(lib)
 
     def generate_function_blocks(self, funcs):
-        function_blocks = []
         for func in funcs.items():
             if func != "":
-                function_blocks.append(HatBlock(func[1][0].strip(), self.codeArea, 0))
-                print(len(function_blocks), " yes")
+                self.function_blocks.append(HatBlock(func[1][0].strip(), self.codeArea, 0))
+                print(len(self.function_blocks), " yes")
 
     def get_imports(self, file):
         finder = ModuleFinder()

@@ -8,7 +8,7 @@
 
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QSizePolicy, QTabWidget, QMenuBar, QStatusBar, QApplication, QTreeWidget, \
-    QTreeWidgetItem, QVBoxLayout, QScrollArea, QFrame
+    QTreeWidgetItem, QVBoxLayout, QScrollArea, QFrame, QSplitter
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -19,6 +19,7 @@ class MainWindow(QMainWindow):
 
         self.horizontalLayout = QHBoxLayout(self.centralwidget)
         self.horizontalLayout.setObjectName("horizontalLayout")
+        self.splitter = QSplitter(self.centralwidget)
 
         self.tabWidget = QTabWidget(self.centralwidget)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -41,7 +42,7 @@ class MainWindow(QMainWindow):
 
         self.tabWidget.addTab(self.tab_2, "")
 
-        self.horizontalLayout.addWidget(self.tabWidget)
+        self.splitter.addWidget(self.tabWidget)
 
         self.tabWidget_3 = QTabWidget(self.centralwidget)
         self.tabWidget_3.setTabsClosable(False)
@@ -58,7 +59,7 @@ class MainWindow(QMainWindow):
 
         self.tabWidget_3.addTab(self.tab_6, "")
 
-        self.horizontalLayout.addWidget(self.tabWidget_3)
+        self.splitter.addWidget(self.tabWidget_3)
 
         self.tabWidget_2 = QTabWidget(self.centralwidget)
 
@@ -110,8 +111,9 @@ class MainWindow(QMainWindow):
         self.tab_4.setObjectName("tab_4")
         self.tabWidget_2.addTab(self.tab_4, "")
 
-        self.horizontalLayout.addWidget(self.tabWidget_2)
+        self.splitter.addWidget(self.tabWidget_2)
 
+        self.horizontalLayout.addWidget(self.splitter)
         self.setCentralWidget(self.centralwidget)
 
         self.menubar = QMenuBar()
