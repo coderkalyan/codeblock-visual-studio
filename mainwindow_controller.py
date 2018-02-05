@@ -16,10 +16,12 @@ class Main(MainWindow):
         funcs = self.get_functions("example.MainWindow")
         self.function_blocks = []
         # self.generate_function_blocks(funcs)
-        svgWidget = HatBlock("test", None, self.codeArea, 0)
-        parent = HatBlock("test", svgWidget, self.codeArea, 0)
+        p2 = CodeBlock("test2", None, self.codeArea)
+        parent = CodeBlock("test", None, self.codeArea)
+        svgWidget = HatBlock("test", p2, self.codeArea)
         parent.show()
         svgWidget.show()
+        p2.show()
         print(funcs, "FUNCS")
         for i in funcs.items():
             print(i[1][0], "func")

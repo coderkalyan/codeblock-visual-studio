@@ -18,6 +18,9 @@ class AbstractDraggableBlock(QWidget):
         self.attached = attached
         if self.attached is not None:
             self.attached.bourgeois = self
+            new_geometry_attached = QRect(self.geometry().x(), self.geometry().y() + 30, self.geometry().width(),
+                                          self.geometry().height())
+            self.attached.setGeometry(new_geometry_attached)
         print(self.offset, self.geometry().size())
         print(self.attached, "ATTACH")
 
@@ -42,19 +45,13 @@ class AbstractDraggableBlock(QWidget):
         print(self.attached)
         self.setGeometry(new_geometry)
         if self.attached is not None:
-            new_geometry_attached = QRect(self.geometry().x(), self.geometry().y()+30, self.geometry().width(), self.geometry().height())
+            new_geometry_attached = QRect(self.geometry().x(), self.geometry().y()+60, self.geometry().width(), self.geometry().height())
             self.attached.setGeometry(new_geometry_attached)
 
 
-class AbstractCodeBlock(AbstractDraggableBlock):
-    def __init__(self, text, parent, *args, **kwargs):
-        super().__init__("./blocks/hat.svg", parent=parent, *args, **kwargs)
-        self.text = text
-
-
 class HatBlock(AbstractDraggableBlock):
-    def __init__(self, text, attached, parent, gridindex, *args, **kwargs):
-        super().__init__(attached, parent=parent, *args, *kwargs)
+    def __init__(self, text, attached, parent, *args, **kwargs):
+        super().__init__(attached, parent=parent, *args, **kwargs)
         self.img = QImage("./blocks/hat.svg")
         self.setGeometry(0, 0, self.geometry().size().width() * 2, self.geometry().size().height() * 2.5)
         self.img = self.img.smoothScaled(self.geometry().size().width(), self.geometry().size().height())
@@ -84,6 +81,39 @@ class HatBlock(AbstractDraggableBlock):
         painter.setPen(QColor("white"))
         painter.drawText(20*self.scale, (self.img.height()/2 + 5)*self.scale, self.text)
         painter.end()
+
+class CodeBlock(AbstractDraggableBlock):
+    def __init__(self, text, attached, parent, *args, **kwargs):
+        super().__init__(attached, parent=parent, *args, **kwargs)
+        self.img = QImage("./blocks/hat.svg")
+        self.setGeometry(0, 0, self.geometry().size().width() * 2, self.geometry().size().height() * 2.5)
+        self.text = text
+        self.scale = 1
+
+    def paintEvent(self, QPaintEvent):
+        painter = QPainter()
+        painter.begin(self)
+        painter.setPen(QColor("red"))
+        painter.setBrush(QColor("red"))
+        painter.setFont(QFont("Comic Sans MS", 15*self.scale))
+
+        textsize = painter.boundingRect(self.geometry(), 1, self.text + "       ")
+
+        if textsize.width() > 100:
+            rectwidth = textsize.width()
+            self.setFixedWidth(textsize.width())
+        else:
+            rectwidth = 100
+
+        painter.setRenderHint(QPainter.Antialiasing)
+        painter.drawRect(QRect(0, 0, rectwidth*self.scale, 40*self.scale))
+        painter.drawChord(QRect(20*self.scale, 10*self.scale, 45*self.scale, 45*self.scale), 180*16, 180*16)
+        painter.setBrush(QColor("white"))
+        painter.setPen(QColor("white"))
+        painter.drawChord(QRect(20*self.scale, -32*self.scale, 45*self.scale, 45*self.scale), 180*16, 180*16)
+        painter.drawText(20*self.scale, (self.geometry().height()/2-5)*self.scale, self.text)
+        painter.end()
+
 
 
 if __name__ == "__main__":
