@@ -15,9 +15,9 @@ class Main(MainWindow):
         print(self.get_vars("mainwindow.MainWindow"))
         funcs = self.get_functions("example.MainWindow")
         self.function_blocks = []
-        svgWidget = HatBlock("test", None, self.codeArea)
-        self.function_blocks.append(svgWidget)
         self.generate_function_blocks(funcs)
+        svgWidget = HatBlock("test", self.function_blocks[-1], self.codeArea)
+        self.function_blocks.append(svgWidget)
         svgWidget.show()
         print(funcs, "FUNCS")
         for i in funcs.items():
@@ -27,11 +27,13 @@ class Main(MainWindow):
     def generate_function_blocks(self, funcs):
         f = 0
         for func in funcs.items():
-            f = f+1
-            print(self.function_blocks[f-1])
             if func != "":
-                self.function_blocks.append(CodeBlock(func[1][0].strip(), self.function_blocks[f-1], self.codeArea))
-                print(len(self.function_blocks), " yes")
+                if f == 0:
+                    self.function_blocks.append(CodeBlock(func[1][0].strip(), None, self.codeArea))
+                else:
+                    self.function_blocks.append(CodeBlock(func[1][0].strip(), self.function_blocks[f-1], self.codeArea))
+                    print(len(self.function_blocks), " yes")
+            f = f + 1
 
     def get_imports(self, file):
         finder = ModuleFinder()
