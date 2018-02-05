@@ -39,14 +39,15 @@ class AbstractDraggableBlock(QWidget):
         globalMap = self.parent().mapFromGlobal(new_pos_global)
         new_pos_within_parent = QPoint(globalMap.x() - self.offset.width(), globalMap.y() - self.offset.height())
         new_geometry = QRect(new_pos_within_parent, self.geometry().size())
-        print(self.attached)
+        print(self.attached, "RELEASE")
         self.setGeometry(new_geometry)
         if self.attached is not None:
-            new_geometry_attached = QRect(self.geometry().x(), self.geometry().y() + self.geometry().height() - 17,
-                                          self.attached.geometry().width(), self.attached.geometry().height())
-            print(self.attached.geometry(), "noo")
-            self.attached.setGeometry(new_geometry_attached)
-            self.attached.moveChild()
+            for i in range(999):
+                new_geometry_attached = QRect(self.geometry().x(), self.geometry().y() + self.geometry().height() - 17,
+                                              self.attached.geometry().width(), self.attached.geometry().height())
+                print(self.attached.geometry(), "noo")
+                self.attached.setGeometry(new_geometry_attached)
+                self.attached.moveChild()
 
     def mouseMoveEvent(self, event):
         if not self._dragging:
@@ -59,11 +60,12 @@ class AbstractDraggableBlock(QWidget):
         print(self.attached)
         self.setGeometry(new_geometry)
         if self.attached is not None:
-            new_geometry_attached = QRect(self.geometry().x(), self.geometry().y()+self.geometry().height()-17,
-                                          self.attached.geometry().width(), self.attached.geometry().height())
-            print(self.attached.geometry(), "noo")
-            self.attached.setGeometry(new_geometry_attached)
-            self.attached.moveChild()
+            for i in range(50):
+                new_geometry_attached = QRect(self.geometry().x(), self.geometry().y()+self.geometry().height()-17,
+                                              self.attached.geometry().width(), self.attached.geometry().height())
+                print(self.attached.geometry(), "noo")
+                self.attached.setGeometry(new_geometry_attached)
+                self.attached.moveChild()
 
     def moveChild(self):
         if self.attached is not None:
