@@ -126,14 +126,14 @@ class MainWindow(QMainWindow):
         self.setStatusBar(self.statusbar)
 
         self.frameLayout = QHBoxLayout(self.tab_3)
-        self.codeArea = QScrollArea()
-        self.scrollLayout = QHBoxLayout(self.codeArea)
-        self.displayArea = QFrame()
-        self.displayArea.setMinimumHeight(20000)
-        self.scrollLayout.addWidget(self.displayArea)
-        self.codeArea.setWidget(self.displayArea)
-        self.codeArea.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-        self.frameLayout.addWidget(self.codeArea)
+        self.scroll = QScrollArea()
+        self.scrollLayout = QHBoxLayout(self.scroll)
+
+        self.codeArea = QFrame()
+        self.codeArea.setMinimumHeight(20000)
+        self.scrollLayout.addWidget(self.codeArea)
+        self.frameLayout.addWidget(self.scroll)
+        self.scroll.show()
 
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), "Tab 1")
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), "Tab 2")
