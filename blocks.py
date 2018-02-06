@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QWidget, QApplication, QVBoxLayout
 from PyQt5.QtCore import QRect, QPoint, QSize
 from PyQt5.QtGui import QPainter, QFont, QColor, QImage
 from PyQt5.QtSvg import QSvgWidget
+import time
 
 
 class AbstractDraggableBlock(QWidget):
@@ -60,7 +61,7 @@ class AbstractDraggableBlock(QWidget):
         print(self.attached)
         self.setGeometry(new_geometry)
         if self.attached is not None:
-            for i in range(50):
+            for i in range(5):
                 new_geometry_attached = QRect(self.geometry().x(), self.geometry().y()+self.geometry().height()-17,
                                               self.attached.geometry().width(), self.attached.geometry().height())
                 print(self.attached.geometry(), "noo")

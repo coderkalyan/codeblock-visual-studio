@@ -14,9 +14,13 @@ class Main(MainWindow):
         lib = self.get_imports("mainwindow.py")
         print(self.get_vars("mainwindow.MainWindow"))
         funcs = self.get_functions("example.MainWindow")
+        for func in funcs.items():
+            for i in func[1]:
+                print(i, "hei")
         self.function_blocks = []
-        self.generate_function_blocks(funcs)
-        svgWidget = HatBlock("test", self.function_blocks[-1], self.codeArea)
+        self.code_blocks = []
+        self.generate_code_blocks(funcs)
+        svgWidget = HatBlock("test", self.code_blocks[-1], self.codeArea)
         self.function_blocks.append(svgWidget)
         svgWidget.show()
         print(funcs, "FUNCS")
@@ -27,13 +31,28 @@ class Main(MainWindow):
     def generate_function_blocks(self, funcs):
         f = 0
         for func in funcs.items():
+            print(f, "YEEEE")
             if func != "":
                 if f == 0:
-                    self.function_blocks.append(CodeBlock(func[1][0].strip(), None, self.codeArea))
+                    self.function_blocks.append(HatBlock(func[1][0].strip(), None, self.codeArea))
                 else:
-                    self.function_blocks.append(CodeBlock(func[1][0].strip(), self.function_blocks[f-1], self.codeArea))
+                    self.function_blocks.append(HatBlock(func[1][0].strip(), self.function_blocks[f-1], self.codeArea))
                     print(len(self.function_blocks), " yes")
             f = f + 1
+
+    def generate_code_blocks(self, funcs):
+        f = 0
+        print(funcs.items(), "items")
+        for func in funcs.items():
+            print(func, "NTOOOOT")
+            for line in func[1]:
+                if func != "":
+                    if f == 0:
+                        self.code_blocks.append(CodeBlock(line, None, self.codeArea))
+                    else:
+                        self.code_blocks.append(CodeBlock(line, self.code_blocks[f-1], self.codeArea))
+                        print(len(self.code_blocks), " yes")
+                    f = f + 1
 
     def get_imports(self, file):
         finder = ModuleFinder()
