@@ -8,7 +8,7 @@
 
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QSizePolicy, QTabWidget, QMenuBar, QStatusBar, QApplication, QTreeWidget, \
-    QTreeWidgetItem, QVBoxLayout, QScrollArea, QFrame, QSplitter
+    QTreeWidgetItem, QVBoxLayout, QScrollArea, QFrame, QSplitter, QPushButton
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -127,13 +127,15 @@ class MainWindow(QMainWindow):
 
         self.frameLayout = QHBoxLayout(self.tab_3)
         self.scroll = QScrollArea()
-        self.scrollLayout = QHBoxLayout(self.scroll)
+        self.scrollContents = QWidget()
+        self.scrollContents.setGeometry(QtCore.QRect(0, 0, 5000, 50000))
+        self.scrollLayout = QHBoxLayout(self.scrollContents)
 
-        self.codeArea = QFrame()
-        self.codeArea.setMinimumHeight(20000)
+        self.codeArea = QFrame(self.scrollAreaWidgetContents)
+        self.codeArea.setMinimumSize(QtCore.QSize(2000, 2000))
         self.scrollLayout.addWidget(self.codeArea)
         self.frameLayout.addWidget(self.scroll)
-        self.scroll.show()
+        self.scroll.setWidget(self.scrollContents)
 
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), "Tab 1")
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), "Tab 2")
