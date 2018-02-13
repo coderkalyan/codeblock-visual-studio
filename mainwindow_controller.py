@@ -11,48 +11,49 @@ testvar = "hi"
 class Main(MainWindow):
     def __init__(self):
         super().__init__()
-        lib = self.get_imports("mainwindow.py")
-        print(self.get_vars("mainwindow.MainWindow"))
+        # print(self.get_vars("mainwindow.MainWindow"))
         funcs = self.get_functions("example.MainWindow")
-        for func in funcs.items():
-            for i in func[1]:
-                print(i, "hei")
         self.function_blocks = []
-        self.code_blocks = []
-        self.generate_code_blocks(funcs)
+        self.code_blocks = self.generate_code_blocks(funcs)
+        self.order_blocks(funcs)
+
+    def order_blocks(self, funcs):
         svgWidget = HatBlock("test", self.code_blocks[-1], self.codeArea)
         self.function_blocks.append(svgWidget)
+        print(funcs.keys(), "NOOTTT")
         svgWidget.show()
-        print(funcs, "FUNCS")
-        for i in funcs.items():
-            print(i[1][0], "func")
-        print(lib)
+
 
     def generate_function_blocks(self, funcs):
         f = 0
+        retblocks = []
         for func in funcs.items():
             print(f, "YEEEE")
             if func != "":
                 if f == 0:
-                    self.function_blocks.append(HatBlock(func[1][0].strip(), None, self.codeArea))
+                    retblocks.append(HatBlock(func[1][0].strip(), None, self.codeArea))
                 else:
-                    self.function_blocks.append(HatBlock(func[1][0].strip(), self.function_blocks[f-1], self.codeArea))
-                    print(len(self.function_blocks), " yes")
+                    retblocks.append(HatBlock(func[1][0].strip(), self.function_blocks[f-1], self.codeArea))
+                    print(len(retblocks), " yes")
             f = f + 1
+        return retblocks
 
     def generate_code_blocks(self, funcs):
         f = 0
+        retblocks = []
         print(funcs.items(), "items")
         for func in funcs.items():
             print(func, "NTOOOOT")
             for line in func[1]:
                 if func != "":
                     if f == 0:
-                        self.code_blocks.append(CodeBlock(line, None, self.codeArea))
+                        retblocks.append(CodeBlock(line, None, self.codeArea))
                     else:
-                        self.code_blocks.append(CodeBlock(line, self.code_blocks[f-1], self.codeArea))
-                        print(len(self.code_blocks), " yes")
+                        retblocks.append(CodeBlock(line, retblocks[f-1], self.codeArea))
+                        print(len(retblocks), " yes")
                     f = f + 1
+        return retblocks
+
 
     def get_imports(self, file):
         finder = ModuleFinder()
@@ -105,3 +106,5 @@ if __name__ == "__main__":
     maine.show()
     print(dir("mainwindow_controller.py"))
     sys.exit(app.exec_())
+
+
