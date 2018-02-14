@@ -3,6 +3,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QApplication, QWidget, QFrame
 from PyQt5.QtSvg import QSvgWidget
 from mainwindow import MainWindow
+from collections import defaultdict
 import sys, inspect
 from modulefinder import  ModuleFinder
 from blocks import *
@@ -13,43 +14,47 @@ class Main(MainWindow):
         super().__init__()
         # print(self.get_vars("mainwindow.MainWindow"))
         funcs = self.get_functions("example.MainWindow")
-        self.function_blocks = []
-        self.code_blocks = self.generate_code_blocks(funcs)
-        self.order_blocks(funcs)
+        self.create_blocks(funcs)
+        self.function_blocks = self.generate_function_blocks(funcs), "ineedabetterwaytodebug"
 
-    def order_blocks(self, funcs):
-        svgWidget = HatBlock("test", self.code_blocks[-1], self.codeArea)
-        self.function_blocks.append(svgWidget)
-        print(funcs.keys(), "NOOTTT")
-        svgWidget.show()
+    def create_blocks(self, funcs):
+        self.code_blocks = self.generate_code_blocks(funcs)
+        # svgWidget = HatBlock("test", self.code_blocks['test'][-1], self.codeArea)
+        # self.function_blocks.append(svgWidget)
+        print(funcs.items(), "NOOTTT")
+        # svgWidget.show()
 
 
     def generate_function_blocks(self, funcs):
         f = 0
-        retblocks = []
-        for func in funcs.items():
-            print(f, "YEEEE")
+        retblocks = {}
+        print(funcs, "grr")
+        for func, func_def in funcs.items():
+            print(func_def[-1].strip(), "YEEEE")
             if func != "":
-                if f == 0:
-                    retblocks.append(HatBlock(func[1][0].strip(), None, self.codeArea))
-                else:
-                    retblocks.append(HatBlock(func[1][0].strip(), self.function_blocks[f-1], self.codeArea))
-                    print(len(retblocks), " yes")
+                retblocks[func] = (HatBlock(func_def[-1].strip(), None, self.codeArea))
             f = f + 1
         return retblocks
 
-    def generate_code_blocks(self, funcs):
+    def generate_code_blocks(self, funcs_list):
         f = 0
-        retblocks = []
+        retblocks = {}
+        funcs = funcs_list
         print(funcs.items(), "items")
-        for func in funcs.items():
+        retblocks['test'] = []
+        for func, code in funcs.items():
+            f = 0
+            code.reverse()
+            print(code[0], "throwawaygrep")
             print(func, "NTOOOOT")
-            for line in func[1]:
-                if func != "":
+            retblocks[func] = []
+            for line in code:
+                print(retblocks[func])
+                if func != "" and "def " not in line:
                     if f == 0:
-                        retblocks.append(CodeBlock(line, None, self.codeArea))
+                        retblocks[func].append(CodeBlock(line, None, self.codeArea))
                     else:
-                        retblocks.append(CodeBlock(line, retblocks[f-1], self.codeArea))
+                        retblocks[func].append(CodeBlock(line, retblocks[func][f-1], self.codeArea))
                         print(len(retblocks), " yes")
                     f = f + 1
         return retblocks
