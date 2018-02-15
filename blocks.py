@@ -28,7 +28,7 @@ class AbstractDraggableBlock(QWidget):
 
     def mousePressEvent(self, event):
         self._dragging = True
-        self.raise_()
+        self.raiseEvent()
         try:
             self.bourgeois.attached = None
         except AttributeError:
@@ -76,6 +76,12 @@ class AbstractDraggableBlock(QWidget):
             print(self.attached.geometry(), "noo")
             self.attached.moveChild()
             self.attached.setGeometry(new_geometry_attached)
+
+    def raiseEvent(self):
+        self.raise_()
+        if self.attached is not None:
+            self.attached.raiseEvent()
+            self.raise_()
 
 
 class HatBlock(AbstractDraggableBlock):
@@ -149,9 +155,7 @@ class CodeBlock(AbstractDraggableBlock):
         painter.drawChord(QRect(20*self.scale, 12*self.scale, 45*self.scale, 45*self.scale), 180*16, 180*16)
         painter.setBrush(QColor("white"))
         painter.setPen(QColor("white"))
-        painter.setCompositionMode(QPainter.CompositionMode_Clear)
         painter.drawChord(QRect(20*self.scale, -32*self.scale, 45*self.scale, 45*self.scale), 180*16, 180*16)
-        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
         painter.drawText(20*self.scale, (self.geometry().height()/2)*self.scale, self.text)
         painter.end()
 
