@@ -14,11 +14,16 @@ class Main(MainWindow):
         super().__init__()
         # print(self.get_vars("mainwindow.MainWindow"))
         funcs = self.get_functions("example.MainWindow")
+        self.function_blocks = self.generate_function_blocks(funcs) 
         self.create_blocks(funcs)
-        self.function_blocks = self.generate_function_blocks(funcs), "ineedabetterwaytodebug"
 
     def create_blocks(self, funcs):
         self.code_blocks = self.generate_code_blocks(funcs)
+        for k,v in self.function_blocks.items():
+            v.attached = self.code_blocks[k][-1]
+            v.attached.bourgeois = v
+            v.raise_()
+            self.code_blocks[k].append(v)
         # svgWidget = HatBlock("test", self.code_blocks['test'][-1], self.codeArea)
         # self.function_blocks.append(svgWidget)
         print(funcs.items(), "NOOTTT")
@@ -30,9 +35,9 @@ class Main(MainWindow):
         retblocks = {}
         print(funcs, "grr")
         for func, func_def in funcs.items():
-            print(func_def[-1].strip(), "YEEEE")
+            print(func_def[0].strip(), "YEEEE")
             if func != "":
-                retblocks[func] = (HatBlock(func_def[-1].strip(), None, self.codeArea))
+                retblocks[func] = (HatBlock(func_def[0].strip(), None, self.codeArea))
             f = f + 1
         return retblocks
 

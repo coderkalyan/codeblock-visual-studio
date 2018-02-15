@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 from PyQt5.QtWidgets import QWidget, QApplication, QVBoxLayout
-from PyQt5.QtCore import QRect, QPoint, QSize
+from PyQt5.QtCore import QRect, QPoint, QSize, Qt
 from PyQt5.QtGui import QPainter, QFont, QColor, QImage
 from PyQt5.QtSvg import QSvgWidget
 import time
@@ -28,6 +28,7 @@ class AbstractDraggableBlock(QWidget):
 
     def mousePressEvent(self, event):
         self._dragging = True
+        self.raise_()
         try:
             self.bourgeois.attached = None
         except AttributeError:
@@ -148,7 +149,9 @@ class CodeBlock(AbstractDraggableBlock):
         painter.drawChord(QRect(20*self.scale, 12*self.scale, 45*self.scale, 45*self.scale), 180*16, 180*16)
         painter.setBrush(QColor("white"))
         painter.setPen(QColor("white"))
+        painter.setCompositionMode(QPainter.CompositionMode_Clear)
         painter.drawChord(QRect(20*self.scale, -32*self.scale, 45*self.scale, 45*self.scale), 180*16, 180*16)
+        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
         painter.drawText(20*self.scale, (self.geometry().height()/2)*self.scale, self.text)
         painter.end()
 
