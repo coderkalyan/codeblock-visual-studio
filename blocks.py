@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 from PyQt5.QtWidgets import QWidget, QApplication, QVBoxLayout
-from PyQt5.QtCore import QRect, QPoint, QSize, Qt
+from PyQt5.QtCore import QRect, QPoint, QSize, Qt, pyqtSignal
 from PyQt5.QtGui import QPainter, QFont, QColor, QImage
 from PyQt5.QtSvg import QSvgWidget
 import time
@@ -17,6 +17,7 @@ class AbstractDraggableBlock(QWidget):
         self._dragging = False
         self.offset = QSize(self.geometry().width()/2, self.geometry().height()/2)
         self.attached = attached
+        self.siblings = kwargs['parent'].findChildren()
         if self.attached is not None:
             self.attached.bourgeois = self
             new_geometry_attached = QRect(self.geometry().x(), self.geometry().y()+self.geometry().height()-17,
@@ -169,4 +170,4 @@ if __name__ == "__main__":
     w.show()
     w.raise_()
 
-    app.exec_( )
+    app.exec_()
