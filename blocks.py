@@ -5,7 +5,6 @@ from PyQt5.QtGui import QPainter, QFont, QColor, QImage
 from PyQt5.QtSvg import QSvgWidget
 import time
 
-
 class AbstractDraggableBlock(QWidget):
     """
     A QWidget subclass that can be dragged around within its parent widget.
@@ -17,7 +16,12 @@ class AbstractDraggableBlock(QWidget):
         self._dragging = False
         self.offset = QSize(self.geometry().width()/2, self.geometry().height()/2)
         self.attached = attached
-        self.siblings = kwargs['parent'].findChildren()
+        self.siblingcoords = {}
+        # TODO: Find a way to only calculate this once instead of for every instance for performance reasons
+        self.siblings = kwargs['parent'].findChildren(AbstractDraggableBlock)
+        for sibling in self.siblings:
+            self.siblingcoords[sibling] = QPoint(sibling.geometry().x(), sibling.geometry().y())
+        print(self.siblingcoords, "siblings")
         if self.attached is not None:
             self.attached.bourgeois = self
             new_geometry_attached = QRect(self.geometry().x(), self.geometry().y()+self.geometry().height()-17,
