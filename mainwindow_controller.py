@@ -14,7 +14,7 @@ class Main(MainWindow):
         super().__init__()
         # print(self.get_vars("mainwindow.MainWindow"))
         funcs = self.get_functions("example.MainWindow")
-        self.function_blocks = self.generate_function_blocks(funcs) 
+        self.function_blocks = self.generate_function_blocks(funcs)
         self.create_blocks(funcs)
 
     def create_blocks(self, funcs):
@@ -24,6 +24,15 @@ class Main(MainWindow):
             v.attached.bourgeois = v
             v.raise_()
             self.code_blocks[k].append(v)
+        
+        for i in list(self.function_blocks.values()):
+            i.setGeometry(list(self.function_blocks.values()).index(i)*400, i.geometry().y(), i.geometry().width(), i.geometry().height())
+            print(i, "eye")
+            for j in range(199):
+                if i.attached is not None:
+                    print(i.attached, "eye")
+                    i.attached.setGeometry(i.geometry().x(), i.geometry().y()+i.geometry().height()-17, i.attached.geometry().width(), i.attached.geometry().height())
+                    i.attached.moveChild()
         # svgWidget = HatBlock("test", self.code_blocks['test'][-1], self.codeArea)
         # self.function_blocks.append(svgWidget)
         print(funcs.items(), "NOOTTT")

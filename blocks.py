@@ -60,8 +60,6 @@ class AbstractDraggableBlock(QWidget):
                 self.attached.setGeometry(new_geometry_attached)
                 self.attached.moveChild()
 
-        if any(self.geometry().x()-10<x.x()<self.geometry.x()+10 and self.geometry().y()-10<x.y()<self.geometry.y()+10 for x in self.siblingcoords.values()):
-            print(match)
 
     def mouseMoveEvent(self, event):
         if not self._dragging:
