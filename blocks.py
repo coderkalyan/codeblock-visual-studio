@@ -38,6 +38,8 @@ class AbstractDraggableBlock(QWidget):
             self.bourgeois.attached = None
         except AttributeError:
             pass
+        for i in self.siblings:
+            i.moving = self
 
     def mouseReleaseEvent(self, event):
         self._dragging = False
