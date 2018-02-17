@@ -23,12 +23,14 @@ class AbstractDraggableBlock(QWidget):
             self.siblingcoords[sibling] = QPoint(sibling.geometry().x(), sibling.geometry().y())
         print(self.siblingcoords, "siblings")
         if self.attached is not None:
-            self.attached.bourgeois = self
-            new_geometry_attached = QRect(self.geometry().x(), self.geometry().y()+self.geometry().height()-17,
+            # TODO: optimizations on iterating - possibly get the length of the chain?
+            for i in range(199):
+                self.attached.bourgeois = self
+                new_geometry_attached = QRect(self.geometry().x(), self.geometry().y()+self.geometry().height()-17,
                                           self.attached.geometry().width(), self.attached.geometry().height())
-            print(self.geometry(), "NOOO")
-            self.attached.setGeometry(new_geometry_attached)
-            self.attached.moveChild()
+                print(self.geometry(), "NOOO")
+                self.attached.setGeometry(new_geometry_attached)
+                self.attached.moveChild()
 
 
     def mousePressEvent(self, event):
@@ -57,6 +59,9 @@ class AbstractDraggableBlock(QWidget):
                 print(self.attached.geometry(), "noo")
                 self.attached.setGeometry(new_geometry_attached)
                 self.attached.moveChild()
+
+        if any(self.geometry().x()-10<x.x()<self.geometry.x()+10 and self.geometry().y()-10<x.y()<self.geometry.y()+10 for x in self.siblingcoords.values()):
+            print(match)
 
     def mouseMoveEvent(self, event):
         if not self._dragging:
