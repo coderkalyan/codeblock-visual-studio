@@ -46,7 +46,10 @@ class Main(MainWindow):
         for func, func_def in funcs.items():
             print(func_def[0].strip(), "YEEEE")
             if func != "":
-                retblocks[func] = (HatBlock(func_def[0].strip(), None, self.codeArea))
+                if "def " in func_def[0].strip():
+                    retblocks[func] = HatBlock(func_def[0].strip(), None, self.codeArea)
+                else:
+                    retblocks[func] = HatBlock(func_def[1].strip(), None, self.codeArea)
             f = f + 1
         return retblocks
 
