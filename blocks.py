@@ -21,14 +21,12 @@ class AbstractDraggableBlock(QWidget):
         self.siblings = kwargs['parent'].findChildren(AbstractDraggableBlock)
         for sibling in self.siblings:
             self.siblingcoords[sibling] = QPoint(sibling.geometry().x(), sibling.geometry().y())
-        print(self.siblingcoords, "siblings")
         if self.attached is not None:
             # TODO: optimizations on iterating - possibly get the length of the chain?
             for i in range(199):
                 self.attached.bourgeois = self
                 new_geometry_attached = QRect(self.geometry().x(), self.geometry().y()+self.geometry().height()-17,
                                           self.attached.geometry().width(), self.attached.geometry().height())
-                print(self.geometry(), "NOOO")
                 self.attached.setGeometry(new_geometry_attached)
                 self.attached.moveChild()
 
@@ -56,10 +54,10 @@ class AbstractDraggableBlock(QWidget):
             for i in range(299):
                 new_geometry_attached = QRect(self.geometry().x(), self.geometry().y() + self.geometry().height() - 17,
                                               self.attached.geometry().width(), self.attached.geometry().height())
-                print(self.attached.geometry(), "noo")
                 self.attached.setGeometry(new_geometry_attached)
                 self.attached.moveChild()
-
+        
+        
 
     def mouseMoveEvent(self, event):
         if not self._dragging:
@@ -83,7 +81,6 @@ class AbstractDraggableBlock(QWidget):
         if self.attached is not None:
             new_geometry_attached = QRect(self.geometry().x(), self.geometry().y()+self.geometry().height()-17,
                                           self.attached.geometry().width(), self.attached.geometry().height())
-            print(self.attached.geometry(), "noo")
             self.attached.moveChild()
             self.attached.setGeometry(new_geometry_attached)
 
@@ -105,7 +102,6 @@ class HatBlock(AbstractDraggableBlock):
         if self.attached is not None:
             new_geometry_attached = QRect(self.geometry().x(), self.geometry().y()+self.geometry().height()-17,
                                           self.attached.geometry().width(), self.attached.geometry().height())
-            print(self.geometry(), "NOOTO")
             self.attached.setGeometry(new_geometry_attached)
 
     def paintEvent(self, QPaintEvent):

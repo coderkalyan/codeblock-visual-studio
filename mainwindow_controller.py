@@ -35,7 +35,6 @@ class Main(MainWindow):
                     i.attached.moveChild()
         # svgWidget = HatBlock("test", self.code_blocks['test'][-1], self.codeArea)
         # self.function_blocks.append(svgWidget)
-        print(funcs.items(), "NOOTTT")
         # svgWidget.show()
 
 
@@ -66,7 +65,6 @@ class Main(MainWindow):
             print(func, "NTOOOOT")
             retblocks[func] = []
             for line in code:
-                print(retblocks[func])
                 if func != "" and "def " not in line:
                     if f == 0:
                         retblocks[func].append(CodeBlock(line, None, self.codeArea))
