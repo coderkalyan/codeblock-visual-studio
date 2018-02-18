@@ -5,6 +5,9 @@ from PyQt5.QtGui import QPainter, QFont, QColor, QImage
 from PyQt5.QtSvg import QSvgWidget
 import time
 
+class BlockIndexer:
+
+
 class AbstractDraggableBlock(QWidget):
     """
     A QWidget subclass that can be dragged around within its parent widget.
@@ -164,8 +167,6 @@ class CodeBlock(AbstractDraggableBlock):
         painter.drawChord(QRect(20*self.scale, -32*self.scale, 45*self.scale, 45*self.scale), 180*16, 180*16)
         painter.drawText(20*self.scale, (self.geometry().height()/2)*self.scale, self.text)
         painter.end()
-
-
 
 if __name__ == "__main__":
     app = QApplication([])
