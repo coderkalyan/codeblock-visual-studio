@@ -3,9 +3,9 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QApplication, QWidget, QFrame
 from PyQt5.QtSvg import QSvgWidget
 from mainwindow import MainWindow
-from collections import defaultdict
-import sys, inspect
-from modulefinder import  ModuleFinder
+import sys
+import inspect
+from modulefinder import ModuleFinder
 from blocks import *
 testvar = "hi"
 
@@ -19,12 +19,12 @@ class Main(MainWindow):
 
     def create_blocks(self, funcs):
         self.code_blocks = self.generate_code_blocks(funcs)
-        for k,v in self.function_blocks.items():
+        for k, v in self.function_blocks.items():
             v.attached = self.code_blocks[k][-1]
             v.attached.bourgeois = v
             v.raise_()
             self.code_blocks[k].append(v)
-        
+
         for i in list(self.function_blocks.values()):
             i.setGeometry(list(self.function_blocks.values()).index(i)*400, i.geometry().y(), i.geometry().width(), i.geometry().height())
             print(i, "eye")
@@ -36,7 +36,6 @@ class Main(MainWindow):
         # svgWidget = HatBlock("test", self.code_blocks['test'][-1], self.codeArea)
         # self.function_blocks.append(svgWidget)
         # svgWidget.show()
-
 
     def generate_function_blocks(self, funcs):
         f = 0
@@ -74,7 +73,6 @@ class Main(MainWindow):
                     f = f + 1
         return retblocks
 
-
     def get_imports(self, file):
         finder = ModuleFinder()
         finder.run_script(file)
@@ -101,7 +99,6 @@ class Main(MainWindow):
 
 
     def get_vars(self, file):
-        inherited = []
         defined = []
         try:
             importvar = __import__(file)

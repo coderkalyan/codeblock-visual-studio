@@ -1,12 +1,14 @@
 #!/usr/bin/python3
-from PyQt5.QtWidgets import QWidget, QApplication, QVBoxLayout
+from PyQt5.QtWidgets import QWidget, QApplication
 from PyQt5.QtCore import QRect, QPoint, QSize, Qt, pyqtSignal
 from PyQt5.QtGui import QPainter, QFont, QColor, QImage
 from PyQt5.QtSvg import QSvgWidget
 import time
 
+
 class BlockIndexer:
     pass
+
 
 class AbstractDraggableBlock(QWidget):
     """
@@ -59,8 +61,8 @@ class AbstractDraggableBlock(QWidget):
                                               self.attached.geometry().width(), self.attached.geometry().height())
                 self.attached.setGeometry(new_geometry_attached)
                 self.attached.moveChild()
-        
-        
+
+
 
     def mouseMoveEvent(self, event):
         if not self._dragging:
@@ -94,7 +96,18 @@ class AbstractDraggableBlock(QWidget):
             self.raise_()
 
 
+class ControlBlock(AbstractDraggableBlock):
+    """
+    A Control Block that has an area in between for code to go
+    """
+    def __init__(self, text, attached, parent, *args, **kwargs):
+        super().__init__(attached, parent=parent, *args, **kwargs)
+
+
 class HatBlock(AbstractDraggableBlock):
+    """
+    A HatBlock, meant to represent things such as functions/methods
+    """
     def __init__(self, text, attached, parent, *args, **kwargs):
         super().__init__(attached, parent=parent, *args, **kwargs)
         self.img = QImage("./blocks/hat.svg")
@@ -133,6 +146,9 @@ class HatBlock(AbstractDraggableBlock):
 
 
 class CodeBlock(AbstractDraggableBlock):
+    """
+    A puzzle-piece type CodeBlock meant to represent code in a program
+    """
     def __init__(self, text, attached, parent, *args, **kwargs):
         super().__init__(attached, parent=parent, *args, **kwargs)
         self.text = text
