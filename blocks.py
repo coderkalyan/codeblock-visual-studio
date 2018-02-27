@@ -188,7 +188,7 @@ class ControlBlock(AbstractDraggableBlock):
             20*self.scale,
             (self.geometry().height()/2)*self.scale,
             self.text)
-       painter.end()
+        painter.end()
 
 
 class HatBlock(AbstractDraggableBlock):
