@@ -5,7 +5,6 @@ from PyQt5.QtGui import QPainter, QFont, QColor, QImage
 from PyQt5.QtSvg import QSvgWidget
 import time
 
-
 class BlockIndexer:
     pass
 
@@ -13,7 +12,7 @@ class BlockIndexer:
 class AbstractDraggableBlock(QWidget):
     """
     A QWidget subclass that can be dragged around within its parent widget.
-    Note: Not intended to work if the parent widget has a layout (e.g. QVBoxLayout).
+    Note: Not intended to work if the parent widget has a layout
     """
 
     def __init__(self, attached, *args, **kwargs):
@@ -124,7 +123,7 @@ class ControlBlock(AbstractDraggableBlock):
         super().__init__(attached, parent=parent, *args, **kwargs)
         self.text = text
         self.scale = 1
-        self.setGeometry(0, 0, 200 * self.scale, 75 * self.scale)
+        self.setGeometry(0, 0, 200 * self.scale, 225 * self.scale)
         if self.attached is not None:
             new_geometry_attached = QRect(
                 self.geometry().x(),
@@ -139,7 +138,6 @@ class ControlBlock(AbstractDraggableBlock):
         painter.setPen(QColor("orange"))
         painter.setBrush(QColor("orange"))
         painter.setFont(QFont("Comic Sans MS", 15*self.scale))
-
         textsize = painter.boundingRect(
             self.geometry(), 1, self.text + "       ")
 
@@ -168,27 +166,27 @@ class ControlBlock(AbstractDraggableBlock):
             (self.geometry().height()/2)*self.scale,
             self.text)
 
-        painter.setPen(QColor("orange"))
+        painter.setPen(QColor("red"))
         painter.setBrush(QColor("orange"))
-
-        painter.drawRect(QRect(0, 0, rectwidth*self.scale, 45*self.scale))
+        painter.drawRect(QRect(0, 90, rectwidth*self.scale, 45*self.scale))
+        painter.setPen(QColor("orange"))
         painter.drawChord(
             QRect(
                 20*self.scale,
-                12*self.scale,
+                102*self.scale,
                 45*self.scale,
                 45*self.scale),
             180*16,
             180*16)
         painter.setBrush(QColor("white"))
         painter.setPen(QColor("white"))
-        painter.drawChord(QRect(20*self.scale, -32*self.scale,
+        painter.drawChord(QRect(20*self.scale, 58*self.scale,
                                 45*self.scale, 45*self.scale), 180*16, 180*16)
-        painter.drawText(
-            20*self.scale,
-            (self.geometry().height()/2)*self.scale,
-            self.text)
         painter.end()
+
+
+class ControlBlockTop(AbstractDraggableBlock):
+    pass
 
 
 class HatBlock(AbstractDraggableBlock):
@@ -290,8 +288,8 @@ class CodeBlock(AbstractDraggableBlock):
     def paintEvent(self, QPaintEvent):
         painter = QPainter()
         painter.begin(self)
-        painter.setPen(QColor("red"))
-        painter.setBrush(QColor("red"))
+        painter.setPen(QColor("#496BD3"))
+        painter.setBrush(QColor("#4A6CD4"))
         painter.setFont(QFont("Comic Sans MS", 15*self.scale))
 
         textsize = painter.boundingRect(
@@ -328,7 +326,7 @@ if __name__ == "__main__":
     app = QApplication([])
 
     w = QWidget()
-    label = HatBlock(parent=w)
+    label = ControlBlock("hi", None, parent=w)
     w.show()
     w.raise_()
 
