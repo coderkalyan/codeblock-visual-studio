@@ -117,11 +117,22 @@ class ControlBlockTop(AbstractDraggableBlock):
     """
     The top of the ControlBlock flow indicator
     """
-    def __init__(self, text, attached, parent, *args, **kwargs):
+    def __init__(self, text, attached, bar, bottom, parent, *args, **kwargs):
         super().__init__(attached, parent=parent, *args, **kwargs)
         self.text = text
         self.scale = 1
         self.setGeometry(0, 0, 200*self.scale, 60*self.scale)
+        self.bar = bar
+        self.bottom = bottom
+        # resize bottom block to be same width as top
+        self.bottom.setGeometry(self.bottom.geometry().x(),
+                                self.bottom.geometry().y(),
+                                self.geometry().width(),
+                                self.bottom.geometry().height())
+        self.bar.setGeometry(self.geometry().x(),
+                             self.geometry().y(),
+                             self.bar.geometry().width(),
+                             self.bottom.geometry().y() - self.geometry().y())
         if self.attached is not None:
             new_geometry_attached = QRect(
                 self.geometry().x(),
@@ -132,6 +143,7 @@ class ControlBlockTop(AbstractDraggableBlock):
             self.attached.setGeometry(new_geometry_attached)
 
     def paintEvent(self, QPaintEvent):
+        print("paintevent")
         painter = QPainter()
         painter.begin(self)
         painter.setPen(QColor("orange"))
@@ -168,25 +180,16 @@ class ControlBlockTop(AbstractDraggableBlock):
         painter.end()
 
 
-class CtrlBar:
+class CtrlBar(QWidget):
     """
     The bar to enclose the ControlBlock flow indicator on 3rd side.
     Will be used to show visually what blocks are in the flow loop.
     """
 
-    def __init__(self, text, attached, parent, *args, **kwargs):
-        super().__init__(attached, parent=parent, *args, **kwargs)
-        self.text = text
+    def __init__(self, parent, *args, **kwargs):
+        super().__init__(parent=parent, *args, **kwargs)
         self.scale = 1
-        self.setGeometry(0, 0, 200*self.scale, 60*self.scale)
-        if self.attached is not None:
-            new_geometry_attached = QRect(
-                self.geometry().x(),
-                self.geometry().y()+self.geometry().height()-17,
-                self.attached.geometry().width(),
-                self.attached.geometry().height())
-            print(self.geometry(), "NOOTO")
-            self.attached.setGeometry(new_geometry_attached)
+        self.setGeometry(0, 0, 20*self.scale, 200*self.scale)
 
     def paintEvent(self, QPaintEvent):
         painter = QPainter()
@@ -204,10 +207,10 @@ class CtrlBottom(AbstractDraggableBlock):
     (equivalent to "end" statements in some languages)
     """
 
-    def __init__(self, text, attached, parent, *args, **kwargs):
+    def __init__(self, width, attached, parent, *args, **kwargs):
         super().__init__(attached, parent=parent, *args, **kwargs)
-        self.text = text
         self.scale = 1
+        self.width = width
         self.setGeometry(0, 0, 200*self.scale, 60*self.scale)
         if self.attached is not None:
             new_geometry_attached = QRect(
@@ -221,21 +224,12 @@ class CtrlBottom(AbstractDraggableBlock):
     def paintEvent(self, QPaintEvent):
         painter = QPainter()
         painter.begin(self)
-        painter.setPen(QColor("#496BD3"))
-        painter.setBrush(QColor("#4A6CD4"))
+        painter.setPen(QColor("orange"))
+        painter.setBrush(QColor("orange"))
         painter.setFont(QFont("Comic Sans MS", 15*self.scale))
 
-        textsize = painter.boundingRect(
-            self.geometry(), 1, self.text + "       ")
-
-        if textsize.width() > 100:
-            rectwidth = textsize.width()
-            self.setFixedWidth(textsize.width())
-        else:
-            rectwidth = 100
-
         painter.setRenderHint(QPainter.Antialiasing)
-        painter.drawRect(QRect(0, 0, rectwidth*self.scale, 45*self.scale))
+        painter.drawRect(QRect(0, 0, self.width*self.scale, 45*self.scale))
         painter.drawChord(
             QRect(
                 20*self.scale,
@@ -248,10 +242,6 @@ class CtrlBottom(AbstractDraggableBlock):
         painter.setPen(QColor("white"))
         painter.drawChord(QRect(20*self.scale, -32*self.scale,
                                 45*self.scale, 45*self.scale), 180*16, 180*16)
-        painter.drawText(
-            20*self.scale,
-            (self.geometry().height()/2)*self.scale,
-            self.text)
         painter.end()
 
 
@@ -392,7 +382,10 @@ if __name__ == "__main__":
     app = QApplication([])
 
     w = QWidget()
-    label = ControlBlockTop("hi", None, parent=w)
+    l2 = CtrlBar(parent=w)
+    l3 = CtrlBottom(100, None, parent=w)
+    trivial = CodeBlock("hi", l3, parent=w)
+    label = ControlBlockTop("hi", trivial, l2, l3, parent=w)
     w.show()
     w.raise_()
 
