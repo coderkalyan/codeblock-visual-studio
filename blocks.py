@@ -16,12 +16,19 @@ class AbstractDraggableBlock(QWidget):
     """
 
     def __init__(self, attached, *args, **kwargs):
+        self.offset_attached = kwargs.pop('offset', 0)
         super().__init__(*args, **kwargs)
         self._dragging = False
         self.offset = QSize(
             self.geometry().width()/2,
             self.geometry().height()/2)
         self.attached = attached
+        if type(self.attached) == CtrlBottom:
+            self.offset_attached = -20
+            print(type(self.attached), "attached")
+        else:
+            print(type(self.attached), "attached not")
+        print(self.offset_attached, type(self.attached) == CtrlBottom)
         self.siblingcoords = {}
         # TODO: Find a way to only calculate this once instead of for every
         # instance for performance reasons
@@ -66,7 +73,7 @@ class AbstractDraggableBlock(QWidget):
         if self.attached is not None:
             for i in range(299):
                 new_geometry_attached = QRect(
-                    self.geometry().x(),
+                    self.geometry().x()+20,
                     self.geometry().y() + self.geometry().height() - 17,
                     self.attached.geometry().width(),
                     self.attached.geometry().height())
@@ -88,7 +95,7 @@ class AbstractDraggableBlock(QWidget):
         if self.attached is not None:
             for i in range(5):
                 new_geometry_attached = QRect(
-                    self.geometry().x(),
+                    self.geometry().x()+self.offset_attached,
                     self.geometry().y()+self.geometry().height()-17,
                     self.attached.geometry().width(),
                     self.attached.geometry().height())
@@ -99,7 +106,7 @@ class AbstractDraggableBlock(QWidget):
     def moveChild(self):
         if self.attached is not None:
             new_geometry_attached = QRect(
-                self.geometry().x(),
+                self.geometry().x()+self.offset_attached,
                 self.geometry().y()+self.geometry().height()-17,
                 self.attached.geometry().width(),
                 self.attached.geometry().height())
@@ -118,7 +125,7 @@ class ControlBlockTop(AbstractDraggableBlock):
     The top of the ControlBlock flow indicator
     """
     def __init__(self, text, attached, bar, bottom, parent, *args, **kwargs):
-        super().__init__(attached, parent=parent, *args, **kwargs)
+        super().__init__(attached, offset=20, parent=parent, *args, **kwargs)
         self.text = text
         self.scale = 1
         self.setGeometry(0, 0, 200*self.scale, 60*self.scale)
@@ -135,12 +142,40 @@ class ControlBlockTop(AbstractDraggableBlock):
                              self.bottom.geometry().y() - self.geometry().y())
         if self.attached is not None:
             new_geometry_attached = QRect(
-                self.geometry().x(),
+                self.geometry().x()+20,
                 self.geometry().y()+self.geometry().height()-17,
                 self.attached.geometry().width(),
                 self.attached.geometry().height())
             print(self.geometry(), "NOOTO")
             self.attached.setGeometry(new_geometry_attached)
+
+    def mouseMoveEvent(self, event):
+        if not self._dragging:
+            return
+
+        new_pos_global = event.globalPos()
+        globalMap = self.parent().mapFromGlobal(new_pos_global)
+        new_pos_within_parent = QPoint(
+            globalMap.x()-self.offset.width(),
+            globalMap.y()-self.offset.height())
+        new_geometry = QRect(new_pos_within_parent, self.geometry().size())
+        print(self.attached)
+        self.setGeometry(new_geometry)
+        if self.attached is not None:
+            for i in range(5):
+                new_geometry_attached = QRect(
+                    self.geometry().x()+self.offset_attached,
+                    self.geometry().y()+self.geometry().height()-17,
+                    self.attached.geometry().width(),
+                    self.attached.geometry().height())
+                print(self.attached.geometry(), "noo")
+                self.attached.setGeometry(new_geometry_attached)
+                self.attached.moveChild()
+        self.bar.setGeometry(self.geometry().x(),
+                             0,
+                             self.bar.geometry().width(),
+                             self.bottom.geometry().y()-self.geometry().y())
+        print(self.bar.geometry(), "barGeometry")
 
     def paintEvent(self, QPaintEvent):
         print("paintevent")
@@ -163,7 +198,7 @@ class ControlBlockTop(AbstractDraggableBlock):
         painter.drawRect(QRect(0, 0, rectwidth*self.scale, 45*self.scale))
         painter.drawChord(
             QRect(
-                20*self.scale,
+                40*self.scale,
                 12*self.scale,
                 45*self.scale,
                 45*self.scale),
@@ -189,7 +224,7 @@ class CtrlBar(QWidget):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent=parent, *args, **kwargs)
         self.scale = 1
-        self.setGeometry(0, 0, 20*self.scale, 200*self.scale)
+        self.setGeometry(10, 0, 20*self.scale, 200*self.scale)
 
     def paintEvent(self, QPaintEvent):
         painter = QPainter()
@@ -240,7 +275,7 @@ class CtrlBottom(AbstractDraggableBlock):
             180*16)
         painter.setBrush(QColor("white"))
         painter.setPen(QColor("white"))
-        painter.drawChord(QRect(20*self.scale, -32*self.scale,
+        painter.drawChord(QRect(40*self.scale, -32*self.scale,
                                 45*self.scale, 45*self.scale), 180*16, 180*16)
         painter.end()
 
