@@ -131,11 +131,8 @@ class ControlBlockTop(AbstractDraggableBlock):
         self.setGeometry(0, 0, 200*self.scale, 60*self.scale)
         self.bar = bar
         self.bottom = bottom
-        # resize bottom block to be same width as top
-        self.bottom.setGeometry(self.bottom.geometry().x(),
-                                self.bottom.geometry().y(),
-                                self.geometry().width(),
-                                self.bottom.geometry().height())
+
+        print("resize")
         self.bar.setGeometry(self.geometry().x(),
                              self.geometry().y(),
                              self.bar.geometry().width(),
@@ -194,8 +191,12 @@ class ControlBlockTop(AbstractDraggableBlock):
         else:
             rectwidth = 100
 
+        print(rectwidth, "wid2")
         painter.setRenderHint(QPainter.Antialiasing)
         painter.drawRect(QRect(0, 0, rectwidth*self.scale, 45*self.scale))
+        #resize bottom block
+        self.bottom.width = rectwidth
+        self.bottom.resize(rectwidth, self.bottom.height())
         painter.drawChord(
             QRect(
                 40*self.scale,
@@ -263,6 +264,7 @@ class CtrlBottom(AbstractDraggableBlock):
         painter.setBrush(QColor("orange"))
         painter.setFont(QFont("Comic Sans MS", 15*self.scale))
 
+        print(self.width, "selfidth")
         painter.setRenderHint(QPainter.Antialiasing)
         painter.drawRect(QRect(0, 0, self.width*self.scale, 45*self.scale))
         painter.drawChord(
@@ -420,7 +422,8 @@ if __name__ == "__main__":
     l2 = CtrlBar(parent=w)
     l3 = CtrlBottom(100, None, parent=w)
     trivial = CodeBlock("hi", l3, parent=w)
-    label = ControlBlockTop("hi", trivial, l2, l3, parent=w)
+    trivial2 = CodeBlock("hi again", trivial, parent=w)
+    label = ControlBlockTop("if song == Never Gonna Give You Up:", trivial2, l2, l3, parent=w)
     w.show()
     w.raise_()
 
