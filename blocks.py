@@ -172,8 +172,8 @@ class ControlBlockTop(AbstractDraggableBlock):
                 self.attached.setGeometry(new_geometry_attached)
                 self.attached.moveChild()
         self.bar.setGeometry(self.geometry().x(),
-                             0,
-                             self.bar.geometry().width(),
+                             self.geometry().y(),
+                             self.geometry().x()+20,
                              self.bottom.geometry().y()-self.geometry().y())
         print(self.bar.geometry(), "barGeometry")
 
@@ -231,7 +231,7 @@ class CtrlBar(QWidget):
         painter.begin(self)
         painter.setPen(QColor("orange"))
         painter.setBrush(QColor("orange"))
-        painter.drawRect(self.geometry())
+        painter.drawRect(0, 0, 20, self.geometry().height())
         painter.end()
 
 
