@@ -13,7 +13,8 @@ class Main(MainWindow):
     def __init__(self):
         super().__init__()
         # print(self.get_vars("mainwindow.MainWindow"))
-        funcs = self.get_functions("blocks.AbstractDraggableBlock")
+        funcs = self.get_functions("example.MainWindow")
+        print(funcs, "function_list")
         self.function_blocks = self.generate_function_blocks(funcs)
         self.create_blocks(funcs)
 
