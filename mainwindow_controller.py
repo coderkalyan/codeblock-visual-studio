@@ -14,7 +14,8 @@ class Main(MainWindow):
         super().__init__()
         # print(self.get_vars("mainwindow.MainWindow"))
         funcs = self.get_functions("example.MainWindow")
-        print(funcs, "function_list")
+        print(funcs.values(), "valuez")
+        print([s for s in funcs if "_" in s], "function_list")
         self.function_blocks = self.generate_function_blocks(funcs)
         self.create_blocks(funcs)
 
@@ -94,6 +95,7 @@ class Main(MainWindow):
             if inspect.isroutine(getattr(dirvar, i)):
                 try:
                     functions[i] = inspect.getsource(getattr(dirvar, i)).splitlines()
+                    print([s for s in functions[i] if "            " in s], "function_list")
                 except TypeError:
                     pass
         return functions
