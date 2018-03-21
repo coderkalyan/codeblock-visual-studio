@@ -14,8 +14,8 @@ class BasicBlock(QWidget):
 
         self.content = content
         self.child = None
-        self.child_pos = []
-        self.text_size = 15
+        self.parent = None
+        self.text_size = 50
         self.dragging = -10
         self.width = 100
         self.height = 100
@@ -35,9 +35,9 @@ class BasicBlock(QWidget):
         metric = QFontMetrics(font)
         text_width = QFontMetrics.width(metric, new_content)
         self.width = text_width
-        self.height = metric.height()
+        #self.height = metric.height()
         cur_geom = self.geometry()
-        self.setGeometry(cur_geom.x(), cur_geom.y(), text_width, self.text_size)
+        self.setGeometry(cur_geom.x(), cur_geom.y(), text_width, 15)
 
     def move(self, delta_x, delta_y):
         """
@@ -63,6 +63,7 @@ class BasicBlock(QWidget):
 
     def attach_child(self, child):
         self.child = child
+        self.child.parent = self
         temp = self.child.geometry()
         cur = self.geometry()
         print(self.height)
@@ -70,12 +71,25 @@ class BasicBlock(QWidget):
                                cur.y() + self.height + temp.height())
         # self.child.setParent(self)
 
+    def detach_child(self):
+        if self.child is None:
+            return
+        self.child.parent = None
+        self.child = None
+
+    def detach_parent(self):
+        if self.parent is None:
+            return
+
+        self.parent.child = None
+        self.parent = None
+
     def paintEvent(self, QPaintEvent):
         painter = QPainter()
         painter.begin(self)
         painter.setPen(QColor(self.color))
         painter.setBrush(QColor(self.color))
-        painter.setFont(QFont("Comic Sans MS", 15))
+        painter.setFont(QFont("times", 50))
         painter.setRenderHint(QPainter.Antialiasing)
 
         geom = self.geometry()
@@ -97,6 +111,11 @@ class BasicBlock(QWidget):
             return
 
         pos = self.mapToGlobal(event.pos() - self.dragging)
+        deltax = abs(self.geometry().x() - self.drag_geom.x())
+        deltay = abs(self.geometry().y() - self.drag_geom.y())
+        print(deltax, deltay)
+        if deltax > 10 or deltay > 10:
+            self.detach_parent()
         posx = pos.x()
         posy = pos.y()
         cur = self
@@ -110,12 +129,12 @@ class CodeBlock(BasicBlock):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.color = "blue"
-        font = QFont("times", 24)
+        # self.color = "blue"
+        font = QFont("Comic Sans MS", 15)
         metric = QFontMetrics(font)
-        self.width = QFontMetrics.width(metric, self.content)
-        self.height = metric.height()
-        self.text_size = 15
+        self.width = QFontMetrics.width(metric, self.content) + 30
+        self.height = metric.height() + 15
+        self.text_size = 50
 
         temp = self.geometry()
         self.setGeometry(temp.x(), temp.y(), temp.x() + self.width, temp.y() + self.height)
@@ -130,6 +149,13 @@ class CodeBlock(BasicBlock):
 
         geom = self.geometry()
         painter.drawRect(QRect(0, 0, geom.width() - geom.x(), geom.height() - geom.y()))
+        #painter.setPen(QColor("red"))
+        #painter.setBrush(QColor("red"))
+        #self.content = 'print("Hello, World!")'
+        #painter.drawText(0, 30, self.content)
+        painter.setBrush(QColor("white"))
+        painter.setPen(QColor("white"))
+        painter.drawText(10, 25, self.content)
         painter.end()
 
 
