@@ -7,7 +7,7 @@ from PyQt5.QtGui import QPainter, QFont, QColor, QImage, QFontMetrics
 from PyQt5.QtSvg import QSvgWidget
 import time
 
-
+blocks = []
 class BasicBlock(QWidget):
     def __init__(self, content='print("Hello, World")', *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -23,6 +23,8 @@ class BasicBlock(QWidget):
 
         temp = self.geometry()
         self.setGeometry(temp.x(), temp.y(), temp.x() + self.width, temp.y() + self.height)
+
+        blocks.append(self)
 
     @property
     def content(self):
@@ -59,16 +61,16 @@ class BasicBlock(QWidget):
         """
 
         geom = self.geometry()
-        self.setGeometry(x, y, self.width + x, y + self.height)
+        print(self.height)
+        self.setGeometry(x, y, self.width, self.height)
 
     def attach_child(self, child):
         self.child = child
         self.child.parent = self
         temp = self.child.geometry()
         cur = self.geometry()
-        print(self.height)
-        self.child.setGeometry(cur.x(), cur.y() + self.height, cur.x() + temp.width(),
-                               cur.y() + self.height + temp.height())
+        self.child.setGeometry(cur.x(), cur.y() + self.height - 15, cur.x() + temp.width(),
+                               self.height + temp.height() - 15)
         # self.child.setParent(self)
 
     def detach_child(self):
@@ -99,12 +101,11 @@ class BasicBlock(QWidget):
     def mousePressEvent(self, event):
         self.dragging = self.mapToGlobal(event.pos())
         self.drag_geom = (self.pos())
-        print(self.drag_geom)
 
     def move_recurse(self, x, y):
         self.move_to(x, y)
         if self.child is not None:
-            self.child.move_recurse(x, y + self.height)
+            self.child.move_recurse(x, y + self.geometry().height() - 14)
 
     def mouseMoveEvent(self, event):
         if self.dragging == -10:
@@ -113,13 +114,15 @@ class BasicBlock(QWidget):
         pos = self.mapToGlobal(event.pos() - self.dragging)
         deltax = abs(self.geometry().x() - self.drag_geom.x())
         deltay = abs(self.geometry().y() - self.drag_geom.y())
-        print(deltax, deltay)
         if deltax > 10 or deltay > 10:
             self.detach_parent()
+
         posx = pos.x()
         posy = pos.y()
         cur = self
         self.move_recurse(self.drag_geom.x() + posx, self.drag_geom.y() + posy)
+
+
 
     def mouseReleaseEvent(self, event):
         self.dragging = -10
@@ -129,15 +132,16 @@ class CodeBlock(BasicBlock):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # self.color = "blue"
+        self.color = "#496BD3"
         font = QFont("Comic Sans MS", 15)
         metric = QFontMetrics(font)
         self.width = QFontMetrics.width(metric, self.content) + 30
-        self.height = metric.height() + 15
+        self.height = metric.height() + 30
         self.text_size = 50
 
         temp = self.geometry()
-        self.setGeometry(temp.x(), temp.y(), temp.x() + self.width, temp.y() + self.height)
+        self.setGeometry(temp.x(), temp.y(), temp.x() + self.width, self.height)
+        self.repaint()
 
     def paintEvent(self, QPaintEvent):
         painter = QPainter()
@@ -146,16 +150,14 @@ class CodeBlock(BasicBlock):
         painter.setBrush(QColor(self.color))
         painter.setFont(QFont("Comic Sans MS", 15))
         painter.setRenderHint(QPainter.Antialiasing)
-
+        #painter.drawRoundedRect(0, 5, self.geometry().width() - 5, self.geometry().height() - 7, 3, 3)
+        painter.drawChord(QRect(20, 0, 45, 45), 180 * 16, 180 * 16)
         geom = self.geometry()
-        painter.drawRect(QRect(0, 0, geom.width() - geom.x(), geom.height() - geom.y()))
-        #painter.setPen(QColor("red"))
-        #painter.setBrush(QColor("red"))
-        #self.content = 'print("Hello, World!")'
-        #painter.drawText(0, 30, self.content)
+        painter.drawRoundedRect(QRect(0, 0, geom.width(), geom.height() - 15), 3, 3)
         painter.setBrush(QColor("white"))
         painter.setPen(QColor("white"))
         painter.drawText(10, 25, self.content)
+        painter.drawChord(QRect(20, -39, 45, 45), 180 * 16, 180 * 16)
         painter.end()
 
 
@@ -582,6 +584,7 @@ if __name__ == "__main__":
     w = QWidget()
     w.setMinimumWidth(500)
     w.setMinimumHeight(500)
+    w.setStyleSheet("background-color:white")
     # l2 = CtrlBar(parent=w)
     # l3 = CtrlBottom(100, None, parent=w)
     # trivial = CodeBlock("hi", l3, parent=w)
@@ -592,16 +595,18 @@ if __name__ == "__main__":
     # trivial2 = CodeBlock("hi", trivial1, parent=w)
     # trivial3 = CodeBlock("hi", trivial2, parent=w)
     # trivial4 = HatBlock("hi", trivial3, parent=w)
-    b1 = CodeBlock(parent=w)
-    b2 = CodeBlock(parent=w)
-    b3 = CodeBlock(parent=w)
-    b4 = CodeBlock(parent=w)
     b5 = CodeBlock(parent=w)
+    b4 = CodeBlock(parent=w)
+    b3 = CodeBlock(parent=w)
+    b2 = CodeBlock(parent=w)
+    b1 = CodeBlock(parent=w)
     # b2.move(0,45)
     b1.attach_child(b2)
     b2.attach_child(b3)
     b3.attach_child(b4)
     b4.attach_child(b5)
+
+    b1.move_recurse(20, 20)
     # b1.move(20, 20)
 
     w.show()
