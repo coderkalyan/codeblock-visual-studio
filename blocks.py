@@ -151,13 +151,13 @@ class CodeBlock(BasicBlock):
         painter.setFont(QFont("Comic Sans MS", 15))
         painter.setRenderHint(QPainter.Antialiasing)
         #painter.drawRoundedRect(0, 5, self.geometry().width() - 5, self.geometry().height() - 7, 3, 3)
-        painter.drawChord(QRect(20, 0, 45, 45), 180 * 16, 180 * 16)
+        painter.drawChord(QRect(20, 9, 45, 45), 180 * 16, 180 * 16)
         geom = self.geometry()
         painter.drawRoundedRect(QRect(0, 0, geom.width(), geom.height() - 15), 3, 3)
         painter.setBrush(QColor("white"))
         painter.setPen(QColor("white"))
         painter.drawText(10, 25, self.content)
-        painter.drawChord(QRect(20, -39, 45, 45), 180 * 16, 180 * 16)
+        painter.drawChord(QRect(20, -37, 45, 45), 180 * 16, 180 * 16)
         painter.end()
 
 
