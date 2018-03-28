@@ -19,6 +19,7 @@ class BasicBlock(QWidget):
         self.dragging = -10
         self.width = 100
         self.height = 100
+        self.attaches = True
         self.color = random.choice(["red", "orange", "yellow", "green", "blue"])
 
         temp = self.geometry()
@@ -157,9 +158,44 @@ class CodeBlock(BasicBlock):
         painter.setBrush(QColor("white"))
         painter.setPen(QColor("white"))
         painter.drawText(10, 25, self.content)
-        painter.drawChord(QRect(20, -37, 45, 45), 180 * 16, 180 * 16)
+        painter.drawChord(QRect(20, -30, 45, 45), 180 * 16, 180 * 16)
         painter.end()
 
+
+class CapBlock(BasicBlock):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.color = "dark green"
+        font = QFont("Comic Sans MS", 15)
+        metric = QFontMetrics(font)
+        self.width = QFontMetrics.width(metric, self.content) + 30
+        self.height = metric.height() + 50
+        self.text_size = 50
+        self.attaches = False
+
+        temp = self.geometry()
+        self.setGeometry(temp.x(), temp.y(), temp.x() + self.width, self.height)
+        self.repaint()
+
+    def paintEvent(self, QPaintEvent):
+        painter = QPainter()
+        painter.begin(self)
+        painter.setPen(QColor(self.color))
+        painter.setBrush(QColor(self.color))
+        painter.setFont(QFont("Comic Sans MS", 15))
+        painter.setRenderHint(QPainter.Antialiasing)
+        painter.drawRoundedRect(0, 28, self.geometry().width(), self.geometry().height() - 37, 3, 3)
+        painter.drawChord(QRect(0, 0, self.width, 60), 0 * 16, 180 * 16)
+        geom = self.geometry()
+        painter.setBrush(QColor("red"))
+        painter.drawChord(QRect(20, 30, 45, 45), 180 * 16, 180 * 16)
+        #painter.drawRoundedRect(QRect(0, 20, geom.width(), geom.height() - 15), 3, 3)
+        painter.setBrush(QColor("white"))
+        painter.setPen(QColor("white"))
+        # painter.drawChord(QRect(20, 60, 45, 45), 180 * 16, 180 * 16)
+        painter.drawText(10, 50, self.content)
+        painter.end()
 
 class AbstractDraggableBlock(QWidget):
     """
@@ -522,61 +558,61 @@ class HatBlock(AbstractDraggableBlock):
         painter.end()
 
 
-"""class CodeBlock(AbstractDraggableBlock):
-"""
-    #A puzzle-piece type CodeBlock meant to represent code in a program
-"""
+# class CodeBlock(AbstractDraggableBlock):
+# """
+#     #A puzzle-piece type CodeBlock meant to represent code in a program
+# """
+#
+#     def __init__(self, text, attached, parent, *args, **kwargs):
+#         super().__init__(attached, parent=parent, *args, **kwargs)
+#         self.text = text
+#         self.scale = 1
+#         self.setGeometry(0, 0, 200 * self.scale, 60 * self.scale)
+#         if self.attached is not None:
+#             new_geometry_attached = QRect(
+#                 self.geometry().x(),
+#                 self.geometry().y() + self.geometry().height() - 17,
+#                 self.attached.geometry().width(),
+#                 self.attached.geometry().height())
+#             print(self.geometry(), "NOOTO")
+#             self.attached.setGeometry(new_geometry_attached)
+#
+#     def paintEvent(self, QPaintEvent):
+#         painter = QPainter()
+#         painter.begin(self)
+#         painter.setPen(QColor("#496BD3"))
+#         painter.setBrush(QColor("#4A6CD4"))
+#         painter.setFont(QFont("Comic Sans MS", 15 * self.scale))
+#
+#         textsize = painter.boundingRect(
+#             self.geometry(), 1, self.text + "       ")
+#
+#         if textsize.width() > 100:
+#             rectwidth = textsize.width()
+#             self.setFixedWidth(textsize.width())
+#         else:
+#             rectwidth = 100
+#
+#         painter.setRenderHint(QPainter.Antialiasing)
+#         painter.drawRect(QRect(0, 0, rectwidth * self.scale, 45 * self.scale))
+#         painter.drawChord(
+#             QRect(
+#                 20 * self.scale,
+#                 12 * self.scale,
+#                 45 * self.scale,
+#                 45 * self.scale),
+#             180 * 16,
+#             180 * 16)
+#         painter.setBrush(QColor("white"))
+#         painter.setPen(QColor("white"))
+#         painter.drawChord(QRect(20 * self.scale, -32 * self.scale,
+#                                 45 * self.scale, 45 * self.scale), 180 * 16, 180 * 16)
+#         painter.drawText(
+#             20 * self.scale,
+#             (self.geometry().height() / 2) * self.scale,
+#             self.text)
+#         painter.end()
 
-    def __init__(self, text, attached, parent, *args, **kwargs):
-        super().__init__(attached, parent=parent, *args, **kwargs)
-        self.text = text
-        self.scale = 1
-        self.setGeometry(0, 0, 200 * self.scale, 60 * self.scale)
-        if self.attached is not None:
-            new_geometry_attached = QRect(
-                self.geometry().x(),
-                self.geometry().y() + self.geometry().height() - 17,
-                self.attached.geometry().width(),
-                self.attached.geometry().height())
-            print(self.geometry(), "NOOTO")
-            self.attached.setGeometry(new_geometry_attached)
-
-    def paintEvent(self, QPaintEvent):
-        painter = QPainter()
-        painter.begin(self)
-        painter.setPen(QColor("#496BD3"))
-        painter.setBrush(QColor("#4A6CD4"))
-        painter.setFont(QFont("Comic Sans MS", 15 * self.scale))
-
-        textsize = painter.boundingRect(
-            self.geometry(), 1, self.text + "       ")
-
-        if textsize.width() > 100:
-            rectwidth = textsize.width()
-            self.setFixedWidth(textsize.width())
-        else:
-            rectwidth = 100
-
-        painter.setRenderHint(QPainter.Antialiasing)
-        painter.drawRect(QRect(0, 0, rectwidth * self.scale, 45 * self.scale))
-        painter.drawChord(
-            QRect(
-                20 * self.scale,
-                12 * self.scale,
-                45 * self.scale,
-                45 * self.scale),
-            180 * 16,
-            180 * 16)
-        painter.setBrush(QColor("white"))
-        painter.setPen(QColor("white"))
-        painter.drawChord(QRect(20 * self.scale, -32 * self.scale,
-                                45 * self.scale, 45 * self.scale), 180 * 16, 180 * 16)
-        painter.drawText(
-            20 * self.scale,
-            (self.geometry().height() / 2) * self.scale,
-            self.text)
-        painter.end()
-"""
 
 if __name__ == "__main__":
     app = QApplication([])
@@ -595,18 +631,21 @@ if __name__ == "__main__":
     # trivial2 = CodeBlock("hi", trivial1, parent=w)
     # trivial3 = CodeBlock("hi", trivial2, parent=w)
     # trivial4 = HatBlock("hi", trivial3, parent=w)
+    b6 = CapBlock(parent=w)
     b5 = CodeBlock(parent=w)
     b4 = CodeBlock(parent=w)
     b3 = CodeBlock(parent=w)
     b2 = CodeBlock(parent=w)
     b1 = CodeBlock(parent=w)
     # b2.move(0,45)
+
+    b6.attach_child(b1)
     b1.attach_child(b2)
     b2.attach_child(b3)
     b3.attach_child(b4)
     b4.attach_child(b5)
 
-    b1.move_recurse(20, 20)
+    b6.move_recurse(20, 20)
     # b1.move(20, 20)
 
     w.show()
