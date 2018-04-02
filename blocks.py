@@ -170,7 +170,7 @@ class CapBlock(BasicBlock):
         font = QFont("Comic Sans MS", 15)
         metric = QFontMetrics(font)
         self.width = QFontMetrics.width(metric, self.content) + 30
-        self.height = metric.height() + 50
+        self.height = metric.height() + 57
         self.text_size = 50
         self.attaches = False
 
@@ -185,11 +185,10 @@ class CapBlock(BasicBlock):
         painter.setBrush(QColor(self.color))
         painter.setFont(QFont("Comic Sans MS", 15))
         painter.setRenderHint(QPainter.Antialiasing)
-        painter.drawRoundedRect(0, 28, self.geometry().width(), self.geometry().height() - 37, 3, 3)
-        painter.drawChord(QRect(0, 0, self.width, 60), 0 * 16, 180 * 16)
+        painter.drawRoundedRect(0, 30, self.geometry().width(), 40, 3, 3)
+        painter.drawChord(QRect(0, 5, self.width, 60), 0 * 16, 180 * 16)
         geom = self.geometry()
-        painter.setBrush(QColor("red"))
-        painter.drawChord(QRect(20, 30, 45, 45), 180 * 16, 180 * 16)
+        painter.drawChord(QRect(20, 35, 45, 45), 180 * 16, 180 * 16)
         #painter.drawRoundedRect(QRect(0, 20, geom.width(), geom.height() - 15), 3, 3)
         painter.setBrush(QColor("white"))
         painter.setPen(QColor("white"))
@@ -632,18 +631,18 @@ if __name__ == "__main__":
     # trivial3 = CodeBlock("hi", trivial2, parent=w)
     # trivial4 = HatBlock("hi", trivial3, parent=w)
     b6 = CapBlock(parent=w)
-    b5 = CodeBlock(parent=w)
-    b4 = CodeBlock(parent=w)
-    b3 = CodeBlock(parent=w)
-    b2 = CodeBlock(parent=w)
-    b1 = CodeBlock(parent=w)
-    # b2.move(0,45)
+    # b5 = CodeBlock(parent=w)
+    # b4 = CodeBlock(parent=w)
+    # b3 = CodeBlock(parent=w)
+    # b2 = CodeBlock(parent=w)
+    # b1 = CodeBlock(parent=w)
+    # # b2.move(0,45)
 
-    b6.attach_child(b1)
-    b1.attach_child(b2)
-    b2.attach_child(b3)
-    b3.attach_child(b4)
-    b4.attach_child(b5)
+    #b6.attach_child(b1)
+    # b1.attach_child(b2)
+    # b2.attach_child(b3)
+    # b3.attach_child(b4)
+    # b4.attach_child(b5)
 
     b6.move_recurse(20, 20)
     # b1.move(20, 20)
