@@ -106,7 +106,7 @@ class BasicBlock(QWidget):
     def move_recurse(self, x, y):
         self.move_to(x, y)
         if self.child is not None:
-            self.child.move_recurse(x, y + self.geometry().height() - 14)
+            self.child.move_recurse(x, y + self.geometry().height() - 15)
 
     def mouseMoveEvent(self, event):
         if self.dragging == -10:
@@ -158,7 +158,7 @@ class CodeBlock(BasicBlock):
         painter.setBrush(QColor("white"))
         painter.setPen(QColor("white"))
         painter.drawText(10, 25, self.content)
-        painter.drawChord(QRect(20, -30, 45, 45), 180 * 16, 180 * 16)
+        painter.drawChord(QRect(20, -37, 45, 45), 180 * 16, 180 * 16)
         painter.end()
 
 
@@ -629,16 +629,16 @@ if __name__ == "__main__":
     # trivial1 = CodeBlock("hi", trivial, parent=w)
     # trivial2 = CodeBlock("hi", trivial1, parent=w)
     # trivial3 = CodeBlock("hi", trivial2, parent=w)
+    b1 = CodeBlock(parent=w)
     # trivial4 = HatBlock("hi", trivial3, parent=w)
     b6 = CapBlock(parent=w)
     # b5 = CodeBlock(parent=w)
     # b4 = CodeBlock(parent=w)
     # b3 = CodeBlock(parent=w)
     # b2 = CodeBlock(parent=w)
-    # b1 = CodeBlock(parent=w)
     # # b2.move(0,45)
 
-    #b6.attach_child(b1)
+    b6.attach_child(b1)
     # b1.attach_child(b2)
     # b2.attach_child(b3)
     # b3.attach_child(b4)
