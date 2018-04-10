@@ -130,13 +130,16 @@ class BasicBlock(QWidget):
 
 
 class CodeBlock(BasicBlock):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, text, *args, **kwargs):
+        super().__init__(text, *args, **kwargs)
 
         self.color = "#496BD3"
         font = QFont("Comic Sans MS", 15)
         metric = QFontMetrics(font)
-        self.width = QFontMetrics.width(metric, self.content) + 30
+        if QFontMetrics.width(metric, self.content) + 30 > 100:
+            self.width = QFontMetrics.width(metric, self.content) + 30
+        else:
+            self.width = 150
         self.height = metric.height() + 30
         self.text_size = 50
 
@@ -169,8 +172,11 @@ class CapBlock(BasicBlock):
         self.color = "dark green"
         font = QFont("Comic Sans MS", 15)
         metric = QFontMetrics(font)
-        self.width = QFontMetrics.width(metric, self.content) + 30
         self.height = metric.height() + 57
+        if QFontMetrics.width(metric, self.content) + 30 > 100:
+            self.width = QFontMetrics.width(metric, self.content) + 30
+        else:
+            self.width = 150
         self.text_size = 50
         self.attaches = False
 
@@ -629,20 +635,20 @@ if __name__ == "__main__":
     # trivial1 = CodeBlock("hi", trivial, parent=w)
     # trivial2 = CodeBlock("hi", trivial1, parent=w)
     # trivial3 = CodeBlock("hi", trivial2, parent=w)
-    b1 = CodeBlock(parent=w)
+    b1 = CodeBlock("test", parent=w)
+    b5 = CodeBlock("test2", parent=w)
+    b4 = CodeBlock("test3", parent=w)
+    b3 = CodeBlock("test4", parent=w)
+    b2 = CodeBlock("test5", parent=w)
     # trivial4 = HatBlock("hi", trivial3, parent=w)
-    b6 = CapBlock(parent=w)
-    # b5 = CodeBlock(parent=w)
-    # b4 = CodeBlock(parent=w)
-    # b3 = CodeBlock(parent=w)
-    # b2 = CodeBlock(parent=w)
+    b6 = CapBlock("test6", parent=w)
     # # b2.move(0,45)
 
     b6.attach_child(b1)
-    # b1.attach_child(b2)
-    # b2.attach_child(b3)
-    # b3.attach_child(b4)
-    # b4.attach_child(b5)
+    b1.attach_child(b2)
+    b2.attach_child(b3)
+    b3.attach_child(b4)
+    b4.attach_child(b5)
 
     b6.move_recurse(20, 20)
     # b1.move(20, 20)
