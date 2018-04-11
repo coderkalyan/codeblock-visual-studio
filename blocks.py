@@ -652,7 +652,13 @@ if __name__ == "__main__":
 
     b6.move_recurse(20, 20)
     # b1.move(20, 20)
-
+    test = []
+    for i in range(15):
+        test.append(CodeBlock("test", parent=w))
+        if i != 0:
+            test[i-1].attach_child(test[i])
+    #for j in range(len(test)):
+    #    test[j].attach_child(test[j-1])
     w.show()
     w.raise_()
 
