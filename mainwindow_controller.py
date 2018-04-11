@@ -28,11 +28,6 @@ class Main(MainWindow):
         for i in list(self.function_blocks.values()):
             i.setGeometry(list(self.function_blocks.values()).index(i)*400, i.geometry().y(), i.geometry().width(), i.geometry().height())
             print(i, "eye")
-            for j in range(199):
-                if i.attached is not None:
-                    print(i.attached, "eye")
-                    i.attached.setGeometry(i.geometry().x(), i.geometry().y()+i.geometry().height()-17, i.attached.geometry().width(), i.attached.geometry().height())
-                    i.attached.moveChild()
         # svgWidget = HatBlock("test", self.code_blocks['test'][-1], self.codeArea)
         # self.function_blocks.append(svgWidget)
         # svgWidget.show()
@@ -45,9 +40,9 @@ class Main(MainWindow):
             print(func_def[0].strip(), "YEEEE")
             if func != "":
                 if "def " in func_def[0].strip():
-                    retblocks[func] = HatBlock(func_def[0].strip(), None, self.codeArea)
+                    retblocks[func] = CapBlock(func_def[0].strip(), parent=self.codeArea)
                 else:
-                    retblocks[func] = HatBlock(func_def[1].strip(), None, self.codeArea)
+                    retblocks[func] = HatBlock(func_def[1].strip(), parent=self.codeArea)
             f = f + 1
         return retblocks
 
@@ -65,12 +60,11 @@ class Main(MainWindow):
             retblocks[func] = []
             for line in code:
                 if func != "" and "def " not in line:
-                    if f == 0:
-                        retblocks[func].append(CodeBlock(line, None, self.codeArea))
-                    else:
-                        retblocks[func].append(CodeBlock(line, retblocks[func][f-1], self.codeArea))
-                        print(len(retblocks), " yes")
-                    f = f + 1
+                    retblocks[func].append(CodeBlock(line, parent=self.codeArea))
+                    if f !=0:
+                        retblocks[func][f].attach_child(retblocks[func][f-1])
+                        f = f + 1
+                print(retblocks, "retblox")
         return retblocks
 
     def get_imports(self, file):
