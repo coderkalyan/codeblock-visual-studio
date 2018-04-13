@@ -19,14 +19,15 @@ class Main(MainWindow):
 
     def create_blocks(self, funcs):
         self.code_blocks = self.generate_code_blocks(funcs)
+        print(self.function_blocks.items(), "itemz")
         for k, v in self.function_blocks.items():
-            v.attached = self.code_blocks[k][-1]
-            v.attached.bourgeois = v
-            v.raise_()
+            print(v, self.code_blocks[k][-1].content, "attach_child")
+            v.attach_child(self.code_blocks[k][0])
+            v.raiseEvent()
             self.code_blocks[k].append(v)
 
         for i in list(self.function_blocks.values()):
-            i.setGeometry(list(self.function_blocks.values()).index(i)*400, i.geometry().y(), i.geometry().width(), i.geometry().height())
+            i.move_recurse(list(self.function_blocks.values()).index(i)*400, i.geometry().y())
             print(i, "eye")
         # svgWidget = HatBlock("test", self.code_blocks['test'][-1], self.codeArea)
         # self.function_blocks.append(svgWidget)
@@ -42,7 +43,7 @@ class Main(MainWindow):
                 if "def " in func_def[0].strip():
                     retblocks[func] = CapBlock(func_def[0].strip(), parent=self.codeArea)
                 else:
-                    retblocks[func] = HatBlock(func_def[1].strip(), parent=self.codeArea)
+                    retblocks[func] = CapBlock(func_def[1].strip(), parent=self.codeArea)
             f = f + 1
         return retblocks
 

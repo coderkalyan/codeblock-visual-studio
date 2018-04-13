@@ -24,6 +24,7 @@ class BasicBlock(QWidget):
 
         temp = self.geometry()
         self.setGeometry(temp.x(), temp.y(), temp.x() + self.width, temp.y() + self.height)
+        self.raiseEvent()
 
         blocks.append(self)
 
@@ -73,6 +74,7 @@ class BasicBlock(QWidget):
         self.child.setGeometry(cur.x(), cur.y() + self.height - 15, cur.x() + temp.width(),
                                self.height + temp.height() - 15)
         # self.child.setParent(self)
+        self.raiseEvent()
 
     def detach_child(self):
         if self.child is None:
@@ -102,6 +104,7 @@ class BasicBlock(QWidget):
     def mousePressEvent(self, event):
         self.dragging = self.mapToGlobal(event.pos())
         self.drag_geom = (self.pos())
+        self.raiseEvent()
 
     def move_recurse(self, x, y):
         self.move_to(x, y)
@@ -123,11 +126,14 @@ class BasicBlock(QWidget):
         cur = self
         self.move_recurse(self.drag_geom.x() + posx, self.drag_geom.y() + posy)
 
-
-
     def mouseReleaseEvent(self, event):
         self.dragging = -10
 
+    def raiseEvent(self):
+        self.raise_()
+        if self.child is not None:
+            self.child.raiseEvent()
+            self.raise_()
 
 class CodeBlock(BasicBlock):
     def __init__(self, text, *args, **kwargs):
@@ -644,19 +650,19 @@ if __name__ == "__main__":
     b6 = CapBlock("test6", parent=w)
     # # b2.move(0,45)
 
-    b6.attach_child(b1)
     b1.attach_child(b2)
     b2.attach_child(b3)
     b3.attach_child(b4)
     b4.attach_child(b5)
 
-    b6.move_recurse(20, 20)
     # b1.move(20, 20)
     test = []
     for i in range(15):
         test.append(CodeBlock("test", parent=w))
         if i != 0:
             test[i-1].attach_child(test[i])
+    b6.attach_child(test[0])
+    b6.raiseEvent()
     #for j in range(len(test)):
     #    test[j].attach_child(test[j-1])
     w.show()
