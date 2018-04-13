@@ -55,7 +55,6 @@ class Main(MainWindow):
         retblocks['test'] = []
         for func, code in funcs.items():
             f = 0
-            code.reverse()
             print(code[0], "throwawaygrep")
             print(func, "NTOOOOT")
             retblocks[func] = []
