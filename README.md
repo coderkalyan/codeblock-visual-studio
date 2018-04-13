@@ -13,4 +13,5 @@ if you manage to delete all my work)
 When you are developing, open a new Issue (see left) describing what you are doing
 and create a branch for that issue. Open a pull request when you are finished.
 
-DO NOT EDIT THE MASTER BRANCH OR DEVELOP BRANCH UNLESS EXPLICITLY GIVEN PERMISSION.
+DO NOT EDIT THE MASTER BRANCH UNLESS EXPLICITLY GIVEN PERMISSION.
+DO NOT PUSH CHANGES TO DEVELOP UNTIL STABLE.
