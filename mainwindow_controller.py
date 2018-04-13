@@ -62,7 +62,7 @@ class Main(MainWindow):
             for line in code:
                 if func != "" and "def " not in line:
                     retblocks[func].append(CodeBlock(line, parent=self.codeArea))
-                    if f !=0:
+                    if f != 0:
                         retblocks[func][f-1].attach_child(retblocks[func][f])
                     f = f + 1
                 print(retblocks, "retblox")
