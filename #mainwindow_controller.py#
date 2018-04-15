@@ -14,12 +14,12 @@ class Main(MainWindow):
         super().__init__()
         # print(self.get_vars("mainwindow.MainWindow"))
         funcs = self.get_functions("example.MainWindow")
-        print(self.get_classes("blocks"), "valuez")
+        print(funcs.values(), "valuez")
         print([s for s in funcs if "_" in s], "function_list")
+        self.function_blocks = self.generate_function_blocks(funcs)
         self.create_blocks(funcs)
 
     def create_blocks(self, funcs):
-        self.function_blocks = self.generate_function_blocks(funcs)
         self.code_blocks = self.generate_code_blocks(funcs)
         for k, v in self.function_blocks.items():
             v.attached = self.code_blocks[k][-1]
@@ -99,17 +99,6 @@ class Main(MainWindow):
                 except TypeError:
                     pass
         return functions
-
-    def get_classes(self, file):
-        classes = {}
-        try:
-            for name, obj in inspect.getmembers(__import__(file)):
-                if inspect.isclass(obj):
-                    classes[name] = obj
-        except ImportError:
-            print("invalid file")
-            # do stuff
-        return classes
 
 
     def get_vars(self, file):
