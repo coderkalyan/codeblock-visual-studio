@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QApplication, QWidget, QFrame
-from PyQt5.QtSvg import QSvgWidget
 from mainwindow import MainWindow
 import sys
 import inspect

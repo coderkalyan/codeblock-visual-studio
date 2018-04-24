@@ -4,7 +4,6 @@ import random
 from PyQt5.QtWidgets import QWidget, QApplication
 from PyQt5.QtCore import QRect, QPoint, QSize, Qt, pyqtSignal
 from PyQt5.QtGui import QPainter, QFont, QColor, QImage, QFontMetrics
-from PyQt5.QtSvg import QSvgWidget
 import time
 
 blocks = []
