@@ -8,7 +8,7 @@
 
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QSizePolicy, QTabWidget, QMenuBar, QStatusBar, QApplication, QTreeWidget, \
-    QTreeWidgetItem, QVBoxLayout, QScrollArea, QFrame, QSplitter, QPushButton
+    QTreeWidgetItem, QVBoxLayout, QScrollArea, QFrame, QSplitter, QPushButton, QMenu, QAction
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -119,8 +119,20 @@ class MainWindow(QMainWindow):
         self.menubar = QMenuBar()
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1280, 23))
         self.menubar.setObjectName("menubar")
+        self.menuFile = QMenu(self.menubar)
 
+        self.actionNew = QAction(self)
+        self.actionNew.setText("New")
+
+        self.actionOpen = QAction(self)
+        self.actionOpen.setText("Open")
+
+        self.menuFile.addAction(self.actionNew)
+        self.menuFile.addAction(self.actionOpen)
+        self.menuFile.setTitle("File")
+        self.menubar.addAction(self.menuFile.menuAction())
         self.setMenuBar(self.menubar)
+
         self.statusbar = QStatusBar()
         self.statusbar.setObjectName("statusbar")
         self.setStatusBar(self.statusbar)

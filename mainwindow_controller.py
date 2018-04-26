@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 from PyQt5.QtCore import *
-from PyQt5.QtWidgets import QApplication, QWidget, QFrame
+from PyQt5.QtWidgets import QApplication, QWidget, QFrame, QFileDialog
 from PyQt5.QtSvg import QSvgWidget
 from mainwindow import MainWindow
 import sys
+import importlib.util
 import inspect
 from modulefinder import ModuleFinder
 from blocks import *
@@ -14,9 +15,13 @@ class Main(MainWindow):
         super().__init__()
         # print(self.get_vars("mainwindow.MainWindow"))
         funcs = self.get_functions("example.MainWindow")
-        print(self.get_classes("blocks"), "valuez")
+        print(self.get_classes("./blocks.py"), "valuez")
         print([s for s in funcs if "_" in s], "function_list")
         self.create_blocks(funcs)
+
+    def open_file(self):
+        filename = QFileDialog.getOpenFileName(self, 'Open file for reading',
+                '', "Python files (*.py)")
 
     def create_blocks(self, funcs):
         self.function_blocks = self.generate_function_blocks(funcs)
@@ -103,10 +108,13 @@ class Main(MainWindow):
     def get_classes(self, file):
         classes = {}
         try:
-            for name, obj in inspect.getmembers(__import__(file)):
+            spec = importlib.util.spec_from_file_location("foo", file)
+            foo = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(foo)
+            for name, obj in inspect.getmembers(foo):
                 if inspect.isclass(obj):
                     classes[name] = obj
-        except ImportError:
+        except FileNotFoundError:
             print("invalid file")
             # do stuff
         return classes
