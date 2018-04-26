@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 from PyQt5.QtCore import *
-from PyQt5.QtWidgets import QApplication, QWidget, QFrame, QFileDialog
+from PyQt5.QtWidgets import QApplication, QWidget, QFrame, QFileDialog, QTreeWidgetItem
 from PyQt5.QtSvg import QSvgWidget
 from mainwindow import MainWindow
 import sys
@@ -13,15 +13,25 @@ testvar = "hi"
 class Main(MainWindow):
     def __init__(self):
         super().__init__()
+        self.bind()
         # print(self.get_vars("mainwindow.MainWindow"))
         funcs = self.get_functions("./example.py", "MainWindow")
         print(self.get_classes("./blocks.py"), "valuez")
         print([s for s in funcs if "_" in s], "function_list")
         self.create_blocks(funcs)
 
+    def bind(self):
+        self.actionOpen.triggered.connect(self.open_file)
+
     def open_file(self):
         filename = QFileDialog.getOpenFileName(self, 'Open file for reading',
-                '', "Python files (*.py)")
+                '', "Python files (*.py)")[0]
+        funcs = self.get_classes(filename)
+        print(funcs, "function")
+
+    def regenerate_classview(self, file):
+        class_list = self.get_classes(file)
+        print(class_list, "class list")
 
     def create_blocks(self, funcs):
         self.function_blocks = self.generate_function_blocks(funcs)
@@ -106,7 +116,7 @@ class Main(MainWindow):
     def get_classes(self, file):
         classes = {}
         try:
-            spec = importlib.util.spec_from_file_location("foo", file)
+            spec = importlib.util.spec_from_file_location(file, file)
             foo = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(foo)
             for name, obj in inspect.getmembers(foo):

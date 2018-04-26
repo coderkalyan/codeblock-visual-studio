@@ -35,6 +35,11 @@ class MainWindow(QMainWindow):
         self.tab = QWidget()
         self.tab.setObjectName("tab")
 
+        self.verticalLayout2 = QVBoxLayout(self.tab)
+        self.classView = QTreeWidget(self.tab)
+        self.classView.header().setVisible(False)
+        self.verticalLayout2.addWidget(self.classView)
+
         self.tabWidget.addTab(self.tab, "")
 
         self.tab_2 = QWidget()
