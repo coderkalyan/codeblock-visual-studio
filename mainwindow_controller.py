@@ -14,7 +14,7 @@ class Main(MainWindow):
     def __init__(self):
         super().__init__()
         # print(self.get_vars("mainwindow.MainWindow"))
-        funcs = self.get_functions("example.MainWindow")
+        funcs = self.get_functions("./example.py", "MainWindow")
         print(self.get_classes("./blocks.py"), "valuez")
         print([s for s in funcs if "_" in s], "function_list")
         self.create_blocks(funcs)
@@ -88,13 +88,11 @@ class Main(MainWindow):
             im.append(name)
         return im
 
-    def get_functions(self, file):
-        try:
-            importvar = __import__(file)
-            dirvar = importvar
-        except ImportError:
-            importvar = __import__(file.split(".")[0])
-            dirvar = getattr(importvar, file.split(".")[1])
+    def get_functions(self, file, class_name):
+        spec = importlib.util.spec_from_file_location("foo", file)
+        foo = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(foo)
+        dirvar = getattr(foo, class_name)
         functions = {}
         for i in dir(dirvar):
             if inspect.isroutine(getattr(dirvar, i)):
