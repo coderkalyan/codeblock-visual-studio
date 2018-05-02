@@ -28,10 +28,12 @@ class Main(MainWindow):
                 '', "Python files (*.py)")[0]
         funcs = self.get_classes(filename)
         print(funcs, "function")
+        self.regenerate_classview(filename)
 
     def regenerate_classview(self, file):
         class_list = self.get_classes(file)
-        print(class_list, "class list")
+        class_list_stripped = list(class_list.keys())
+        print(class_list_stripped, "class list")
 
     def create_blocks(self, funcs):
         self.function_blocks = self.generate_function_blocks(funcs)
@@ -116,7 +118,7 @@ class Main(MainWindow):
     def get_classes(self, file):
         classes = {}
         try:
-            spec = importlib.util.spec_from_file_location(file, file)
+            spec = importlib.util.spec_from_file_location(file.split("/")[-1], file)
             foo = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(foo)
             for name, obj in inspect.getmembers(foo):
