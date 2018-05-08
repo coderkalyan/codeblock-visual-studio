@@ -32,14 +32,14 @@ class Main(MainWindow):
 
     def regenerate_classview(self, file):
         class_list = self.get_classes(file)
-        class_list_stripped = list(class_list.keys())
         class_list_sorted = {}
         for k,v in class_list.items():
             filename = ".".join(str(v).split("'")[1::2][0].split(".")[:2]) # [0].split(".")[1:2]
-            class_list_sorted[filename] = []
-            for i in class_list_stripped:
-                if filename in str(class_list[i]):
-                    class_list_sorted[filename].append(i)
+            class_list_sorted[filename] = {}
+            for i,j in class_list.items():
+                if filename in str(j):
+                    class_list_sorted[filename]
+                    class_list_sorted[filename][i] = j
         class_tree_index = []
         print(class_list_sorted, "class list")
 
