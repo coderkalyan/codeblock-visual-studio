@@ -35,11 +35,13 @@ class Main(MainWindow):
         class_list_stripped = list(class_list.keys())
         class_list_sorted = {}
         for k,v in class_list.items():
-            print(".".join(str(v).split("'")[1::2][0].split(".")[:2])) # [0].split(".")[1:2]
-        #    for i in class_list_stripped:
-        #        class_list_sorted[v.split("'")[1::2].split(".")[1:2]] = class_list_stripped
+            filename = ".".join(str(v).split("'")[1::2][0].split(".")[:2]) # [0].split(".")[1:2]
+            class_list_sorted[filename] = []
+            for i in class_list_stripped:
+                if filename in str(class_list[i]):
+                    class_list_sorted[filename].append(i)
         class_tree_index = []
-        print(class_list_stripped, "class list")
+        print(class_list_sorted, "class list")
 
     def create_blocks(self, funcs):
         self.function_blocks = self.generate_function_blocks(funcs)
