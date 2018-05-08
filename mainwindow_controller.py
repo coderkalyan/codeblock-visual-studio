@@ -33,6 +33,12 @@ class Main(MainWindow):
     def regenerate_classview(self, file):
         class_list = self.get_classes(file)
         class_list_stripped = list(class_list.keys())
+        class_list_sorted = {}
+        for k,v in class_list.items():
+            print(".".join(str(v).split("'")[1::2][0].split(".")[:2])) # [0].split(".")[1:2]
+        #    for i in class_list_stripped:
+        #        class_list_sorted[v.split("'")[1::2].split(".")[1:2]] = class_list_stripped
+        class_tree_index = []
         print(class_list_stripped, "class list")
 
     def create_blocks(self, funcs):
