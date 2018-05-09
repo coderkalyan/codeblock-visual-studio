@@ -40,8 +40,17 @@ class Main(MainWindow):
                 if filename in str(j):
                     class_list_sorted[filename]
                     class_list_sorted[filename][i] = j
-        class_tree_index = []
+        class_tree_index = {}
         print(class_list_sorted, "class list")
+        print("generating tree view...")
+        ind0 = 0
+        for k2,v2 in class_list_sorted.items():
+            class_tree_index[ind0] = QTreeWidgetItem(self.classView)
+            class_tree_index[ind0].setText(0, k2)
+            for k3,v3 in v2.items():
+                class_tree_index[v3] = QTreeWidgetItem(class_tree_index[ind0])
+                class_tree_index[v3].setText(0, k3)
+            ind0 = ind0 + 1
 
     def create_blocks(self, funcs):
         self.function_blocks = self.generate_function_blocks(funcs)
