@@ -16,12 +16,14 @@ class Main(MainWindow):
         self.bind()
         # print(self.get_vars("mainwindow.MainWindow"))
         funcs = self.get_functions("./example.py", "MainWindow")
-        print(self.get_classes("./blocks.py"), "valuez")
-        print([s for s in funcs if "_" in s], "function_list")
+        #print(self.get_classes("./blocks.py"), "valuez")
+        #print([s for s in funcs if "_" in s], "function_list")
         self.create_blocks(funcs)
 
     def bind(self):
         self.actionOpen.triggered.connect(self.open_file)
+        self.classView.itemDoubleClicked.connect(lambda: self.create_blocks(
+                                                self.get_functions("./blocks.py", self.classView.selectedItems()[0].text(0))))
 
     def open_file(self):
         filename = QFileDialog.getOpenFileName(self, 'Open file for reading',
@@ -43,6 +45,7 @@ class Main(MainWindow):
         class_tree_index = {}
         print(class_list_sorted, "class list")
         print("generating tree view...")
+        self.classView.clear()
         ind0 = 0
         for k2,v2 in class_list_sorted.items():
             class_tree_index[ind0] = QTreeWidgetItem(self.classView)
@@ -53,12 +56,19 @@ class Main(MainWindow):
             ind0 = ind0 + 1
 
     def create_blocks(self, funcs):
+        #print(self.classView.currentItem().text(0), "current" )
+        for child in self.codeArea.children():
+            print(child, "cjild")
+            child.deleteLater()
+        print(funcs, "funccc")
+        self.codeArea.setUpdatesEnabled(True)
         self.function_blocks = self.generate_function_blocks(funcs)
         self.code_blocks = self.generate_code_blocks(funcs)
         for k, v in self.function_blocks.items():
             v.attached = self.code_blocks[k][-1]
             v.attached.bourgeois = v
             v.raise_()
+            v.show()
             self.code_blocks[k].append(v)
 
         for i in list(self.function_blocks.values()):
@@ -105,6 +115,7 @@ class Main(MainWindow):
                         retblocks[func].append(CodeBlock(line, None, self.codeArea))
                     else:
                         retblocks[func].append(CodeBlock(line, retblocks[func][f-1], self.codeArea))
+                        retblocks[func][f].show()
                         print(len(retblocks), " yes")
                     f = f + 1
         return retblocks
