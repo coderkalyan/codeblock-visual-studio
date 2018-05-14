@@ -36,11 +36,21 @@ class Main(MainWindow):
         class_list = self.get_classes(file)
         class_list_sorted = {}
         for k,v in class_list.items():
-            filename = ".".join(str(v).split("'")[1::2][0].split(".")[:2]) # [0].split(".")[1:2]
+            filesplit = str(v).split("'")[1::2][0].split(".")
+            if len(filesplit) > 2:
+                # use Package-style naming
+                filename = ".".join(filesplit[:2])
+            else:
+                #use Module-style naming (.py extension)
+                filename = ".".join([filesplit[0], "py"])
             class_list_sorted[filename] = {}
             for i,j in class_list.items():
-                if filename in str(j):
-                    class_list_sorted[filename]
+                if len(filename.split(".")) > 2:
+                    filecompare = filename
+                else:
+                    filecompare = filename.split(".")[0]
+                    print(filecompare, "filecomparematcher")
+                if filecompare in str(j):
                     class_list_sorted[filename][i] = j
         class_tree_index = {}
         print(class_list_sorted, "class list")
@@ -152,6 +162,7 @@ class Main(MainWindow):
             for name, obj in inspect.getmembers(foo):
                 if inspect.isclass(obj):
                     classes[name] = obj
+                    print(obj, "objc")
         except FileNotFoundError:
             print("invalid file")
             # do stuff
