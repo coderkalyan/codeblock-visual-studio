@@ -14,6 +14,7 @@ class Main(MainWindow):
     def __init__(self):
         super().__init__()
         self.bind()
+        self.classViewFileIndex = {}
         # print(self.get_vars("mainwindow.MainWindow"))
         funcs = self.get_functions("./example.py", "MainWindow")
         #print(self.get_classes("./blocks.py"), "valuez")
@@ -64,6 +65,7 @@ class Main(MainWindow):
                 class_tree_index[v3] = QTreeWidgetItem(class_tree_index[ind0])
                 class_tree_index[v3].setText(0, k3)
             ind0 = ind0 + 1
+        print(self.classViewFileIndex, "ind")
 
     def create_blocks(self, funcs):
         #print(self.classView.currentItem().text(0), "current" )
@@ -163,6 +165,11 @@ class Main(MainWindow):
                 if inspect.isclass(obj):
                     classes[name] = obj
                     print(obj, "objc")
+                    try:
+                        self.classViewFileIndex[
+                                str(classes[name]).split("'")[1::2][0]] = inspect.getfile(obj)
+                    except TypeError:
+                        pass
         except FileNotFoundError:
             print("invalid file")
             # do stuff
