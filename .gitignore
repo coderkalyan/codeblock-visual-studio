@@ -4,4 +4,3 @@ build/
 dist/
 *.swp
 .idea/
-workspace.xml

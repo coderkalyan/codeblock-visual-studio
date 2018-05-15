@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 from PyQt5.QtCore import *
-from PyQt5.QtWidgets import QApplication, QWidget, QFrame, QFileDialog
-from PyQt5.QtSvg import QSvgWidget
+from PyQt5.QtWidgets import QApplication, QWidget, QFrame
 from mainwindow import MainWindow
 import sys
 import importlib.util
@@ -26,20 +25,16 @@ class Main(MainWindow):
     def create_blocks(self, funcs):
         self.function_blocks = self.generate_function_blocks(funcs)
         self.code_blocks = self.generate_code_blocks(funcs)
+        print(self.function_blocks.items(), "itemz")
         for k, v in self.function_blocks.items():
-            v.attached = self.code_blocks[k][-1]
-            v.attached.bourgeois = v
-            v.raise_()
+            print(v, self.code_blocks[k][-1].content, "attach_child")
+            v.attach_child(self.code_blocks[k][0])
+            v.raiseEvent()
             self.code_blocks[k].append(v)
 
         for i in list(self.function_blocks.values()):
-            i.setGeometry(list(self.function_blocks.values()).index(i)*400, i.geometry().y(), i.geometry().width(), i.geometry().height())
+            i.move_recurse(list(self.function_blocks.values()).index(i)*400, i.geometry().y())
             print(i, "eye")
-            for j in range(199):
-                if i.attached is not None:
-                    print(i.attached, "eye")
-                    i.attached.setGeometry(i.geometry().x(), i.geometry().y()+i.geometry().height()-17, i.attached.geometry().width(), i.attached.geometry().height())
-                    i.attached.moveChild()
         # svgWidget = HatBlock("test", self.code_blocks['test'][-1], self.codeArea)
         # self.function_blocks.append(svgWidget)
         # svgWidget.show()
@@ -52,9 +47,9 @@ class Main(MainWindow):
             print(func_def[0].strip(), "YEEEE")
             if func != "":
                 if "def " in func_def[0].strip():
-                    retblocks[func] = HatBlock(func_def[0].strip(), None, self.codeArea)
+                    retblocks[func] = CapBlock(func_def[0].strip(), parent=self.codeArea)
                 else:
-                    retblocks[func] = HatBlock(func_def[1].strip(), None, self.codeArea)
+                    retblocks[func] = CapBlock(func_def[1].strip(), parent=self.codeArea)
             f = f + 1
         return retblocks
 
@@ -66,18 +61,16 @@ class Main(MainWindow):
         retblocks['test'] = []
         for func, code in funcs.items():
             f = 0
-            code.reverse()
             print(code[0], "throwawaygrep")
             print(func, "NTOOOOT")
             retblocks[func] = []
             for line in code:
                 if func != "" and "def " not in line:
-                    if f == 0:
-                        retblocks[func].append(CodeBlock(line, None, self.codeArea))
-                    else:
-                        retblocks[func].append(CodeBlock(line, retblocks[func][f-1], self.codeArea))
-                        print(len(retblocks), " yes")
+                    retblocks[func].append(CodeBlock(line, parent=self.codeArea))
+                    if f != 0:
+                        retblocks[func][f-1].attach_child(retblocks[func][f])
                     f = f + 1
+                print(retblocks, "retblox")
         return retblocks
 
     def get_imports(self, file):
