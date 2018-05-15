@@ -34,7 +34,6 @@ class Main(MainWindow):
     def open_file(self):
         filename = QFileDialog.getOpenFileName(self, 'Open file for reading',
                                                '', "Python files (*.py)")[0]
-        funcs = self.get_classes(filename)
         self.regenerate_classview(filename)
 
     def regenerate_classview(self, file):
