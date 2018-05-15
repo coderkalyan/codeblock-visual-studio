@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 from PyQt5.QtCore import *
-from PyQt5.QtWidgets import QApplication, QWidget, QFrame, QFileDialog, QTreeWidgetItem
-from PyQt5.QtSvg import QSvgWidget
+from PyQt5.QtWidgets import QApplication, QFileDialog, QTreeWidgetItem
 from mainwindow import MainWindow
 import sys
 import importlib.util
@@ -9,6 +8,7 @@ import inspect
 from modulefinder import ModuleFinder
 from blocks import *
 testvar = "hi"
+
 
 class Main(MainWindow):
     def __init__(self):
@@ -22,31 +22,34 @@ class Main(MainWindow):
 
     def classview_openclass(self):
         if self.classView.selectedItems()[0].parent().text(0).split(".")[1] == "py":
-            inspect_typed = self.classView.selectedItems()[0].parent().text(0).split(".")[0]
+            inspect_typed = self.classView.selectedItems(
+            )[0].parent().text(0).split(".")[0]
         else:
             inspect_typed = self.classView.selectedItems()[0].parent().text(0)
-        self.create_blocks(self.get_functions(self.classViewFileIndex[inspect_typed+
-            "."+self.classView.selectedItems()[0].text(0)],
-                                                self.classView.selectedItems()[0].text(0)))
+        self.create_blocks(self.get_functions(
+            self.classViewFileIndex[inspect_typed +
+                                    "."+self.classView.selectedItems()[0].text(0)],
+            self.classView.selectedItems()[0].text(0)))
+
     def open_file(self):
         filename = QFileDialog.getOpenFileName(self, 'Open file for reading',
-                '', "Python files (*.py)")[0]
+                                               '', "Python files (*.py)")[0]
         funcs = self.get_classes(filename)
         self.regenerate_classview(filename)
 
     def regenerate_classview(self, file):
         class_list = self.get_classes(file)
         class_list_sorted = {}
-        for k,v in class_list.items():
+        for k, v in class_list.items():
             filesplit = str(v).split("'")[1::2][0].split(".")
             if len(filesplit) > 2:
                 # use Package-style naming
                 filename = ".".join(filesplit[:2])
             else:
-                #use Module-style naming (.py extension)
+                # use Module-style naming (.py extension)
                 filename = ".".join([filesplit[0], "py"])
             class_list_sorted[filename] = {}
-            for i,j in class_list.items():
+            for i, j in class_list.items():
                 if len(filename.split(".")) > 2:
                     filecompare = filename
                 else:
@@ -57,10 +60,10 @@ class Main(MainWindow):
         print("generating tree view...")
         self.classView.clear()
         ind0 = 0
-        for k2,v2 in class_list_sorted.items():
+        for k2, v2 in class_list_sorted.items():
             class_tree_index[ind0] = QTreeWidgetItem(self.classView)
             class_tree_index[ind0].setText(0, k2)
-            for k3,v3 in v2.items():
+            for k3, v3 in v2.items():
                 class_tree_index[v3] = QTreeWidgetItem(class_tree_index[ind0])
                 class_tree_index[v3].setText(0, k3)
             ind0 = ind0 + 1
@@ -79,10 +82,12 @@ class Main(MainWindow):
             self.code_blocks[k].append(v)
 
         for i in list(self.function_blocks.values()):
-            i.setGeometry(list(self.function_blocks.values()).index(i)*400, i.geometry().y(), i.geometry().width(), i.geometry().height())
+            i.setGeometry(list(self.function_blocks.values()).index(
+                i)*400, i.geometry().y(), i.geometry().width(), i.geometry().height())
             for j in range(199):
                 if i.attached is not None:
-                    i.attached.setGeometry(i.geometry().x(), i.geometry().y()+i.geometry().height()-17, i.attached.geometry().width(), i.attached.geometry().height())
+                    i.attached.setGeometry(i.geometry().x(), i.geometry().y(
+                    )+i.geometry().height()-17, i.attached.geometry().width(), i.attached.geometry().height())
                     i.attached.moveChild()
         # svgWidget = HatBlock("test", self.code_blocks['test'][-1], self.codeArea)
         # self.function_blocks.append(svgWidget)
@@ -94,9 +99,11 @@ class Main(MainWindow):
         for func, func_def in funcs.items():
             if func != "":
                 if "def " in func_def[0].strip():
-                    retblocks[func] = HatBlock(func_def[0].strip(), None, self.codeArea)
+                    retblocks[func] = HatBlock(
+                        func_def[0].strip(), None, self.codeArea)
                 else:
-                    retblocks[func] = HatBlock(func_def[1].strip(), None, self.codeArea)
+                    retblocks[func] = HatBlock(
+                        func_def[1].strip(), None, self.codeArea)
             f = f + 1
         return retblocks
 
@@ -112,9 +119,11 @@ class Main(MainWindow):
             for line in code:
                 if func != "" and "def " not in line:
                     if f == 0:
-                        retblocks[func].append(CodeBlock(line, None, self.codeArea))
+                        retblocks[func].append(
+                            CodeBlock(line, None, self.codeArea))
                     else:
-                        retblocks[func].append(CodeBlock(line, retblocks[func][f-1], self.codeArea))
+                        retblocks[func].append(
+                            CodeBlock(line, retblocks[func][f-1], self.codeArea))
                         retblocks[func][f].show()
                     f = f + 1
         return retblocks
@@ -136,8 +145,10 @@ class Main(MainWindow):
         for i in dir(dirvar):
             if inspect.isroutine(getattr(dirvar, i)):
                 try:
-                    functions[i] = inspect.getsource(getattr(dirvar, i)).splitlines()
-                    print([s for s in functions[i] if "            " in s], "function_list")
+                    functions[i] = inspect.getsource(
+                        getattr(dirvar, i)).splitlines()
+                    print([s for s in functions[i]
+                           if "            " in s], "function_list")
                 except TypeError:
                     pass
         return functions
@@ -146,7 +157,8 @@ class Main(MainWindow):
         classes = {}
         try:
             print(file)
-            spec = importlib.util.spec_from_file_location(file.split("/")[-1], file)
+            spec = importlib.util.spec_from_file_location(
+                file.split("/")[-1], file)
             foo = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(foo)
             for name, obj in inspect.getmembers(foo):
@@ -155,16 +167,16 @@ class Main(MainWindow):
                     print(str(classes[name]).split("'")[1::2][0], "objc")
                     try:
                         self.classViewFileIndex[
-                                str(classes[name]).split("'")[1::2][0]] = inspect.getfile(obj)
+                            str(classes[name]).split("'")[1::2][0]] = inspect.getfile(obj)
                     except TypeError:
-                        print(obj, "is likely main file, using circumventation measures.")
+                        print(
+                            obj, "is likely main file, using circumventation measures.")
                         self.classViewFileIndex[
-                                str(classes[name]).split("'")[1::2][0].replace(".py","")] = file
+                            str(classes[name]).split("'")[1::2][0].replace(".py", "")] = file
         except FileNotFoundError:
             print("invalid file")
             # do stuff
         return classes
-
 
     def get_vars(self, file):
         defined = []
@@ -191,5 +203,3 @@ if __name__ == "__main__":
     maine.show()
     print(dir("mainwindow_controller.py"))
     sys.exit(app.exec_())
-
-
