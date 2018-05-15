@@ -15,11 +15,6 @@ class Main(MainWindow):
         super().__init__()
         self.bind()
         self.classViewFileIndex = {}
-        # print(self.get_vars("mainwindow.MainWindow"))
-        funcs = self.get_functions("./example.py", "MainWindow")
-        #print(self.get_classes("./blocks.py"), "valuez")
-        #print([s for s in funcs if "_" in s], "function_list")
-        self.create_blocks(funcs)
 
     def bind(self):
         self.actionOpen.triggered.connect(self.open_file)
@@ -37,7 +32,6 @@ class Main(MainWindow):
         filename = QFileDialog.getOpenFileName(self, 'Open file for reading',
                 '', "Python files (*.py)")[0]
         funcs = self.get_classes(filename)
-        print(funcs, "function")
         self.regenerate_classview(filename)
 
     def regenerate_classview(self, file):
@@ -60,7 +54,6 @@ class Main(MainWindow):
                 if filecompare in str(j):
                     class_list_sorted[filename][i] = j
         class_tree_index = {}
-        print(class_list_sorted, "class list")
         print("generating tree view...")
         self.classView.clear()
         ind0 = 0
@@ -71,14 +64,10 @@ class Main(MainWindow):
                 class_tree_index[v3] = QTreeWidgetItem(class_tree_index[ind0])
                 class_tree_index[v3].setText(0, k3)
             ind0 = ind0 + 1
-        print(self.classViewFileIndex, "ind")
 
     def create_blocks(self, funcs):
-        #print(self.classView.currentItem().text(0), "current" )
         for child in self.codeArea.children():
-            print(child, "cjild")
             child.deleteLater()
-        print(funcs, "funccc")
         self.codeArea.setUpdatesEnabled(True)
         self.function_blocks = self.generate_function_blocks(funcs)
         self.code_blocks = self.generate_code_blocks(funcs)
@@ -91,10 +80,8 @@ class Main(MainWindow):
 
         for i in list(self.function_blocks.values()):
             i.setGeometry(list(self.function_blocks.values()).index(i)*400, i.geometry().y(), i.geometry().width(), i.geometry().height())
-            print(i, "eye")
             for j in range(199):
                 if i.attached is not None:
-                    print(i.attached, "eye")
                     i.attached.setGeometry(i.geometry().x(), i.geometry().y()+i.geometry().height()-17, i.attached.geometry().width(), i.attached.geometry().height())
                     i.attached.moveChild()
         # svgWidget = HatBlock("test", self.code_blocks['test'][-1], self.codeArea)
@@ -104,9 +91,7 @@ class Main(MainWindow):
     def generate_function_blocks(self, funcs):
         f = 0
         retblocks = {}
-        print(funcs, "grr")
         for func, func_def in funcs.items():
-            print(func_def[0].strip(), "YEEEE")
             if func != "":
                 if "def " in func_def[0].strip():
                     retblocks[func] = HatBlock(func_def[0].strip(), None, self.codeArea)
@@ -119,13 +104,10 @@ class Main(MainWindow):
         f = 0
         retblocks = {}
         funcs = funcs_list
-        print(funcs.items(), "items")
         retblocks['test'] = []
         for func, code in funcs.items():
             f = 0
             code.reverse()
-            print(code[0], "throwawaygrep")
-            print(func, "NTOOOOT")
             retblocks[func] = []
             for line in code:
                 if func != "" and "def " not in line:
@@ -134,7 +116,6 @@ class Main(MainWindow):
                     else:
                         retblocks[func].append(CodeBlock(line, retblocks[func][f-1], self.codeArea))
                         retblocks[func][f].show()
-                        print(len(retblocks), " yes")
                     f = f + 1
         return retblocks
 
@@ -176,7 +157,7 @@ class Main(MainWindow):
                         self.classViewFileIndex[
                                 str(classes[name]).split("'")[1::2][0]] = inspect.getfile(obj)
                     except TypeError:
-                        print(obj)
+                        print(obj, "is likely main file, using circumventation measures.")
                         self.classViewFileIndex[
                                 str(classes[name]).split("'")[1::2][0].replace(".py","")] = file
         except FileNotFoundError:
