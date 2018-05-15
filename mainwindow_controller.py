@@ -23,9 +23,16 @@ class Main(MainWindow):
 
     def bind(self):
         self.actionOpen.triggered.connect(self.open_file)
-        self.classView.itemDoubleClicked.connect(lambda: self.create_blocks(
-                                                self.get_functions("./blocks.py", self.classView.selectedItems()[0].text(0))))
+        self.classView.itemDoubleClicked.connect(self.classview_openclass)
 
+    def classview_openclass(self):
+        if self.classView.selectedItems()[0].parent().text(0).split(".")[1] == "py":
+            inspect_typed = self.classView.selectedItems()[0].parent().text(0).split(".")[0]
+        else:
+            inspect_typed = self.classView.selectedItems()[0].parent().text(0)
+        self.create_blocks(self.get_functions(self.classViewFileIndex[inspect_typed+
+            "."+self.classView.selectedItems()[0].text(0)],
+                                                self.classView.selectedItems()[0].text(0)))
     def open_file(self):
         filename = QFileDialog.getOpenFileName(self, 'Open file for reading',
                 '', "Python files (*.py)")[0]
@@ -50,7 +57,6 @@ class Main(MainWindow):
                     filecompare = filename
                 else:
                     filecompare = filename.split(".")[0]
-                    print(filecompare, "filecomparematcher")
                 if filecompare in str(j):
                     class_list_sorted[filename][i] = j
         class_tree_index = {}
@@ -158,18 +164,21 @@ class Main(MainWindow):
     def get_classes(self, file):
         classes = {}
         try:
+            print(file)
             spec = importlib.util.spec_from_file_location(file.split("/")[-1], file)
             foo = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(foo)
             for name, obj in inspect.getmembers(foo):
                 if inspect.isclass(obj):
                     classes[name] = obj
-                    print(obj, "objc")
+                    print(str(classes[name]).split("'")[1::2][0], "objc")
                     try:
                         self.classViewFileIndex[
                                 str(classes[name]).split("'")[1::2][0]] = inspect.getfile(obj)
                     except TypeError:
-                        pass
+                        print(obj)
+                        self.classViewFileIndex[
+                                str(classes[name]).split("'")[1::2][0].replace(".py","")] = file
         except FileNotFoundError:
             print("invalid file")
             # do stuff
