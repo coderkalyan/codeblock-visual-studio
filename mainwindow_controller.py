@@ -142,6 +142,7 @@ class Main(MainWindow):
     def get_classes(self, file):
         classes = {}
         try:
+            sys.path.append("/".join(file.split("/")[:-1]))
             print(file)
             spec = importlib.util.spec_from_file_location(
                 file.split("/")[-1], file)
