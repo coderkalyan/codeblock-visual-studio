@@ -8,7 +8,7 @@
 
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QSizePolicy, QTabWidget, QMenuBar, QStatusBar, QApplication, QTreeWidget, \
-    QTreeWidgetItem, QVBoxLayout, QScrollArea, QFrame, QSplitter, QPushButton
+    QTreeWidgetItem, QVBoxLayout, QScrollArea, QFrame, QSplitter, QPushButton, QMenu, QAction
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -34,6 +34,11 @@ class MainWindow(QMainWindow):
 
         self.tab = QWidget()
         self.tab.setObjectName("tab")
+
+        self.verticalLayout2 = QVBoxLayout(self.tab)
+        self.classView = QTreeWidget(self.tab)
+        self.classView.header().setVisible(False)
+        self.verticalLayout2.addWidget(self.classView)
 
         self.tabWidget.addTab(self.tab, "")
 
@@ -119,8 +124,20 @@ class MainWindow(QMainWindow):
         self.menubar = QMenuBar()
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1280, 23))
         self.menubar.setObjectName("menubar")
+        self.menuFile = QMenu(self.menubar)
 
+        self.actionNew = QAction(self)
+        self.actionNew.setText("New")
+
+        self.actionOpen = QAction(self)
+        self.actionOpen.setText("Open")
+
+        self.menuFile.addAction(self.actionNew)
+        self.menuFile.addAction(self.actionOpen)
+        self.menuFile.setTitle("File")
+        self.menubar.addAction(self.menuFile.menuAction())
         self.setMenuBar(self.menubar)
+
         self.statusbar = QStatusBar()
         self.statusbar.setObjectName("statusbar")
         self.setStatusBar(self.statusbar)
@@ -137,7 +154,7 @@ class MainWindow(QMainWindow):
         self.frameLayout.addWidget(self.scroll)
         self.scroll.setWidget(self.scrollContents)
 
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), "Tab 1")
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), "Class View")
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), "Tab 2")
         self.tabWidget_3.setTabText(self.tabWidget_2.indexOf(self.tab_3), "Code Area")
         self.tabWidget_3.setTabText(self.tabWidget_2.indexOf(self.tab_4), "Tab 2")
