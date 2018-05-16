@@ -35,6 +35,11 @@ class MainWindow(QMainWindow):
         self.tab = QWidget()
         self.tab.setObjectName("tab")
 
+        self.verticalLayout2 = QVBoxLayout(self.tab)
+        self.classView = QTreeWidget(self.tab)
+        self.classView.header().setVisible(False)
+        self.verticalLayout2.addWidget(self.classView)
+
         self.tabWidget.addTab(self.tab, "")
 
         self.tab_2 = QWidget()
@@ -149,7 +154,7 @@ class MainWindow(QMainWindow):
         self.frameLayout.addWidget(self.scroll)
         self.scroll.setWidget(self.scrollContents)
 
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), "Tab 1")
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), "Class View")
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), "Tab 2")
         self.tabWidget_3.setTabText(self.tabWidget_2.indexOf(self.tab_3), "Code Area")
         self.tabWidget_3.setTabText(self.tabWidget_2.indexOf(self.tab_4), "Tab 2")

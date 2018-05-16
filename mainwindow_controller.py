@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 from PyQt5.QtCore import *
-from PyQt5.QtWidgets import QApplication, QWidget, QFrame
+from PyQt5.QtWidgets import QApplication, QWidget, QFrame, QFileDialog, QTreeWidgetItem
 from mainwindow import MainWindow
 import sys
 import importlib.util
@@ -9,23 +9,70 @@ from modulefinder import ModuleFinder
 from blocks import *
 testvar = "hi"
 
+
 class Main(MainWindow):
     def __init__(self):
         super().__init__()
-        # print(self.get_vars("mainwindow.MainWindow"))
-        funcs = self.get_functions("./example.py", "MainWindow")
-        print(self.get_classes("./blocks.py"), "valuez")
-        print([s for s in funcs if "_" in s], "function_list")
-        self.create_blocks(funcs)
+        self.bind()
+        self.classViewFileIndex = {}
+
+    def bind(self):
+        self.actionOpen.triggered.connect(self.open_file)
+        self.classView.itemDoubleClicked.connect(self.classview_openclass)
+
+    def classview_openclass(self):
+        if self.classView.selectedItems()[0].parent().text(0).split(".")[1] == "py":
+            inspect_typed = self.classView.selectedItems(
+            )[0].parent().text(0).split(".")[0]
+        else:
+            inspect_typed = self.classView.selectedItems()[0].parent().text(0)
+        self.create_blocks(self.get_functions(
+            self.classViewFileIndex[inspect_typed +
+                                    "."+self.classView.selectedItems()[0].text(0)],
+            self.classView.selectedItems()[0].text(0)))
 
     def open_file(self):
         filename = QFileDialog.getOpenFileName(self, 'Open file for reading',
-                '', "Python files (*.py)")
+                                               '', "Python files (*.py)")[0]
+        self.regenerate_classview(filename)
+
+    def regenerate_classview(self, file):
+        class_list = self.get_classes(file)
+        class_list_sorted = {}
+        for k, v in class_list.items():
+            filesplit = str(v).split("'")[1::2][0].split(".")
+            if len(filesplit) > 2:
+                # use Package-style naming
+                filename = ".".join(filesplit[:2])
+            else:
+                # use Module-style naming (.py extension)
+                filename = ".".join([filesplit[0], "py"])
+            class_list_sorted[filename] = {}
+            for i, j in class_list.items():
+                if len(filename.split(".")) > 2:
+                    filecompare = filename
+                else:
+                    filecompare = filename.split(".")[0]
+                if filecompare in str(j):
+                    class_list_sorted[filename][i] = j
+        class_tree_index = {}
+        print("generating tree view...")
+        self.classView.clear()
+        ind0 = 0
+        for k2, v2 in class_list_sorted.items():
+            class_tree_index[ind0] = QTreeWidgetItem(self.classView)
+            class_tree_index[ind0].setText(0, k2)
+            for k3, v3 in v2.items():
+                class_tree_index[v3] = QTreeWidgetItem(class_tree_index[ind0])
+                class_tree_index[v3].setText(0, k3)
+            ind0 = ind0 + 1
 
     def create_blocks(self, funcs):
+        for child in self.codeArea.children():
+            child.deleteLater()
+        self.codeArea.setUpdatesEnabled(True)
         self.function_blocks = self.generate_function_blocks(funcs)
         self.code_blocks = self.generate_code_blocks(funcs)
-        print(self.function_blocks.items(), "itemz")
         for k, v in self.function_blocks.items():
             print(v, self.code_blocks[k][-1].content, "attach_child")
             v.attach_child(self.code_blocks[k][0])
@@ -42,9 +89,7 @@ class Main(MainWindow):
     def generate_function_blocks(self, funcs):
         f = 0
         retblocks = {}
-        print(funcs, "grr")
         for func, func_def in funcs.items():
-            print(func_def[0].strip(), "YEEEE")
             if func != "":
                 if "def " in func_def[0].strip():
                     retblocks[func] = CapBlock(func_def[0].strip(), parent=self.codeArea)
@@ -57,12 +102,9 @@ class Main(MainWindow):
         f = 0
         retblocks = {}
         funcs = funcs_list
-        print(funcs.items(), "items")
         retblocks['test'] = []
         for func, code in funcs.items():
             f = 0
-            print(code[0], "throwawaygrep")
-            print(func, "NTOOOOT")
             retblocks[func] = []
             for line in code:
                 if func != "" and "def " not in line:
@@ -70,7 +112,6 @@ class Main(MainWindow):
                     if f != 0:
                         retblocks[func][f-1].attach_child(retblocks[func][f])
                     f = f + 1
-                print(retblocks, "retblox")
         return retblocks
 
     def get_imports(self, file):
@@ -90,8 +131,10 @@ class Main(MainWindow):
         for i in dir(dirvar):
             if inspect.isroutine(getattr(dirvar, i)):
                 try:
-                    functions[i] = inspect.getsource(getattr(dirvar, i)).splitlines()
-                    print([s for s in functions[i] if "            " in s], "function_list")
+                    functions[i] = inspect.getsource(
+                        getattr(dirvar, i)).splitlines()
+                    print([s for s in functions[i]
+                           if "            " in s], "function_list")
                 except TypeError:
                     pass
         return functions
@@ -99,12 +142,23 @@ class Main(MainWindow):
     def get_classes(self, file):
         classes = {}
         try:
-            spec = importlib.util.spec_from_file_location("foo", file)
+            print(file)
+            spec = importlib.util.spec_from_file_location(
+                file.split("/")[-1], file)
             foo = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(foo)
             for name, obj in inspect.getmembers(foo):
                 if inspect.isclass(obj):
                     classes[name] = obj
+                    print(str(classes[name]).split("'")[1::2][0], "objc")
+                    try:
+                        self.classViewFileIndex[
+                            str(classes[name]).split("'")[1::2][0]] = inspect.getfile(obj)
+                    except TypeError:
+                        print(
+                            obj, "is likely main file, using circumventation measures.")
+                        self.classViewFileIndex[
+                            str(classes[name]).split("'")[1::2][0].replace(".py", "")] = file
         except FileNotFoundError:
             print("invalid file")
             # do stuff

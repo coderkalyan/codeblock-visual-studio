@@ -23,7 +23,7 @@ class BasicBlock(QWidget):
 
         temp = self.geometry()
         self.setGeometry(temp.x(), temp.y(), temp.x() + self.width, temp.y() + self.height)
-        self.raiseEvent()
+        #self.raiseEvent()
 
         blocks.append(self)
 
@@ -130,9 +130,11 @@ class BasicBlock(QWidget):
 
     def raiseEvent(self):
         self.raise_()
+        self.show()
         if self.child is not None:
             self.child.raiseEvent()
             self.raise_()
+            self.child.show()
 
 class CodeBlock(BasicBlock):
     def __init__(self, text, *args, **kwargs):
