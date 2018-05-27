@@ -72,8 +72,8 @@ class BasicBlock(QWidget):
         self.child.parent = self
         temp = self.child.geometry()
         cur = self.geometry()
-        self.child.setGeometry(cur.x(), cur.y() + self.height - 15, cur.x() + temp.width(),
-                               self.height + temp.height() - 15)
+        self.child.setGeometry(cur.x(), (cur.y() + self.height - 15)*self.scale,
+                (cur.x() + temp.width())*self.scale, (self.height + temp.height() - 15)*self.scale)
         # self.child.setParent(self)
         self.raiseEvent()
 
@@ -110,7 +110,7 @@ class BasicBlock(QWidget):
     def move_recurse(self, x, y):
         self.move_to(x, y)
         if self.child is not None:
-            self.child.move_recurse(x, y + self.geometry().height() - 15)
+            self.child.move_recurse(x, y + (self.geometry().height() - 15)*self.scale)
 
     def mouseMoveEvent(self, event):
         if self.dragging == -10:
