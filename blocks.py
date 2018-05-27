@@ -72,8 +72,8 @@ class BasicBlock(QWidget):
         self.child.parent = self
         temp = self.child.geometry()
         cur = self.geometry()
-        self.child.setGeometry(cur.x(), (cur.y() + self.height - 15)*self.scale,
-                (cur.x() + temp.width())*self.scale, (self.height + temp.height() - 15)*self.scale)
+        self.child.setGeometry(cur.x(), cur.y() + self.height - 15,
+                cur.x() + temp.width(), self.height + temp.height() - 15)
         # self.child.setParent(self)
         self.raiseEvent()
 
@@ -110,7 +110,7 @@ class BasicBlock(QWidget):
     def move_recurse(self, x, y):
         self.move_to(x, y)
         if self.child is not None:
-            self.child.move_recurse(x, y + (self.geometry().height() - 15)*self.scale)
+            self.child.move_recurse(x, y + self.geometry().height() - 15)
 
     def mouseMoveEvent(self, event):
         if self.dragging == -10:
@@ -149,7 +149,7 @@ class CodeBlock(BasicBlock):
             self.width = QFontMetrics.width(metric, self.content) + 30
         else:
             self.width = 150
-        self.height = metric.height() + 30
+        self.height = metric.height() + 30 
         self.text_size = 50
 
         temp = self.geometry()
@@ -164,12 +164,12 @@ class CodeBlock(BasicBlock):
         painter.setFont(QFont("Comic Sans MS", 15))
         painter.setRenderHint(QPainter.Antialiasing)
         #painter.drawRoundedRect(0, 5, self.geometry().width() - 5, self.geometry().height() - 7, 3, 3)
-        painter.drawChord(QRect(20, 9, 45, 45), 180 * 16, 180 * 16)
+        painter.drawChord(QRect(20, 9*self.scale, 45, 45*1.25), 180 * 16, 180 * 16)
         geom = self.geometry()
-        painter.drawRoundedRect(QRect(0, 0, geom.width(), geom.height() - 15), 3, 3)
+        painter.drawRoundedRect(QRect(0, 0, geom.width(), geom.height() - 15), 3*self.scale, 3*self.scale)
         painter.setBrush(QColor("white"))
         painter.setPen(QColor("white"))
-        painter.drawText(10, 25, self.content)
+        painter.drawText(10, 25*self.scale, self.content)
         painter.drawChord(QRect(20, -37, 45, 45), 180 * 16, 180 * 16)
         painter.end()
 
