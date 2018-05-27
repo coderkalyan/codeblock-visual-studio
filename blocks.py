@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import random
 
-from PyQt5.QtWidgets import QWidget, QApplication
+from PyQt5.QtWidgets import QWidget, QApplication, QDesktopWidget
 from PyQt5.QtCore import QRect, QPoint, QSize, Qt, pyqtSignal
 from PyQt5.QtGui import QPainter, QFont, QColor, QImage, QFontMetrics
 import time
@@ -15,6 +15,7 @@ class BasicBlock(QWidget):
         self.child = None
         self.parent = None
         self.text_size = 50
+        self.scale = QDesktopWidget().screenGeometry().height()/1080
         self.dragging = -10
         self.width = 100
         self.height = 100
@@ -22,8 +23,8 @@ class BasicBlock(QWidget):
         self.color = random.choice(["red", "orange", "yellow", "green", "blue"])
 
         temp = self.geometry()
-        self.setGeometry(temp.x(), temp.y(), temp.x() + self.width, temp.y() + self.height)
-        #self.raiseEvent()
+        self.setGeometry(temp.x(), temp.y(),
+                temp.x() + self.width*self.scale, temp.y() + self.height*self.scale)
 
         blocks.append(self)
 
@@ -51,7 +52,9 @@ class BasicBlock(QWidget):
         """
 
         geom = self.geometry()
-        self.setGeometry(geom.x() + delta_x, geom.y() + delta_y, geom.width() + delta_x, geom.height() + delta_y)
+        self.setGeometry(geom.x() + delta_x, geom.y() + delta_y,
+                geom.width() + delta_x, geom.height() + delta_y)
+
         return geom.x() + delta_x, geom.y() + delta_y
 
     def move_to(self, x, y):
@@ -62,7 +65,6 @@ class BasicBlock(QWidget):
         """
 
         geom = self.geometry()
-        print(self.height)
         self.setGeometry(x, y, self.width, self.height)
 
     def attach_child(self, child):
