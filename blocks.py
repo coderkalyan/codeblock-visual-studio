@@ -15,7 +15,7 @@ class BasicBlock(QWidget):
         self.child = None
         self.parent = None
         self.text_size = 50
-        self.scale = QDesktopWidget().screenGeometry().height()/1080
+        self.scale = 2 #QDesktopWidget().screenGeometry().height()/1080
         self.dragging = -10
         self.width = 100
         self.height = 100
@@ -149,7 +149,8 @@ class CodeBlock(BasicBlock):
             self.width = QFontMetrics.width(metric, self.content) + 30
         else:
             self.width = 150
-        self.height = metric.height() + 30 
+        self.height = (metric.height() + 30)*self.scale
+        print(self.height, "hight")
         self.text_size = 50
 
         temp = self.geometry()
@@ -164,7 +165,7 @@ class CodeBlock(BasicBlock):
         painter.setFont(QFont("Comic Sans MS", 15))
         painter.setRenderHint(QPainter.Antialiasing)
         #painter.drawRoundedRect(0, 5, self.geometry().width() - 5, self.geometry().height() - 7, 3, 3)
-        painter.drawChord(QRect(20, 9*self.scale, 45, 45*1.25), 180 * 16, 180 * 16)
+        painter.drawChord(QRect(20, self.height-50, 45, 45), 180 * 16, 180 * 16)
         geom = self.geometry()
         painter.drawRoundedRect(QRect(0, 0, geom.width(), geom.height() - 15), 3*self.scale, 3*self.scale)
         painter.setBrush(QColor("white"))
