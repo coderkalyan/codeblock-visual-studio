@@ -182,7 +182,8 @@ class CapBlock(BasicBlock):
         self.color = "dark green"
         font = QFont("Comic Sans MS", 15)
         metric = QFontMetrics(font)
-        self.height = metric.height() + 57
+        self.height = (metric.height() + 50)*self.scale
+        print(self.height)
         if QFontMetrics.width(metric, self.content) + 30 > 100:
             self.width = QFontMetrics.width(metric, self.content) + 30
         else:
@@ -201,15 +202,16 @@ class CapBlock(BasicBlock):
         painter.setBrush(QColor(self.color))
         painter.setFont(QFont("Comic Sans MS", 15))
         painter.setRenderHint(QPainter.Antialiasing)
-        painter.drawRoundedRect(0, 30, self.geometry().width(), 40, 3, 3)
-        painter.drawChord(QRect(0, 5, self.width, 60), 0 * 16, 180 * 16)
+        painter.drawRoundedRect(QRect(0, 30*self.scale, self.geometry().width(), 40*self.scale),
+                3*self.scale, 3*self.scale)
+        painter.drawChord(QRect(0, 5, self.width, 60*self.scale), 0 * 16, 180 * 16)
         geom = self.geometry()
-        painter.drawChord(QRect(20, 35, 45, 45), 180 * 16, 180 * 16)
+        painter.drawChord(QRect(20, self.height-45, 45, 45), 180 * 16, 180 * 16)
         #painter.drawRoundedRect(QRect(0, 20, geom.width(), geom.height() - 15), 3, 3)
         painter.setBrush(QColor("white"))
         painter.setPen(QColor("white"))
         # painter.drawChord(QRect(20, 60, 45, 45), 180 * 16, 180 * 16)
-        painter.drawText(10, 50, self.content)
+        painter.drawText(10, 50*self.scale, self.content)
         painter.end()
 
 class AbstractDraggableBlock(QWidget):
