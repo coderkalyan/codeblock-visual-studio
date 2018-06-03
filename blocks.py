@@ -15,7 +15,7 @@ class BasicBlock(QWidget):
         self.child = None
         self.parent = None
         self.text_size = 50
-        self.scale = 2 #QDesktopWidget().screenGeometry().height()/1080
+        self.scale = 3 #QDesktopWidget().screenGeometry().height()/1080
         self.dragging = -10
         self.width = 100
         self.height = 100
@@ -182,7 +182,7 @@ class CapBlock(BasicBlock):
         self.color = "dark green"
         font = QFont("Comic Sans MS", 15)
         metric = QFontMetrics(font)
-        self.height = (metric.height() + 50)*self.scale
+        self.height = (metric.height() + 56)*self.scale-(15*(self.scale-1))
         print(self.height)
         if QFontMetrics.width(metric, self.content) + 30 > 100:
             self.width = QFontMetrics.width(metric, self.content) + 30
@@ -206,7 +206,7 @@ class CapBlock(BasicBlock):
                 3*self.scale, 3*self.scale)
         painter.drawChord(QRect(0, 5, self.width, 60*self.scale), 0 * 16, 180 * 16)
         geom = self.geometry()
-        painter.drawChord(QRect(20, self.height-45, 45, 45), 180 * 16, 180 * 16)
+        painter.drawChord(QRect(20, self.height-50, 45, 45), 180 * 16, 180 * 16)
         #painter.drawRoundedRect(QRect(0, 20, geom.width(), geom.height() - 15), 3, 3)
         painter.setBrush(QColor("white"))
         painter.setPen(QColor("white"))
