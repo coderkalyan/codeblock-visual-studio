@@ -25,7 +25,7 @@ class MainWindow(QMainWindow):
 
         self.tabWidget = QTabWidget(self.centralwidget)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(1)
+        sizePolicy.setHorizontalStretch(3)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.tabWidget.sizePolicy().hasHeightForWidth())
 
@@ -102,7 +102,7 @@ class MainWindow(QMainWindow):
         self.verticalLayout.addWidget(self.treeWidget)
 
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(3)
+        sizePolicy.setHorizontalStretch(7)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.tabWidget_2.sizePolicy().hasHeightForWidth())
 
