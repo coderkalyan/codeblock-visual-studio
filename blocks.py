@@ -15,7 +15,7 @@ class BasicBlock(QWidget):
         self.child = None
         self.parent = None
         self.text_size = 50
-        self.scale = 3 #QDesktopWidget().screenGeometry().height()/1080
+        self.scale = QDesktopWidget().screenGeometry().height()/1080
         self.dragging = -10
         self.width = 100
         self.height = 100
