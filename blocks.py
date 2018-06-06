@@ -167,7 +167,7 @@ class CodeBlock(BasicBlock):
         #painter.drawRoundedRect(0, 5, self.geometry().width() - 5, self.geometry().height() - 7, 3, 3)
         painter.drawChord(QRect(20, self.height-50, 45, 45), 180 * 16, 180 * 16)
         geom = self.geometry()
-        painter.drawRoundedRect(QRect(0, 0, geom.width(), geom.height() - 15), 3*self.scale, 3*self.scale)
+        painter.drawRoundedRect(QRect(0, 0, geom.width(), geom.height() - 15), 6*self.scale, 6*self.scale)
         painter.setBrush(QColor("white"))
         painter.setPen(QColor("white"))
         painter.drawText(10, 25*self.scale, self.content)
@@ -203,7 +203,7 @@ class CapBlock(BasicBlock):
         painter.setFont(QFont("Comic Sans MS", 15))
         painter.setRenderHint(QPainter.Antialiasing)
         painter.drawRoundedRect(QRect(0, 30*self.scale, self.geometry().width(), 40*self.scale),
-                3*self.scale, 3*self.scale)
+                6*self.scale, 6*self.scale)
         painter.drawChord(QRect(0, 5, self.width, 60*self.scale), 0 * 16, 180 * 16)
         geom = self.geometry()
         painter.drawChord(QRect(20, self.height-50, 45, 45), 180 * 16, 180 * 16)
