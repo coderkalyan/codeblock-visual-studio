@@ -210,6 +210,42 @@ class CapBlock(BasicBlock):
         painter.end()
 
 
+class CtrlTop(BasicBlock):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.color = "orange"
+        font = QFont("Comic Sans MS", 15)
+        metric = QFontMetrics(font)
+        if QFontMetrics.width(metric, self.content) + 30 > 100:
+            self.width = QFontMetrics.width(metric, self.content) + 30
+        else:
+            self.width = 150
+        self.height = metric.height() + 30
+        self.text_size = 50
+
+        temp = self.geometry()
+        self.setGeometry(temp.x(), temp.y(), temp.x() + self.width, self.height)
+        self.repaint()
+
+    def paintEvent(self, QPaintEvent):
+        painter = QPainter()
+        painter.begin(self)
+        painter.setPen(QColor(self.color))
+        painter.setBrush(QColor(self.color))
+        painter.setFont(QFont("Comic Sans MS", 15))
+        painter.setRenderHint(QPainter.Antialiasing)
+        #painter.drawRoundedRect(0, 5, self.geometry().width() - 5, self.geometry().height() - 7, 3, 3)
+        painter.drawChord(QRect(20, 9, 45, 45), 180 * 16, 180 * 16)
+        geom = self.geometry()
+        painter.drawRoundedRect(QRect(0, 0, geom.width(), geom.height() - 15), 3, 3)
+        painter.setBrush(QColor("white"))
+        painter.setPen(QColor("white"))
+        painter.drawText(10, 25, self.content)
+        painter.drawChord(QRect(20, -37, 45, 45), 180 * 16, 180 * 16)
+        painter.end()
+
+
 
 if __name__ == "__main__":
     app = QApplication([])
@@ -244,7 +280,7 @@ if __name__ == "__main__":
     # b1.move(20, 20)
     test = []
     for i in range(15):
-        test.append(CodeBlock("test", parent=w))
+        test.append(CtrlTop("test", parent=w))
         if i != 0:
             test[i-1].attach_child(test[i])
     b6.attach_child(test[0])
