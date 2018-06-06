@@ -1,6 +1,10 @@
 #!/usr/bin/python3
 from PyQt5.QtCore import *
-from PyQt5.QtWidgets import QApplication, QWidget, QFrame, QFileDialog, QTreeWidgetItem
+<<<<<<< HEAD
+from PyQt5.QtWidgets import QApplication, QWidget, QFrame
+=======
+from PyQt5.QtWidgets import QApplication, QFileDialog, QTreeWidgetItem
+>>>>>>> origin/iss5
 from mainwindow import MainWindow
 import sys
 import importlib.util
@@ -73,7 +77,9 @@ class Main(MainWindow):
         self.codeArea.setUpdatesEnabled(True)
         self.function_blocks = self.generate_function_blocks(funcs)
         self.code_blocks = self.generate_code_blocks(funcs)
+        print(self.function_blocks.items(), "itemz")
         for k, v in self.function_blocks.items():
+<<<<<<< HEAD
             print(v, self.code_blocks[k][-1].content, "attach_child")
             v.attach_child(self.code_blocks[k][0])
             v.raiseEvent()
@@ -82,6 +88,22 @@ class Main(MainWindow):
         for i in list(self.function_blocks.values()):
             i.move_recurse(list(self.function_blocks.values()).index(i)*400, i.geometry().y())
             print(i, "eye")
+=======
+            v.attached = self.code_blocks[k][-1]
+            v.attached.bourgeois = v
+            v.raise_()
+            v.show()
+            self.code_blocks[k].append(v)
+
+        for i in list(self.function_blocks.values()):
+            i.setGeometry(list(self.function_blocks.values()).index(
+                i)*400, i.geometry().y(), i.geometry().width(), i.geometry().height())
+            for j in range(199):
+                if i.attached is not None:
+                    i.attached.setGeometry(i.geometry().x(), i.geometry().y(
+                    )+i.geometry().height()-17, i.attached.geometry().width(), i.attached.geometry().height())
+                    i.attached.moveChild()
+>>>>>>> origin/iss5
         # svgWidget = HatBlock("test", self.code_blocks['test'][-1], self.codeArea)
         # self.function_blocks.append(svgWidget)
         # svgWidget.show()
@@ -92,9 +114,17 @@ class Main(MainWindow):
         for func, func_def in funcs.items():
             if func != "":
                 if "def " in func_def[0].strip():
+<<<<<<< HEAD
                     retblocks[func] = CapBlock(func_def[0].strip(), parent=self.codeArea)
                 else:
                     retblocks[func] = CapBlock(func_def[1].strip(), parent=self.codeArea)
+=======
+                    retblocks[func] = HatBlock(
+                        func_def[0].strip(), None, self.codeArea)
+                else:
+                    retblocks[func] = HatBlock(
+                        func_def[1].strip(), None, self.codeArea)
+>>>>>>> origin/iss5
             f = f + 1
         return retblocks
 
@@ -105,13 +135,30 @@ class Main(MainWindow):
         retblocks['test'] = []
         for func, code in funcs.items():
             f = 0
+<<<<<<< HEAD
+            print(code[0], "throwawaygrep")
+            print(func, "NTOOOOT")
             retblocks[func] = []
             for line in code:
                 if func != "" and "def " not in line:
                     retblocks[func].append(CodeBlock(line, parent=self.codeArea))
                     if f != 0:
                         retblocks[func][f-1].attach_child(retblocks[func][f])
+=======
+            code.reverse()
+            retblocks[func] = []
+            for line in code:
+                if func != "" and "def " not in line:
+                    if f == 0:
+                        retblocks[func].append(
+                            CodeBlock(line, None, self.codeArea))
+                    else:
+                        retblocks[func].append(
+                            CodeBlock(line, retblocks[func][f-1], self.codeArea))
+                        retblocks[func][f].show()
+>>>>>>> origin/iss5
                     f = f + 1
+                print(retblocks, "retblox")
         return retblocks
 
     def get_imports(self, file):
@@ -142,7 +189,6 @@ class Main(MainWindow):
     def get_classes(self, file):
         classes = {}
         try:
-            sys.path.append("/".join(file.split("/")[:-1]))
             print(file)
             spec = importlib.util.spec_from_file_location(
                 file.split("/")[-1], file)
@@ -164,7 +210,6 @@ class Main(MainWindow):
             print("invalid file")
             # do stuff
         return classes
-
 
     def get_vars(self, file):
         defined = []
@@ -191,5 +236,3 @@ if __name__ == "__main__":
     maine.show()
     print(dir("mainwindow_controller.py"))
     sys.exit(app.exec_())
-
-

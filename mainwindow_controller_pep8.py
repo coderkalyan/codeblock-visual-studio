@@ -80,7 +80,8 @@ class Main(MainWindow):
             self.code_blocks[k].append(v)
 
         for i in list(self.function_blocks.values()):
-            i.move_recurse(list(self.function_blocks.values()).index(i)*400, i.geometry().y())
+            i.move_recurse(list(self.function_blocks.values()
+                                ).index(i)*400, i.geometry().y())
             print(i, "eye")
         # svgWidget = HatBlock("test", self.code_blocks['test'][-1], self.codeArea)
         # self.function_blocks.append(svgWidget)
@@ -92,9 +93,11 @@ class Main(MainWindow):
         for func, func_def in funcs.items():
             if func != "":
                 if "def " in func_def[0].strip():
-                    retblocks[func] = CapBlock(func_def[0].strip(), parent=self.codeArea)
+                    retblocks[func] = CapBlock(
+                        func_def[0].strip(), parent=self.codeArea)
                 else:
-                    retblocks[func] = CapBlock(func_def[1].strip(), parent=self.codeArea)
+                    retblocks[func] = CapBlock(
+                        func_def[1].strip(), parent=self.codeArea)
             f = f + 1
         return retblocks
 
@@ -108,7 +111,8 @@ class Main(MainWindow):
             retblocks[func] = []
             for line in code:
                 if func != "" and "def " not in line:
-                    retblocks[func].append(CodeBlock(line, parent=self.codeArea))
+                    retblocks[func].append(
+                        CodeBlock(line, parent=self.codeArea))
                     if f != 0:
                         retblocks[func][f-1].attach_child(retblocks[func][f])
                     f = f + 1
@@ -165,7 +169,6 @@ class Main(MainWindow):
             # do stuff
         return classes
 
-
     def get_vars(self, file):
         defined = []
         try:
@@ -191,5 +194,3 @@ if __name__ == "__main__":
     maine.show()
     print(dir("mainwindow_controller.py"))
     sys.exit(app.exec_())
-
-

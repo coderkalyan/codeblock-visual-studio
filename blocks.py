@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import random
 
-from PyQt5.QtWidgets import QWidget, QApplication
+from PyQt5.QtWidgets import QWidget, QApplication, QDesktopWidget
 from PyQt5.QtCore import QRect, QPoint, QSize, Qt, pyqtSignal
 from PyQt5.QtGui import QPainter, QFont, QColor, QImage, QFontMetrics
 import time
@@ -15,6 +15,7 @@ class BasicBlock(QWidget):
         self.child = None
         self.parent = None
         self.text_size = 50
+        self.scale = QDesktopWidget().screenGeometry().height()/1080
         self.dragging = -10
         self.width = 100
         self.height = 100
@@ -22,8 +23,8 @@ class BasicBlock(QWidget):
         self.color = random.choice(["red", "orange", "yellow", "green", "blue"])
 
         temp = self.geometry()
-        self.setGeometry(temp.x(), temp.y(), temp.x() + self.width, temp.y() + self.height)
-        #self.raiseEvent()
+        self.setGeometry(temp.x(), temp.y(),
+                temp.x() + self.width*self.scale, temp.y() + self.height*self.scale)
 
         blocks.append(self)
 
@@ -51,7 +52,9 @@ class BasicBlock(QWidget):
         """
 
         geom = self.geometry()
-        self.setGeometry(geom.x() + delta_x, geom.y() + delta_y, geom.width() + delta_x, geom.height() + delta_y)
+        self.setGeometry(geom.x() + delta_x, geom.y() + delta_y,
+                geom.width() + delta_x, geom.height() + delta_y)
+
         return geom.x() + delta_x, geom.y() + delta_y
 
     def move_to(self, x, y):
@@ -62,7 +65,6 @@ class BasicBlock(QWidget):
         """
 
         geom = self.geometry()
-        print(self.height)
         self.setGeometry(x, y, self.width, self.height)
 
     def attach_child(self, child):
@@ -70,8 +72,8 @@ class BasicBlock(QWidget):
         self.child.parent = self
         temp = self.child.geometry()
         cur = self.geometry()
-        self.child.setGeometry(cur.x(), cur.y() + self.height - 15, cur.x() + temp.width(),
-                               self.height + temp.height() - 15)
+        self.child.setGeometry(cur.x(), cur.y() + self.height - 15,
+                cur.x() + temp.width(), self.height + temp.height() - 15)
         # self.child.setParent(self)
         self.raiseEvent()
 
@@ -147,7 +149,8 @@ class CodeBlock(BasicBlock):
             self.width = QFontMetrics.width(metric, self.content) + 30
         else:
             self.width = 150
-        self.height = metric.height() + 30
+        self.height = (metric.height() + 30)*self.scale
+        print(self.height, "hight")
         self.text_size = 50
 
         temp = self.geometry()
@@ -162,12 +165,12 @@ class CodeBlock(BasicBlock):
         painter.setFont(QFont("Comic Sans MS", 15))
         painter.setRenderHint(QPainter.Antialiasing)
         #painter.drawRoundedRect(0, 5, self.geometry().width() - 5, self.geometry().height() - 7, 3, 3)
-        painter.drawChord(QRect(20, 9, 45, 45), 180 * 16, 180 * 16)
+        painter.drawChord(QRect(20, self.height-50, 45, 45), 180 * 16, 180 * 16)
         geom = self.geometry()
-        painter.drawRoundedRect(QRect(0, 0, geom.width(), geom.height() - 15), 3, 3)
+        painter.drawRoundedRect(QRect(0, 0, geom.width(), geom.height() - 15), 6*self.scale, 6*self.scale)
         painter.setBrush(QColor("white"))
         painter.setPen(QColor("white"))
-        painter.drawText(10, 25, self.content)
+        painter.drawText(10, 25*self.scale, self.content)
         painter.drawChord(QRect(20, -37, 45, 45), 180 * 16, 180 * 16)
         painter.end()
 
@@ -179,7 +182,8 @@ class CapBlock(BasicBlock):
         self.color = "dark green"
         font = QFont("Comic Sans MS", 15)
         metric = QFontMetrics(font)
-        self.height = metric.height() + 57
+        self.height = (metric.height() + 56)*self.scale-(15*(self.scale-1))
+        print(self.height)
         if QFontMetrics.width(metric, self.content) + 30 > 100:
             self.width = QFontMetrics.width(metric, self.content) + 30
         else:
@@ -198,15 +202,16 @@ class CapBlock(BasicBlock):
         painter.setBrush(QColor(self.color))
         painter.setFont(QFont("Comic Sans MS", 15))
         painter.setRenderHint(QPainter.Antialiasing)
-        painter.drawRoundedRect(0, 30, self.geometry().width(), 40, 3, 3)
-        painter.drawChord(QRect(0, 5, self.width, 60), 0 * 16, 180 * 16)
+        painter.drawRoundedRect(QRect(0, 30*self.scale, self.geometry().width(), 40*self.scale),
+                6*self.scale, 6*self.scale)
+        painter.drawChord(QRect(0, 5, self.width, 60*self.scale), 0 * 16, 180 * 16)
         geom = self.geometry()
-        painter.drawChord(QRect(20, 35, 45, 45), 180 * 16, 180 * 16)
+        painter.drawChord(QRect(20, self.height-50, 45, 45), 180 * 16, 180 * 16)
         #painter.drawRoundedRect(QRect(0, 20, geom.width(), geom.height() - 15), 3, 3)
         painter.setBrush(QColor("white"))
         painter.setPen(QColor("white"))
         # painter.drawChord(QRect(20, 60, 45, 45), 180 * 16, 180 * 16)
-        painter.drawText(10, 50, self.content)
+        painter.drawText(10, 50*self.scale, self.content)
         painter.end()
 
 
