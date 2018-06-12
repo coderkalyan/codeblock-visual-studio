@@ -337,6 +337,20 @@ class CtrlBottom(BasicBlock):
         if self.child is not None:
             self.child.move_recurse(x-20, y + self.geometry().height() - 15)
 
+    # Override mouse events for CtrlBottom so that the user cannot drag it
+    # independently from CtrlTop
+    def mousePressEvent(self, event):
+        #Override mouseReleaseEvent method from BasicBlock
+        pass
+
+    def mouseMoveEvent(self, event):
+        #Override mouseReleaseEvent method from BasicBlock
+        pass
+
+    def mouseReleaseEvent(self, event):
+        #Override mouseReleaseEvent method from BasicBlock
+        pass
+
     def paintEvent(self, QPaintEvent):
         painter = QPainter()
         painter.begin(self)
@@ -397,14 +411,6 @@ if __name__ == "__main__":
     c3.attach_bottom(c2)
     # b1.move(20, 20)
     test = []
-    t1 = CtrlBottom("test", parent=w)
-    for i in range(15):
-        test.append(CodeBlock("test", parent=w))
-        if i != 0:
-            test[i-1].attach_child(test[i])
-        else:
-            t1.attach_child(test[i])
-    b6.attach_child(test[0])
     b6.raiseEvent()
     #for j in range(len(test)):
     #    test[j].attach_child(test[j-1])
