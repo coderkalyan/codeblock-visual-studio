@@ -7,6 +7,8 @@ from PyQt5.QtGui import QPainter, QFont, QColor, QImage, QFontMetrics
 import time
 
 blocks = []
+
+
 class BasicBlock(QWidget):
     def __init__(self, content='print("Hello, World")', *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -220,18 +222,27 @@ class CtrlTop(BasicBlock):
         super().__init__(*args, **kwargs)
 
         self.color = "orange"
+        self.bar = None
         font = QFont("Comic Sans MS", 15)
         metric = QFontMetrics(font)
         if QFontMetrics.width(metric, self.content) + 30 > 100:
             self.width = QFontMetrics.width(metric, self.content) + 30
         else:
             self.width = 150
-        self.height = metric.height() + 30
+        self.height = (metric.height() + 30)*self.scale
+        print(self.height, "hight")
         self.text_size = 50
 
         temp = self.geometry()
         self.setGeometry(temp.x(), temp.y(), temp.x() + self.width, self.height)
         self.repaint()
+
+    def move_recurse(self, x, y):
+        self.move_to(x, y)
+        if self.bar is not None:
+            self.bar.move_to(x, y)
+        if self.child is not None:
+            self.child.move_recurse(x + 20, y + self.geometry().height() - 15)
 
     def paintEvent(self, QPaintEvent):
         painter = QPainter()
@@ -241,15 +252,105 @@ class CtrlTop(BasicBlock):
         painter.setFont(QFont("Comic Sans MS", 15))
         painter.setRenderHint(QPainter.Antialiasing)
         #painter.drawRoundedRect(0, 5, self.geometry().width() - 5, self.geometry().height() - 7, 3, 3)
-        painter.drawChord(QRect(20, 9, 45, 45), 180 * 16, 180 * 16)
+        painter.drawChord(QRect(40, self.height-50, 45, 45), 180 * 16, 180 * 16)
         geom = self.geometry()
-        painter.drawRoundedRect(QRect(0, 0, geom.width(), geom.height() - 15), 3, 3)
+        painter.drawRoundedRect(QRect(0, 0, geom.width(), geom.height() - 15), 6*self.scale, 6*self.scale)
         painter.setBrush(QColor("white"))
         painter.setPen(QColor("white"))
-        painter.drawText(10, 25, self.content)
+        painter.drawText(10, 25*self.scale, self.content)
         painter.drawChord(QRect(20, -37, 45, 45), 180 * 16, 180 * 16)
         painter.end()
 
+
+class CtrlBar(QWidget):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.width = 23
+        self.height = 120
+        self.color = "orange"
+        self.scale = QDesktopWidget().screenGeometry().height()/1080
+
+        temp = self.geometry()
+        self.setGeometry(temp.x(), temp.y(), temp.x() + self.width, self.height)
+        self.repaint()
+
+    def attach_top(self, block: CtrlTop):
+        self.setGeometry(block.geometry().x(), block.geometry().y(), self.width, self.height)
+        self.top = block
+        block.bar = self
+
+    def attach_bottom(self, block):
+        self.setGeometry(self.geometry().x(), self.geometry().y(),
+                block.geometry().x() - self.top.geometry().x(),
+                block.geometry().y() - self.top.geometry().y())
+        self.bottom = block
+        self.height = block.geometry().y() - self.top.geometry().y() + 10
+
+    def adjust_bar(self):
+        self.setGeometry(self.top.geometry().x(), self.top.geometry().y(),
+                self.bottom.geometry().x() - self.top.geometry().x(),
+                self.bottom.geometry().y() - self.top.geometry().y())
+
+    def move_to(self, x, y):
+        """
+        Moves the current block to a position
+        :param x: x position to move to
+        :param y: y position to move to
+        """
+
+        geom = self.geometry()
+        self.setGeometry(x, y, self.width, self.height)
+
+    def paintEvent(self, QPaintEvent):
+        painter = QPainter()
+        painter.begin(self)
+        painter.setPen(QColor(self.color))
+        painter.setBrush(QColor(self.color))
+        painter.setFont(QFont("Comic Sans MS", 15))
+        painter.setRenderHint(QPainter.Antialiasing)
+        geom = self.geometry()
+        painter.drawRoundedRect(QRect(0, 0, geom.width(), geom.height()), 6*self.scale, 6*self.scale)
+        painter.end()
+
+
+class CtrlBottom(BasicBlock):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.color = "orange"
+        font = QFont("Comic Sans MS", 15)
+        metric = QFontMetrics(font)
+        if QFontMetrics.width(metric, self.content) + 30 > 100:
+            self.width = QFontMetrics.width(metric, self.content) + 30
+        else:
+            self.width = 150
+        self.height = (metric.height() + 30)*self.scale
+        print(self.height, "hight")
+        self.text_size = 50
+
+        temp = self.geometry()
+        self.setGeometry(temp.x(), temp.y(), temp.x() + self.width, self.height)
+        self.repaint()
+
+    def move_recurse(self, x, y):
+        self.move_to(x-20, y)
+        if self.child is not None:
+            self.child.move_recurse(x-20, y + self.geometry().height() - 15)
+
+    def paintEvent(self, QPaintEvent):
+        painter = QPainter()
+        painter.begin(self)
+        painter.setPen(QColor(self.color))
+        painter.setBrush(QColor(self.color))
+        painter.setRenderHint(QPainter.Antialiasing)
+        #painter.drawRoundedRect(0, 5, self.geometry().width() - 5, self.geometry().height() - 7, 3, 3)
+        painter.drawChord(QRect(20, self.height-50, 45, 45), 180 * 16, 180 * 16)
+        geom = self.geometry()
+        painter.drawRoundedRect(QRect(0, 0, geom.width(), geom.height() - 15), 6*self.scale, 6*self.scale)
+        painter.setBrush(QColor("white"))
+        painter.setPen(QColor("white"))
+        painter.drawChord(QRect(40, -37, 45, 45), 180 * 16, 180 * 16)
+        painter.end()
 
 
 if __name__ == "__main__":
@@ -282,12 +383,27 @@ if __name__ == "__main__":
     b3.attach_child(b4)
     b4.attach_child(b5)
 
+    b9 = CodeBlock("teeeeest", parent=w)
+    b10 = CodeBlock("another tessst", parent=w)
+    c1 = CtrlTop("tests", parent=w)
+    c2 = CtrlBottom("tetss", parent=w)
+    c3 = CtrlBar(parent=w)
+
+    c1.attach_child(b9)
+    b9.attach_child(b10)
+    b10.attach_child(c2)
+
+    c3.attach_top(c1)
+    c3.attach_bottom(c2)
     # b1.move(20, 20)
     test = []
+    t1 = CtrlBottom("test", parent=w)
     for i in range(15):
-        test.append(CtrlTop("test", parent=w))
+        test.append(CodeBlock("test", parent=w))
         if i != 0:
             test[i-1].attach_child(test[i])
+        else:
+            t1.attach_child(test[i])
     b6.attach_child(test[0])
     b6.raiseEvent()
     #for j in range(len(test)):
