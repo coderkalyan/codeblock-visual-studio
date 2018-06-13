@@ -108,7 +108,11 @@ class Main(MainWindow):
             retblocks[func] = []
             for line in code:
                 if func != "" and "def " not in line:
-                    retblocks[func].append(CodeBlock(line, parent=self.codeArea))
+                    if line.strip()[-1] == ':':
+                        # Indented Block - use CtrlTop block
+                        retblocks[func].append(CtrlTop(line, parent=self.codeArea))
+                    else:
+                        retblocks[func].append(CodeBlock(line, parent=self.codeArea))
                     if f != 0:
                         retblocks[func][f-1].attach_child(retblocks[func][f])
                     f = f + 1
@@ -131,8 +135,8 @@ class Main(MainWindow):
         for i in dir(dirvar):
             if inspect.isroutine(getattr(dirvar, i)):
                 try:
-                    functions[i] = inspect.getsource(
-                        getattr(dirvar, i)).splitlines()
+                    functions[i] = list(filter(None, inspect.getsource(
+                        getattr(dirvar, i)).splitlines()))
                     print([s for s in functions[i]
                            if "            " in s], "function_list")
                 except TypeError:
