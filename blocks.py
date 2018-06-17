@@ -240,6 +240,8 @@ class CtrlTop(BasicBlock):
     def move_recurse(self, x, y):
         self.move_to(x, y)
         if self.bar is not None:
+            print(x, y)
+            print(self.bar.geometry(), "bargeom report")
             self.bar.move_to(x, y)
         if self.child is not None:
             self.child.move_recurse(x + 20, y + self.geometry().height() - 15)
@@ -270,8 +272,6 @@ class CtrlBar(QWidget):
         self.color = "orange"
         self.scale = QDesktopWidget().screenGeometry().height()/1080
 
-        temp = self.geometry()
-        self.setGeometry(temp.x(), temp.y(), temp.x() + self.width, self.height)
         self.repaint()
 
     def attach_top(self, block: CtrlTop):
@@ -285,11 +285,17 @@ class CtrlBar(QWidget):
                 block.geometry().y() - self.top.geometry().y())
         self.bottom = block
         self.height = block.geometry().y() - self.top.geometry().y() + 10
+        print(self.geometry(), "bargeom")
+        print(self.top.geometry(), self.bottom.geometry())
 
     def adjust_bar(self):
+        print(self.top.geometry(), self.bottom.geometry(), "newbot")
+        global_pos_top = self.mapToGlobal(self.top.pos())
+        global_pos_bottom = self.mapToGlobal(self.bottom.pos())
         self.setGeometry(self.top.geometry().x(), self.top.geometry().y(),
-                self.bottom.geometry().x() - self.top.geometry().x(),
-                self.bottom.geometry().y() - self.top.geometry().y())
+                self.width,
+                self.bottom.geometry().y() - self.top.geometry().y() + 10)
+        self.height = self.bottom.geometry().y() - self.top.geometry().y() + 10
 
     def move_to(self, x, y):
         """
@@ -383,35 +389,38 @@ if __name__ == "__main__":
     # trivial1 = CodeBlock("hi", trivial, parent=w)
     # trivial2 = CodeBlock("hi", trivial1, parent=w)
     # trivial3 = CodeBlock("hi", trivial2, parent=w)
-    b1 = CodeBlock("test", parent=w)
-    b5 = CodeBlock("test2", parent=w)
-    b4 = CodeBlock("test3", parent=w)
-    b3 = CodeBlock("test4", parent=w)
-    b2 = CodeBlock("test5", parent=w)
-    # trivial4 = HatBlock("hi", trivial3, parent=w)
-    b6 = CapBlock("test6", parent=w)
-    # # b2.move(0,45)
+    # b1 = CodeBlock("test", parent=w)
+    # b5 = CodeBlock("test2", parent=w)
+    # b4 = CodeBlock("test3", parent=w)
+    # b3 = CodeBlock("test4", parent=w)
+    # b2 = CodeBlock("test5", parent=w)
+    # # trivial4 = HatBlock("hi", trivial3, parent=w)
+    # b6 = CapBlock("test6", parent=w)
+    # # # b2.move(0,45)
 
-    b1.attach_child(b2)
-    b2.attach_child(b3)
-    b3.attach_child(b4)
-    b4.attach_child(b5)
+    # b1.attach_child(b2)
+    # b2.attach_child(b3)
+    # b3.attach_child(b4)
+    # b4.attach_child(b5)
 
+    b6 = CapBlock("fewa", parent=w)
     b9 = CodeBlock("teeeeest", parent=w)
     b10 = CodeBlock("another tessst", parent=w)
     c1 = CtrlTop("tests", parent=w)
     c2 = CtrlBottom("tetss", parent=w)
     c3 = CtrlBar(parent=w)
 
+    b6.attach_child(c1)
     c1.attach_child(b9)
     b9.attach_child(b10)
     b10.attach_child(c2)
-
     c3.attach_top(c1)
     c3.attach_bottom(c2)
+
+    b6.move_recurse(20,20)
     # b1.move(20, 20)
     test = []
-    b6.raiseEvent()
+    #b6.raiseEvent()
     #for j in range(len(test)):
     #    test[j].attach_child(test[j-1])
     w.show()

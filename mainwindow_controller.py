@@ -85,6 +85,10 @@ class Main(MainWindow):
         # svgWidget = HatBlock("test", self.code_blocks['test'][-1], self.codeArea)
         # self.function_blocks.append(svgWidget)
         # svgWidget.show()
+        for bar in self.code_blocks['ctrlbar']:
+            bar.adjust_bar()
+            bar.show()
+            bar.raise_()
 
     def generate_function_blocks(self, funcs):
         f = 0
@@ -103,14 +107,28 @@ class Main(MainWindow):
         retblocks = {}
         funcs = funcs_list
         retblocks['test'] = []
+        retblocks['ctrlbar'] = []
+        ctrl_bar_count = 0
         for func, code in funcs.items():
             f = 0
             retblocks[func] = []
+            control_block_map = {}
             for line in code:
                 if func != "" and "def " not in line:
                     if line.strip()[-1] == ':':
                         # Indented Block - use CtrlTop block
                         retblocks[func].append(CtrlTop(line, parent=self.codeArea))
+                        # Store [whitespace, satisfied] values for ctrltop
+                        control_block_map[len(line) - len(line.lstrip())] = retblocks[func][f]
+                    elif (len(line) - len(line.lstrip())) in control_block_map.keys():
+                        retblocks[func].append(CtrlBottom(line, parent=self.codeArea))
+                        retblocks['ctrlbar'].append(CtrlBar(parent=self.codeArea))
+                        print(retblocks['ctrlbar'])
+                        retblocks['ctrlbar'][ctrl_bar_count].attach_top(control_block_map[len(line) - len(line.lstrip())])
+                        retblocks['ctrlbar'][ctrl_bar_count].attach_bottom(retblocks[func][f])
+                        print(retblocks['ctrlbar'][ctrl_bar_count].geometry(), "bargeom report2")
+                        ctrl_bar_count = ctrl_bar_count + 1
+                        del control_block_map[len(line) - len(line.lstrip())]
                     else:
                         retblocks[func].append(CodeBlock(line, parent=self.codeArea))
                     if f != 0:
