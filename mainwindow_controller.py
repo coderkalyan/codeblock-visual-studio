@@ -88,7 +88,7 @@ class Main(MainWindow):
         for bar in self.code_blocks['ctrlbar']:
             bar.adjust_bar()
             bar.show()
-            bar.raise_()
+        print(self.code_blocks['ctrlbar'], "ctrlbar")
 
     def generate_function_blocks(self, funcs):
         f = 0
@@ -115,25 +115,31 @@ class Main(MainWindow):
             control_block_map = {}
             for line in code:
                 if func != "" and "def " not in line:
-                    if line.strip()[-1] == ':':
-                        # Indented Block - use CtrlTop block
-                        retblocks[func].append(CtrlTop(line, parent=self.codeArea))
-                        # Store [whitespace, satisfied] values for ctrltop
-                        control_block_map[len(line) - len(line.lstrip())] = retblocks[func][f]
-                    elif (len(line) - len(line.lstrip())) in control_block_map.keys():
+                    if (len(line) - len(line.lstrip())) in control_block_map.keys():
+                        # CtrlBottom detected (must be before ifblock)
+                        print(line, control_block_map, "control_map")
                         retblocks[func].append(CtrlBottom(line, parent=self.codeArea))
+                        code.insert(f+1, line)
                         retblocks['ctrlbar'].append(CtrlBar(parent=self.codeArea))
                         print(retblocks['ctrlbar'])
                         retblocks['ctrlbar'][ctrl_bar_count].attach_top(control_block_map[len(line) - len(line.lstrip())])
                         retblocks['ctrlbar'][ctrl_bar_count].attach_bottom(retblocks[func][f])
-                        print(retblocks['ctrlbar'][ctrl_bar_count].geometry(), "bargeom report2")
+                        print(control_block_map, 'controlmap in prog')
                         ctrl_bar_count = ctrl_bar_count + 1
                         del control_block_map[len(line) - len(line.lstrip())]
+                    elif line.strip()[-1] == ':':
+                        # Indented Block - use CtrlTop block
+                        retblocks[func].append(CtrlTop(line, parent=self.codeArea))
+                        # Store [whitespace, satisfied] values for ctrltop
+                        control_block_map[len(line) - len(line.lstrip())] = retblocks[func][f]
                     else:
+                        # Just a regular CodeBlock
                         retblocks[func].append(CodeBlock(line, parent=self.codeArea))
                     if f != 0:
                         retblocks[func][f-1].attach_child(retblocks[func][f])
                     f = f + 1
+                    print(line)
+        print(control_block_map, "controlmap remain")
         return retblocks
 
     def get_imports(self, file):
