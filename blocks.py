@@ -183,7 +183,7 @@ class CapBlock(BasicBlock):
         font = QFont("Comic Sans MS", 15)
         metric = QFontMetrics(font)
         print(self.scale, QDesktopWidget().screenGeometry(), "scale")
-        self.height = metric.height() + (63*self.scale)
+        self.height = metric.height() + 56*self.scale
         print(self.height)
         if QFontMetrics.width(metric, self.content) + 30 > 100:
             self.width = QFontMetrics.width(metric, self.content) + 30
