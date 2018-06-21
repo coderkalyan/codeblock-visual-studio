@@ -72,8 +72,10 @@ class BasicBlock(QWidget):
         cur = self.geometry()
         self.child.setGeometry(cur.x(), cur.y() + self.height - 15, cur.x() + temp.width(),
                                self.height + temp.height() - 15)
+        self.child.setGeometry(cur.x(), cur.y() + self.height - 15, temp.width(),
+                               temp.height())
         # self.child.setParent(self)
-        self.raiseEvent()
+        self.child.raiseEvent()
 
     def detach_child(self):
         if self.child is None:
@@ -643,27 +645,27 @@ if __name__ == "__main__":
     # trivial2 = CodeBlock("hi", trivial1, parent=w)
     # trivial3 = CodeBlock("hi", trivial2, parent=w)
     b1 = CodeBlock("test", parent=w)
-    b5 = CodeBlock("test2", parent=w)
-    b4 = CodeBlock("test3", parent=w)
-    b3 = CodeBlock("test4", parent=w)
-    b2 = CodeBlock("test5", parent=w)
+    # b5 = CodeBlock("test2", parent=w)
+    # b4 = CodeBlock("test3", parent=w)
+    # b3 = CodeBlock("test4", parent=w)
+    b2 = CodeBlock("test2", parent=w)
     # trivial4 = HatBlock("hi", trivial3, parent=w)
-    b6 = CapBlock("test6", parent=w)
+    # b6 = CapBlock("test6", parent=w)
     # # b2.move(0,45)
 
     b1.attach_child(b2)
-    b2.attach_child(b3)
-    b3.attach_child(b4)
-    b4.attach_child(b5)
+    # b2.attach_child(b3)
+    # b3.attach_child(b4)
+    # b4.attach_child(b5)
 
     # b1.move(20, 20)
-    test = []
-    for i in range(15):
-        test.append(CodeBlock("test", parent=w))
-        if i != 0:
-            test[i-1].attach_child(test[i])
-    b6.attach_child(test[0])
-    b6.raiseEvent()
+    # test = []
+    # for i in range(15):
+    #     test.append(CodeBlock("test", parent=w))
+    #     if i != 0:
+    #         test[i-1].attach_child(test[i])
+    # b6.attach_child(test[0])
+    # b6.raiseEvent()
     #for j in range(len(test)):
     #    test[j].attach_child(test[j-1])
     w.show()
