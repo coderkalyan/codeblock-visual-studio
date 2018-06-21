@@ -88,6 +88,7 @@ class Main(MainWindow):
         for bar in self.code_blocks['ctrlbar']:
             bar.adjust_bar()
             bar.show()
+            bar.raise_()
         print(self.code_blocks['ctrlbar'], "ctrlbar")
 
     def generate_function_blocks(self, funcs):
@@ -115,13 +116,24 @@ class Main(MainWindow):
             control_block_map = {}
             for line in code:
                 if func != "" and "def " not in line:
-                    if (len(line) - len(line.lstrip())) in control_block_map.keys():
+                    line_leading_whitespace = len(line) - len(line.lstrip())
+                    if line_leading_whitespace in control_block_map.keys():
                         # CtrlBottom detected (must be before ifblock)
-                        print(line, control_block_map, "control_map")
+                        print(line, line_leading_whitespace, control_block_map, "control_map")
+                        sorted_keys = list(control_block_map.keys())
+                        sorted_keys.sort()
+                        if not line_leading_whitespace == \
+                                sorted_keys[-1]:
+                                    print(sorted_keys[-1], line_leading_whitespace, "sorted keys")
+                                    line = line.lstrip()
+                                    for l in range(sorted_keys[-1]):
+                                        print(l)
+                                        line = " " + line
+                                        print(line)
+
                         retblocks[func].append(CtrlBottom(line, parent=self.codeArea))
                         code.insert(f+1, line)
                         retblocks['ctrlbar'].append(CtrlBar(parent=self.codeArea))
-                        print(retblocks['ctrlbar'])
                         retblocks['ctrlbar'][ctrl_bar_count].attach_top(control_block_map[len(line) - len(line.lstrip())])
                         retblocks['ctrlbar'][ctrl_bar_count].attach_bottom(retblocks[func][f])
                         print(control_block_map, 'controlmap in prog')
