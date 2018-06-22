@@ -220,11 +220,6 @@ class CapBlock(BasicBlock):
         painter.drawText(10, 50*self.scale, self.content)
         painter.end()
 
-class AbstractDraggableBlock(QWidget):
-    """
-    A QWidget subclass that can be dragged around within its parent widget.
-    Note: Not intended to work if the parent widget has a layout
-    """
 
 class CtrlTop(BasicBlock):
     def __init__(self, *args, **kwargs):
