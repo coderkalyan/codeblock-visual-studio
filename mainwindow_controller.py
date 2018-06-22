@@ -37,7 +37,10 @@ class Main(MainWindow):
         self.regenerate_classview(filename)
 
     def regenerate_classview(self, file):
-        class_list = self.get_classes(file)
+        try:
+            class_list = self.get_classes(file)
+        except:
+            class_list = {}
         class_list_sorted = {}
         for k, v in class_list.items():
             filesplit = str(v).split("'")[1::2][0].split(".")
