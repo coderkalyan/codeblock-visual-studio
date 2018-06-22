@@ -32,6 +32,7 @@
  - [ ] Submit for testing
  - [ ] Submit PR
 ** TODO - iss7 (Final Stuff) 7/20 [0/8]
+ - [ ] Patch CodeBlocks and CapBlocks to be undraggable (will be undone with implementation of iss4)
  - [ ] Test CVS thoroughly
  - [ ] Debug where needed
  - [ ] Implement features/bugfixes as descriped in iss #7 on issue tracker
