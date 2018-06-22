@@ -67,6 +67,7 @@ class BasicBlock(QWidget):
         """
 
         geom = self.geometry()
+        print(self.height)
         self.setGeometry(x, y, self.width, self.height)
 
     def attach_child(self, child):
@@ -74,8 +75,10 @@ class BasicBlock(QWidget):
         self.child.parent = self
         temp = self.child.geometry()
         cur = self.geometry()
-        self.child.setGeometry(cur.x(), cur.y() + self.height - 15,
-                cur.x() + temp.width(), self.height + temp.height() - 15)
+        #self.child.setGeometry(cur.x(), cur.y() + self.height - 15, cur.x() + temp.width(),
+        #                       self.height + temp.height() - 15)
+        self.child.setGeometry(cur.x(), cur.y() + self.height - 15, temp.width(),
+                               temp.height())
         # self.child.setParent(self)
         self.raiseEvent()
 
@@ -217,6 +220,11 @@ class CapBlock(BasicBlock):
         painter.drawText(10, 50*self.scale, self.content)
         painter.end()
 
+class AbstractDraggableBlock(QWidget):
+    """
+    A QWidget subclass that can be dragged around within its parent widget.
+    Note: Not intended to work if the parent widget has a layout
+    """
 
 class CtrlTop(BasicBlock):
     def __init__(self, *args, **kwargs):
@@ -248,6 +256,7 @@ class CtrlTop(BasicBlock):
             self.child.move_recurse(x + 20, y + self.geometry().height() - 15)
 
     def paintEvent(self, QPaintEvent):
+        print("paintevent")
         painter = QPainter()
         painter.begin(self)
         painter.setPen(QColor(self.color))
@@ -370,8 +379,67 @@ class CtrlBottom(BasicBlock):
         painter.drawRoundedRect(QRect(0, 0, geom.width(), geom.height() - 15), 6*self.scale, 6*self.scale)
         painter.setBrush(QColor("white"))
         painter.setPen(QColor("white"))
-        painter.drawChord(QRect(40, -37, 45, 45), 180 * 16, 180 * 16)
+        painter.drawText(
+            20 * self.scale,
+            (self.geometry().height() / 2 + 10) * self.scale,
+            self.text)
         painter.end()
+
+
+# class CodeBlock(AbstractDraggableBlock):
+# """
+#     #A puzzle-piece type CodeBlock meant to represent code in a program
+# """
+#
+#     def __init__(self, text, attached, parent, *args, **kwargs):
+#         super().__init__(attached, parent=parent, *args, **kwargs)
+#         self.text = text
+#         self.scale = 1
+#         self.setGeometry(0, 0, 200 * self.scale, 60 * self.scale)
+#         if self.attached is not None:
+#             new_geometry_attached = QRect(
+#                 self.geometry().x(),
+#                 self.geometry().y() + self.geometry().height() - 17,
+#                 self.attached.geometry().width(),
+#                 self.attached.geometry().height())
+#             print(self.geometry(), "NOOTO")
+#             self.attached.setGeometry(new_geometry_attached)
+#
+#     def paintEvent(self, QPaintEvent):
+#         painter = QPainter()
+#         painter.begin(self)
+#         painter.setPen(QColor("#496BD3"))
+#         painter.setBrush(QColor("#4A6CD4"))
+#         painter.setFont(QFont("Comic Sans MS", 15 * self.scale))
+#
+#         textsize = painter.boundingRect(
+#             self.geometry(), 1, self.text + "       ")
+#
+#         if textsize.width() > 100:
+#             rectwidth = textsize.width()
+#             self.setFixedWidth(textsize.width())
+#         else:
+#             rectwidth = 100
+#
+#         painter.setRenderHint(QPainter.Antialiasing)
+#         painter.drawRect(QRect(0, 0, rectwidth * self.scale, 45 * self.scale))
+#         painter.drawChord(
+#             QRect(
+#                 20 * self.scale,
+#                 12 * self.scale,
+#                 45 * self.scale,
+#                 45 * self.scale),
+#             180 * 16,
+#             180 * 16)
+#         painter.setBrush(QColor("white"))
+#         painter.setPen(QColor("white"))
+#         painter.drawChord(QRect(20 * self.scale, -32 * self.scale,
+#                                 45 * self.scale, 45 * self.scale), 180 * 16, 180 * 16)
+#         painter.drawText(
+#             20 * self.scale,
+#             (self.geometry().height() / 2) * self.scale,
+#             self.text)
+#         painter.end()
 
 
 if __name__ == "__main__":
