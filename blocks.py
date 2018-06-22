@@ -1,12 +1,14 @@
 #!/usr/bin/python3
 import random
 
-from PyQt5.QtWidgets import QWidget, QApplication
+from PyQt5.QtWidgets import QWidget, QApplication, QDesktopWidget
 from PyQt5.QtCore import QRect, QPoint, QSize, Qt, pyqtSignal
 from PyQt5.QtGui import QPainter, QFont, QColor, QImage, QFontMetrics
 import time
 
 blocks = []
+
+
 class BasicBlock(QWidget):
     def __init__(self, content='print("Hello, World")', *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -15,6 +17,7 @@ class BasicBlock(QWidget):
         self.child = None
         self.parent = None
         self.text_size = 50
+        self.scale = QDesktopWidget().screenGeometry().height()/1080
         self.dragging = -10
         self.width = 100
         self.height = 100
@@ -22,8 +25,8 @@ class BasicBlock(QWidget):
         self.color = random.choice(["red", "orange", "yellow", "green", "blue"])
 
         temp = self.geometry()
-        self.setGeometry(temp.x(), temp.y(), temp.x() + self.width, temp.y() + self.height)
-        #self.raiseEvent()
+        self.setGeometry(temp.x(), temp.y(),
+                temp.x() + self.width*self.scale, temp.y() + self.height*self.scale)
 
         blocks.append(self)
 
@@ -51,7 +54,9 @@ class BasicBlock(QWidget):
         """
 
         geom = self.geometry()
-        self.setGeometry(geom.x() + delta_x, geom.y() + delta_y, geom.width() + delta_x, geom.height() + delta_y)
+        self.setGeometry(geom.x() + delta_x, geom.y() + delta_y,
+                geom.width() + delta_x, geom.height() + delta_y)
+
         return geom.x() + delta_x, geom.y() + delta_y
 
     def move_to(self, x, y):
@@ -62,7 +67,6 @@ class BasicBlock(QWidget):
         """
 
         geom = self.geometry()
-        print(self.height)
         self.setGeometry(x, y, self.width, self.height)
 
     def attach_child(self, child):
@@ -70,8 +74,8 @@ class BasicBlock(QWidget):
         self.child.parent = self
         temp = self.child.geometry()
         cur = self.geometry()
-        self.child.setGeometry(cur.x(), cur.y() + self.height - 15, cur.x() + temp.width(),
-                               self.height + temp.height() - 15)
+        self.child.setGeometry(cur.x(), cur.y() + self.height - 15,
+                cur.x() + temp.width(), self.height + temp.height() - 15)
         # self.child.setParent(self)
         self.raiseEvent()
 
@@ -147,7 +151,8 @@ class CodeBlock(BasicBlock):
             self.width = QFontMetrics.width(metric, self.content) + 30
         else:
             self.width = 150
-        self.height = metric.height() + 30
+        self.height = (metric.height() + 30)*self.scale
+        print(self.height, "hight")
         self.text_size = 50
 
         temp = self.geometry()
@@ -162,12 +167,12 @@ class CodeBlock(BasicBlock):
         painter.setFont(QFont("Comic Sans MS", 15))
         painter.setRenderHint(QPainter.Antialiasing)
         #painter.drawRoundedRect(0, 5, self.geometry().width() - 5, self.geometry().height() - 7, 3, 3)
-        painter.drawChord(QRect(20, 9, 45, 45), 180 * 16, 180 * 16)
+        painter.drawChord(QRect(20, self.height-50, 45, 45), 180 * 16, 180 * 16)
         geom = self.geometry()
-        painter.drawRoundedRect(QRect(0, 0, geom.width(), geom.height() - 15), 3, 3)
+        painter.drawRoundedRect(QRect(0, 0, geom.width(), geom.height() - 15), 6*self.scale, 6*self.scale)
         painter.setBrush(QColor("white"))
         painter.setPen(QColor("white"))
-        painter.drawText(10, 25, self.content)
+        painter.drawText(10, 25*self.scale, self.content)
         painter.drawChord(QRect(20, -37, 45, 45), 180 * 16, 180 * 16)
         painter.end()
 
@@ -179,7 +184,8 @@ class CapBlock(BasicBlock):
         self.color = "dark green"
         font = QFont("Comic Sans MS", 15)
         metric = QFontMetrics(font)
-        self.height = metric.height() + 57
+        self.height = (metric.height() + 56)*self.scale-(15*(self.scale-1))
+        print(self.height)
         if QFontMetrics.width(metric, self.content) + 30 > 100:
             self.width = QFontMetrics.width(metric, self.content) + 30
         else:
@@ -198,432 +204,173 @@ class CapBlock(BasicBlock):
         painter.setBrush(QColor(self.color))
         painter.setFont(QFont("Comic Sans MS", 15))
         painter.setRenderHint(QPainter.Antialiasing)
-        painter.drawRoundedRect(0, 30, self.geometry().width(), 40, 3, 3)
-        painter.drawChord(QRect(0, 5, self.width, 60), 0 * 16, 180 * 16)
+        painter.drawRoundedRect(QRect(0, 30*self.scale, self.geometry().width(), 40*self.scale),
+                6*self.scale, 6*self.scale)
+        painter.drawChord(QRect(0, 5, self.width, 60*self.scale), 0 * 16, 180 * 16)
         geom = self.geometry()
-        painter.drawChord(QRect(20, 35, 45, 45), 180 * 16, 180 * 16)
+        painter.drawChord(QRect(20, self.height-50, 45, 45), 180 * 16, 180 * 16)
         #painter.drawRoundedRect(QRect(0, 20, geom.width(), geom.height() - 15), 3, 3)
         painter.setBrush(QColor("white"))
         painter.setPen(QColor("white"))
         # painter.drawChord(QRect(20, 60, 45, 45), 180 * 16, 180 * 16)
-        painter.drawText(10, 50, self.content)
+        painter.drawText(10, 50*self.scale, self.content)
         painter.end()
 
-class AbstractDraggableBlock(QWidget):
-    """
-    A QWidget subclass that can be dragged around within its parent widget.
-    Note: Not intended to work if the parent widget has a layout
-    """
 
-    def __init__(self, attached, *args, **kwargs):
-        self.offset_attached = kwargs.pop('offset', 0)
+class CtrlTop(BasicBlock):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._dragging = False
-        self.offset = QSize(
-            self.geometry().width() / 2,
-            self.geometry().height() / 2)
-        self.attached = attached
-        if type(self.attached) == CtrlBottom:
-            self.offset_attached = -20
-            print(type(self.attached), "attached")
+
+        self.color = "orange"
+        self.bar = None
+        font = QFont("Comic Sans MS", 15)
+        metric = QFontMetrics(font)
+        if QFontMetrics.width(metric, self.content) + 30 > 100:
+            self.width = QFontMetrics.width(metric, self.content) + 30
         else:
-            print(type(self.attached), "attached not")
-        print(self.offset_attached, type(self.attached) == CtrlBottom)
-        self.siblingcoords = {}
-        # TODO: Find a way to only calculate this once instead of for every
-        # instance for performance reasons
-        self.siblings = kwargs['parent'].findChildren(AbstractDraggableBlock)
-        for sibling in self.siblings:
-            self.siblingcoords[sibling] = QPoint(
-                sibling.geometry().x(), sibling.geometry().y())
-        if self.attached is not None:
-            # TODO: optimizations on iterating - possibly get the length of the
-            # chain?
-            for i in range(199):
-                self.attached.bourgeois = self
-                new_geometry_attached = QRect(
-                    self.geometry().x(),
-                    self.geometry().y() + self.geometry().height() - 17,
-                    self.attached.geometry().width(),
-                    self.attached.geometry().height())
-                self.attached.setGeometry(new_geometry_attached)
-                self.attached.moveChild()
+            self.width = 150
+        self.height = (metric.height() + 30)*self.scale
+        print(self.height, "hight")
+        self.text_size = 50
 
-    def mousePressEvent(self, event):
-        self._dragging = True
-        self.raiseEvent()
-        try:
-            self.bourgeois.attached = None
-        except AttributeError:
-            pass
-        for i in self.siblings:
-            i.moving = self
+        temp = self.geometry()
+        self.setGeometry(temp.x(), temp.y(), temp.x() + self.width, self.height)
+        self.repaint()
 
-    def mouseReleaseEvent(self, event):
-        self._dragging = False
-
-        new_pos_global = event.globalPos()
-        globalMap = self.parent().mapFromGlobal(new_pos_global)
-        new_pos_within_parent = QPoint(
-            globalMap.x() - self.offset.width(),
-            globalMap.y() - self.offset.height())
-        new_geometry = QRect(new_pos_within_parent, self.geometry().size())
-        print(self.attached, "RELEASE")
-        self.setGeometry(new_geometry)
-        if self.attached is not None:
-            for i in range(299):
-                new_geometry_attached = QRect(
-                    self.geometry().x() + self.offset_attached,
-                    self.geometry().y() + self.geometry().height() - 17,
-                    self.attached.geometry().width(),
-                    self.attached.geometry().height())
-                self.attached.setGeometry(new_geometry_attached)
-                self.attached.moveChild()
-
-    def mouseMoveEvent(self, event):
-        if not self._dragging:
-            return
-
-        new_pos_global = event.globalPos()
-        globalMap = self.parent().mapFromGlobal(new_pos_global)
-        new_pos_within_parent = QPoint(
-            globalMap.x() - self.offset.width(),
-            globalMap.y() - self.offset.height())
-        new_geometry = QRect(new_pos_within_parent, self.geometry().size())
-        print(self.attached)
-        self.setGeometry(new_geometry)
-        if self.attached is not None:
-            for i in range(5):
-                new_geometry_attached = QRect(
-                    self.geometry().x() + self.offset_attached,
-                    self.geometry().y() + self.geometry().height() - 17,
-                    self.attached.geometry().width(),
-                    self.attached.geometry().height())
-                print(self.attached.geometry(), "noo")
-                self.attached.setGeometry(new_geometry_attached)
-                self.attached.moveChild()
-
-    def moveChild(self):
-        if self.attached is not None:
-            new_geometry_attached = QRect(
-                self.geometry().x() + self.offset_attached,
-                self.geometry().y() + self.geometry().height() - 17,
-                self.attached.geometry().width(),
-                self.attached.geometry().height())
-            self.attached.a.moveChild()
-            self.attached.setGeometry(new_geometry_attached)
-        # temp = self.attached
-        # while temp is not None:
-        #     new_geometry_attached = QRect(
-        #         temp.geometry().x()+self.offset_attached,
-        #         temp.geometry().y()+self.geometry().height() - 17,
-        #         self.attached.geometry().width(),
-        #         self.attached.geometry().height())
-        #     temp.setGeometry(new_geometry_attached)
-        #     print(temp, temp.attached)
-        #     temp = temp.attached
-
-    def raiseEvent(self):
-        self.raise_()
-        if self.attached is not None:
-            self.attached.raiseEvent()
-            self.raise_()
-
-
-class ControlBlockTop(AbstractDraggableBlock):
-    """
-    The top of the ControlBlock flow indicator
-    """
-
-    def __init__(self, text, attached, bar, bottom, parent, *args, **kwargs):
-        super().__init__(attached, offset=20, parent=parent, *args, **kwargs)
-        self.text = text
-        self.scale = 1
-        self.setGeometry(0, 0, 200 * self.scale, 60 * self.scale)
-        self.bar = bar
-        self.bottom = bottom
-
-        print("resize")
-        self.bar.setGeometry(self.geometry().x(),
-                             self.geometry().y(),
-                             self.bar.geometry().width(),
-                             self.bottom.geometry().y() - self.geometry().y())
-        if self.attached is not None:
-            new_geometry_attached = QRect(
-                self.geometry().x() + 20,
-                self.geometry().y() + self.geometry().height() - 17,
-                self.attached.geometry().width(),
-                self.attached.geometry().height())
-            print(self.geometry(), "NOOTO")
-            self.attached.setGeometry(new_geometry_attached)
-
-    def mouseMoveEvent(self, event):
-        if not self._dragging:
-            return
-
-        new_pos_global = event.globalPos()
-        globalMap = self.parent().mapFromGlobal(new_pos_global)
-        new_pos_within_parent = QPoint(
-            globalMap.x() - self.offset.width(),
-            globalMap.y() - self.offset.height())
-        new_geometry = QRect(new_pos_within_parent, self.geometry().size())
-        print(self.attached)
-        self.setGeometry(new_geometry)
-        if self.attached is not None:
-            for i in range(5):
-                new_geometry_attached = QRect(
-                    self.geometry().x() + self.offset_attached,
-                    self.geometry().y() + self.geometry().height() - 17,
-                    self.attached.geometry().width(),
-                    self.attached.geometry().height())
-                print(self.attached.geometry(), "noo")
-                self.attached.setGeometry(new_geometry_attached)
-                self.attached.moveChild()
-        self.bar.setGeometry(self.geometry().x(),
-                             self.geometry().y(),
-                             self.geometry().x() + 20,
-                             self.bottom.geometry().y() - self.geometry().y())
-        print(self.bar.geometry(), "barGeometry")
+    def move_recurse(self, x, y):
+        self.move_to(x, y)
+        if self.bar is not None:
+            print(x, y)
+            print(self.bar.geometry(), "bargeom report")
+            self.bar.move_to(x, y)
+        if self.child is not None:
+            self.child.move_recurse(x + 20, y + self.geometry().height() - 15)
 
     def paintEvent(self, QPaintEvent):
-        print("paintevent")
         painter = QPainter()
         painter.begin(self)
-        painter.setPen(QColor("orange"))
-        painter.setBrush(QColor("orange"))
-        painter.setFont(QFont("Comic Sans MS", 15 * self.scale))
-
-        textsize = painter.boundingRect(
-            self.geometry(), 1, self.text + "       ")
-
-        if textsize.width() > 100:
-            rectwidth = textsize.width()
-            self.setFixedWidth(textsize.width())
-        else:
-            rectwidth = 100
-
-        print(rectwidth, "wid2")
+        painter.setPen(QColor(self.color))
+        painter.setBrush(QColor(self.color))
+        painter.setFont(QFont("Comic Sans MS", 15))
         painter.setRenderHint(QPainter.Antialiasing)
-        painter.drawRect(QRect(0, 0, rectwidth * self.scale, 45 * self.scale))
-        # resize bottom block
-        self.bottom.width = rectwidth
-        self.bottom.resize(rectwidth, self.bottom.height())
-        painter.drawChord(
-            QRect(
-                40 * self.scale,
-                12 * self.scale,
-                45 * self.scale,
-                45 * self.scale),
-            180 * 16,
-            180 * 16)
+        #painter.drawRoundedRect(0, 5, self.geometry().width() - 5, self.geometry().height() - 7, 3, 3)
+        painter.drawChord(QRect(40, self.height-50, 45, 45), 180 * 16, 180 * 16)
+        geom = self.geometry()
+        painter.drawRoundedRect(QRect(0, 0, geom.width(), geom.height() - 15), 6*self.scale, 6*self.scale)
         painter.setBrush(QColor("white"))
         painter.setPen(QColor("white"))
-        painter.drawChord(QRect(20 * self.scale, -32 * self.scale,
-                                45 * self.scale, 45 * self.scale), 180 * 16, 180 * 16)
-        painter.drawText(
-            20 * self.scale,
-            (self.geometry().height() / 2) * self.scale,
-            self.text)
+        painter.drawText(10, 25*self.scale, self.content)
+        painter.drawChord(QRect(20, -37, 45, 45), 180 * 16, 180 * 16)
         painter.end()
 
 
 class CtrlBar(QWidget):
-    """
-    The bar to enclose the ControlBlock flow indicator on 3rd side.
-    Will be used to show visually what blocks are in the flow loop.
-    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.width = 23
+        self.height = 120
+        self.color = "orange"
+        self.scale = QDesktopWidget().screenGeometry().height()/1080
 
-    def __init__(self, parent, *args, **kwargs):
-        super().__init__(parent=parent, *args, **kwargs)
-        self.scale = 1
-        self.setGeometry(10, 0, 20 * self.scale, 200 * self.scale)
+        self.repaint()
+
+    def attach_top(self, block: CtrlTop):
+        self.setGeometry(block.geometry().x(), block.geometry().y(), self.width, self.height)
+        self.top = block
+        block.bar = self
+
+    def attach_bottom(self, block):
+        self.setGeometry(self.geometry().x(), self.geometry().y(),
+                block.geometry().x() - self.top.geometry().x(),
+                block.geometry().y() - self.top.geometry().y())
+        self.bottom = block
+        self.height = block.geometry().y() - self.top.geometry().y() + 10
+        print(self.geometry(), "bargeom")
+        print(self.top.geometry(), self.bottom.geometry())
+
+    def adjust_bar(self):
+        print(self.top.geometry(), self.bottom.geometry(), "newbot")
+        global_pos_top = self.mapToGlobal(self.top.pos())
+        global_pos_bottom = self.mapToGlobal(self.bottom.pos())
+        self.setGeometry(self.top.geometry().x(), self.top.geometry().y(),
+                self.width,
+                self.bottom.geometry().y() - self.top.geometry().y() + 10)
+        self.height = self.bottom.geometry().y() - self.top.geometry().y() + 10
+
+    def move_to(self, x, y):
+        """
+        Moves the current block to a position
+        :param x: x position to move to
+        :param y: y position to move to
+        """
+
+        geom = self.geometry()
+        self.setGeometry(x, y, self.width, self.height)
 
     def paintEvent(self, QPaintEvent):
         painter = QPainter()
         painter.begin(self)
-        painter.setPen(QColor("orange"))
-        painter.setBrush(QColor("orange"))
-        painter.drawRect(0, 0, 20, self.geometry().height())
+        painter.setPen(QColor(self.color))
+        painter.setBrush(QColor(self.color))
+        painter.setFont(QFont("Comic Sans MS", 15))
+        painter.setRenderHint(QPainter.Antialiasing)
+        geom = self.geometry()
+        painter.drawRoundedRect(QRect(0, 0, geom.width(), geom.height()), 6*self.scale, 6*self.scale)
         painter.end()
 
 
-class CtrlBottom(AbstractDraggableBlock):
-    """
-    The bottom of a ControlBlock flow indicator,
-    showing the end of the code block
-    (equivalent to "end" statements in some languages)
-    """
+class CtrlBottom(BasicBlock):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-    def __init__(self, width, attached, parent, *args, **kwargs):
-        super().__init__(attached, parent=parent, *args, **kwargs)
-        self.scale = 1
-        self.width = width
-        self.setGeometry(0, 0, 200 * self.scale, 60 * self.scale)
-        if self.attached is not None:
-            new_geometry_attached = QRect(
-                self.geometry().x(),
-                self.geometry().y() + self.geometry().height() - 17,
-                self.attached.geometry().width(),
-                self.attached.geometry().height())
-            print(self.geometry(), "NOOTO")
-            self.attached.setGeometry(new_geometry_attached)
+        self.color = "orange"
+        font = QFont("Comic Sans MS", 15)
+        metric = QFontMetrics(font)
+        if QFontMetrics.width(metric, self.content) + 30 > 100:
+            self.width = QFontMetrics.width(metric, self.content) + 30
+        else:
+            self.width = 150
+        self.height = (metric.height() + 30)*self.scale
+        print(self.height, "hight")
+        self.text_size = 50
+
+        temp = self.geometry()
+        self.setGeometry(temp.x(), temp.y(), temp.x() + self.width, self.height)
+        self.repaint()
+
+    def move_recurse(self, x, y):
+        self.move_to(x-20, y)
+        if self.child is not None:
+            self.child.move_recurse(x-20, y + self.geometry().height() - 15)
+
+    # Override mouse events for CtrlBottom so that the user cannot drag it
+    # independently from CtrlTop
+    def mousePressEvent(self, event):
+        #Override mouseReleaseEvent method from BasicBlock
+        pass
+
+    def mouseMoveEvent(self, event):
+        #Override mouseReleaseEvent method from BasicBlock
+        pass
+
+    def mouseReleaseEvent(self, event):
+        #Override mouseReleaseEvent method from BasicBlock
+        pass
 
     def paintEvent(self, QPaintEvent):
         painter = QPainter()
         painter.begin(self)
-        painter.setPen(QColor("orange"))
-        painter.setBrush(QColor("orange"))
-        painter.setFont(QFont("Comic Sans MS", 15 * self.scale))
-
-        print(self.width, "selfidth")
+        painter.setPen(QColor(self.color))
+        painter.setBrush(QColor(self.color))
         painter.setRenderHint(QPainter.Antialiasing)
-        painter.drawRect(QRect(0, 0, self.width * self.scale, 45 * self.scale))
-        painter.drawChord(
-            QRect(
-                20 * self.scale,
-                12 * self.scale,
-                45 * self.scale,
-                45 * self.scale),
-            180 * 16,
-            180 * 16)
+        #painter.drawRoundedRect(0, 5, self.geometry().width() - 5, self.geometry().height() - 7, 3, 3)
+        painter.drawChord(QRect(20, self.height-50, 45, 45), 180 * 16, 180 * 16)
+        geom = self.geometry()
+        painter.drawRoundedRect(QRect(0, 0, geom.width(), geom.height() - 15), 6*self.scale, 6*self.scale)
         painter.setBrush(QColor("white"))
         painter.setPen(QColor("white"))
-        painter.drawChord(QRect(40 * self.scale, -32 * self.scale,
-                                45 * self.scale, 45 * self.scale), 180 * 16, 180 * 16)
+        painter.drawChord(QRect(40, -37, 45, 45), 180 * 16, 180 * 16)
         painter.end()
-
-
-class HatBlock(AbstractDraggableBlock):
-    """
-    A HatBlock, meant to represent things such as functions/methods
-    """
-
-    def __init__(self, text, attached, parent, *args, **kwargs):
-        super().__init__(attached, parent=parent, *args, **kwargs)
-        self.img = QImage("./blocks/hat.svg")
-        self.img = self.img.smoothScaled(
-            self.geometry().size().width(),
-            self.geometry().size().height())
-        self.text = text
-        self.scale = 1
-        self.setGeometry(0, 0, 200 * self.scale, 75 * self.scale)
-        if self.attached is not None:
-            new_geometry_attached = QRect(
-                self.geometry().x(),
-                self.geometry().y() + self.geometry().height() - 17,
-                self.attached.geometry().width(),
-                self.attached.geometry().height())
-            self.attached.setGeometry(new_geometry_attached)
-
-    def paintEvent(self, QPaintEvent):
-        painter = QPainter()
-        painter.begin(self)
-        painter.setPen(QColor("dark green"))
-        painter.setBrush(QColor("dark green"))
-        painter.setFont(QFont("Comic Sans MS", 15 * self.scale))
-
-        textsize = painter.boundingRect(
-            self.geometry(), 1, "def" + self.text + "():")
-        print(textsize)
-        if textsize.width() > 200:
-            rectwidth = textsize.width()
-            self.setFixedWidth(textsize.width())
-        else:
-            rectwidth = 200
-
-        painter.setRenderHint(QPainter.Antialiasing)
-        painter.drawChord(
-            QRect(
-                0,
-                0,
-                rectwidth *
-                self.scale,
-                60 *
-                self.scale),
-            0 *
-            16,
-            180 *
-            16)
-        painter.drawRect(
-            QRect(
-                0,
-                30 *
-                self.scale,
-                rectwidth *
-                self.scale,
-                30 *
-                self.scale))
-        painter.drawChord(
-            QRect(
-                20 * self.scale,
-                28 * self.scale,
-                45 * self.scale,
-                45 * self.scale),
-            180 * 16,
-            180 * 16)
-
-        painter.setPen(QColor("white"))
-        painter.drawText(
-            20 * self.scale,
-            (self.geometry().height() / 2 + 10) * self.scale,
-            self.text)
-        painter.end()
-
-
-# class CodeBlock(AbstractDraggableBlock):
-# """
-#     #A puzzle-piece type CodeBlock meant to represent code in a program
-# """
-#
-#     def __init__(self, text, attached, parent, *args, **kwargs):
-#         super().__init__(attached, parent=parent, *args, **kwargs)
-#         self.text = text
-#         self.scale = 1
-#         self.setGeometry(0, 0, 200 * self.scale, 60 * self.scale)
-#         if self.attached is not None:
-#             new_geometry_attached = QRect(
-#                 self.geometry().x(),
-#                 self.geometry().y() + self.geometry().height() - 17,
-#                 self.attached.geometry().width(),
-#                 self.attached.geometry().height())
-#             print(self.geometry(), "NOOTO")
-#             self.attached.setGeometry(new_geometry_attached)
-#
-#     def paintEvent(self, QPaintEvent):
-#         painter = QPainter()
-#         painter.begin(self)
-#         painter.setPen(QColor("#496BD3"))
-#         painter.setBrush(QColor("#4A6CD4"))
-#         painter.setFont(QFont("Comic Sans MS", 15 * self.scale))
-#
-#         textsize = painter.boundingRect(
-#             self.geometry(), 1, self.text + "       ")
-#
-#         if textsize.width() > 100:
-#             rectwidth = textsize.width()
-#             self.setFixedWidth(textsize.width())
-#         else:
-#             rectwidth = 100
-#
-#         painter.setRenderHint(QPainter.Antialiasing)
-#         painter.drawRect(QRect(0, 0, rectwidth * self.scale, 45 * self.scale))
-#         painter.drawChord(
-#             QRect(
-#                 20 * self.scale,
-#                 12 * self.scale,
-#                 45 * self.scale,
-#                 45 * self.scale),
-#             180 * 16,
-#             180 * 16)
-#         painter.setBrush(QColor("white"))
-#         painter.setPen(QColor("white"))
-#         painter.drawChord(QRect(20 * self.scale, -32 * self.scale,
-#                                 45 * self.scale, 45 * self.scale), 180 * 16, 180 * 16)
-#         painter.drawText(
-#             20 * self.scale,
-#             (self.geometry().height() / 2) * self.scale,
-#             self.text)
-#         painter.end()
 
 
 if __name__ == "__main__":
@@ -642,28 +389,38 @@ if __name__ == "__main__":
     # trivial1 = CodeBlock("hi", trivial, parent=w)
     # trivial2 = CodeBlock("hi", trivial1, parent=w)
     # trivial3 = CodeBlock("hi", trivial2, parent=w)
-    b1 = CodeBlock("test", parent=w)
-    b5 = CodeBlock("test2", parent=w)
-    b4 = CodeBlock("test3", parent=w)
-    b3 = CodeBlock("test4", parent=w)
-    b2 = CodeBlock("test5", parent=w)
-    # trivial4 = HatBlock("hi", trivial3, parent=w)
-    b6 = CapBlock("test6", parent=w)
-    # # b2.move(0,45)
+    # b1 = CodeBlock("test", parent=w)
+    # b5 = CodeBlock("test2", parent=w)
+    # b4 = CodeBlock("test3", parent=w)
+    # b3 = CodeBlock("test4", parent=w)
+    # b2 = CodeBlock("test5", parent=w)
+    # # trivial4 = HatBlock("hi", trivial3, parent=w)
+    # b6 = CapBlock("test6", parent=w)
+    # # # b2.move(0,45)
 
-    b1.attach_child(b2)
-    b2.attach_child(b3)
-    b3.attach_child(b4)
-    b4.attach_child(b5)
+    # b1.attach_child(b2)
+    # b2.attach_child(b3)
+    # b3.attach_child(b4)
+    # b4.attach_child(b5)
 
+    b6 = CapBlock("fewa", parent=w)
+    b9 = CodeBlock("teeeeest", parent=w)
+    b10 = CodeBlock("another tessst", parent=w)
+    c1 = CtrlTop("tests", parent=w)
+    c2 = CtrlBottom("tetss", parent=w)
+    c3 = CtrlBar(parent=w)
+
+    b6.attach_child(c1)
+    c1.attach_child(b9)
+    b9.attach_child(b10)
+    b10.attach_child(c2)
+    c3.attach_top(c1)
+    c3.attach_bottom(c2)
+
+    b6.move_recurse(20,20)
     # b1.move(20, 20)
     test = []
-    for i in range(15):
-        test.append(CodeBlock("test", parent=w))
-        if i != 0:
-            test[i-1].attach_child(test[i])
-    b6.attach_child(test[0])
-    b6.raiseEvent()
+    #b6.raiseEvent()
     #for j in range(len(test)):
     #    test[j].attach_child(test[j-1])
     w.show()
