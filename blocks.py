@@ -203,7 +203,7 @@ class CapBlock(BasicBlock):
         painter.setBrush(QColor(self.color))
         painter.setFont(QFont("Comic Sans MS", 15))
         painter.setRenderHint(QPainter.Antialiasing)
-        painter.drawRoundedRect(QRect(0, 30*self.scale, self.geometry().width(), self.height-24-20*self.scale),
+        painter.drawRoundedRect(QRect(0, 30*self.scale, self.geometry().width(), self.height-16-30*self.scale),
                 6*self.scale, 6*self.scale)
         painter.drawChord(QRect(0, 5, self.width, 60*self.scale), 0 * 16, 180 * 16)
         geom = self.geometry()
