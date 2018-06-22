@@ -147,11 +147,11 @@ class CodeBlock(BasicBlock):
         self.color = "#496BD3"
         font = QFont("Comic Sans MS", 15)
         metric = QFontMetrics(font)
-        if QFontMetrics.width(metric, self.content) + 30 > 100:
+        if QFontMetrics.width(metric, self.content) + 30 > 150*self.scale:
             self.width = QFontMetrics.width(metric, self.content) + 30
         else:
-            self.width = 150
-        self.height = (metric.height() + 30)*self.scale
+            self.width = 150*self.scale
+        self.height = metric.height() + 30*self.scale
         print(self.height, "hight")
         self.text_size = 50
 
@@ -172,7 +172,7 @@ class CodeBlock(BasicBlock):
         painter.drawRoundedRect(QRect(0, 0, geom.width(), geom.height() - 15), 6*self.scale, 6*self.scale)
         painter.setBrush(QColor("white"))
         painter.setPen(QColor("white"))
-        painter.drawText(10, 25*self.scale, self.content)
+        painter.drawText(10, self.height/2, self.content)
         painter.drawChord(QRect(20, -37, 45, 45), 180 * 16, 180 * 16)
         painter.end()
 
@@ -184,12 +184,13 @@ class CapBlock(BasicBlock):
         self.color = "dark green"
         font = QFont("Comic Sans MS", 15)
         metric = QFontMetrics(font)
-        self.height = (metric.height() + 56)*self.scale-(15*(self.scale-1))
+        print(self.scale, QDesktopWidget().screenGeometry(), "scale")
+        self.height = metric.height() + 56*self.scale
         print(self.height)
-        if QFontMetrics.width(metric, self.content) + 30 > 100:
+        if QFontMetrics.width(metric, self.content) + 30 > 150*self.scale:
             self.width = QFontMetrics.width(metric, self.content) + 30
         else:
-            self.width = 150
+            self.width = 150*self.scale
         self.text_size = 50
         self.attaches = False
 
@@ -204,11 +205,11 @@ class CapBlock(BasicBlock):
         painter.setBrush(QColor(self.color))
         painter.setFont(QFont("Comic Sans MS", 15))
         painter.setRenderHint(QPainter.Antialiasing)
-        painter.drawRoundedRect(QRect(0, 30*self.scale, self.geometry().width(), 40*self.scale),
+        painter.drawRoundedRect(QRect(0, 30*self.scale, self.geometry().width(), self.height-16-29*self.scale),
                 6*self.scale, 6*self.scale)
         painter.drawChord(QRect(0, 5, self.width, 60*self.scale), 0 * 16, 180 * 16)
         geom = self.geometry()
-        painter.drawChord(QRect(20, self.height-50, 45, 45), 180 * 16, 180 * 16)
+        painter.drawChord(QRect(20, self.height-51, 45, 45), 180 * 16, 180 * 16)
         #painter.drawRoundedRect(QRect(0, 20, geom.width(), geom.height() - 15), 3, 3)
         painter.setBrush(QColor("white"))
         painter.setPen(QColor("white"))
