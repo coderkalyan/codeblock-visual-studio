@@ -145,10 +145,10 @@ class CodeBlock(BasicBlock):
         self.color = "#496BD3"
         font = QFont("Comic Sans MS", 15)
         metric = QFontMetrics(font)
-        if QFontMetrics.width(metric, self.content) + 30 > 100:
+        if QFontMetrics.width(metric, self.content) + 30 > 150*self.scale:
             self.width = QFontMetrics.width(metric, self.content) + 30
         else:
-            self.width = 150
+            self.width = 150*self.scale
         self.height = metric.height() + 30*self.scale
         print(self.height, "hight")
         self.text_size = 50
@@ -185,10 +185,10 @@ class CapBlock(BasicBlock):
         print(self.scale, QDesktopWidget().screenGeometry(), "scale")
         self.height = metric.height() + 56*self.scale
         print(self.height)
-        if QFontMetrics.width(metric, self.content) + 30 > 100:
+        if QFontMetrics.width(metric, self.content) + 30 > 150*self.scale:
             self.width = QFontMetrics.width(metric, self.content) + 30
         else:
-            self.width = 150
+            self.width = 150*self.scale
         self.text_size = 50
         self.attaches = False
 
@@ -203,7 +203,7 @@ class CapBlock(BasicBlock):
         painter.setBrush(QColor(self.color))
         painter.setFont(QFont("Comic Sans MS", 15))
         painter.setRenderHint(QPainter.Antialiasing)
-        painter.drawRoundedRect(QRect(0, 30*self.scale, self.geometry().width(), 40*self.scale),
+        painter.drawRoundedRect(QRect(0, 30*self.scale, self.geometry().width(), self.height-32*self.scale),
                 6*self.scale, 6*self.scale)
         painter.drawChord(QRect(0, 5, self.width, 60*self.scale), 0 * 16, 180 * 16)
         geom = self.geometry()
