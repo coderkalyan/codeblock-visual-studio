@@ -8,12 +8,14 @@
 
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QSizePolicy, QTabWidget, QMenuBar, QStatusBar, QApplication, QTreeWidget, \
-    QTreeWidgetItem, QVBoxLayout, QScrollArea, QFrame, QSplitter, QPushButton, QMenu, QAction
+    QTreeWidgetItem, QVBoxLayout, QScrollArea, QFrame, QSplitter, QPushButton, QMenu, QAction, QDesktopWidget
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__(flags=QtCore.Qt.Window)
-        self.resize(1280, 720)
+        scale_x = QDesktopWidget().screenGeometry().width()/1920
+        scale_y = QDesktopWidget().screenGeometry().height()/1080
+        self.resize(1280*scale_x, 720*scale_y)
         self.centralwidget = QWidget()
         self.centralwidget.setObjectName("centralwidget")
 
@@ -23,7 +25,7 @@ class MainWindow(QMainWindow):
 
         self.tabWidget = QTabWidget(self.centralwidget)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(1)
+        sizePolicy.setHorizontalStretch(3)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.tabWidget.sizePolicy().hasHeightForWidth())
 
@@ -100,7 +102,7 @@ class MainWindow(QMainWindow):
         self.verticalLayout.addWidget(self.treeWidget)
 
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(3)
+        sizePolicy.setHorizontalStretch(7)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.tabWidget_2.sizePolicy().hasHeightForWidth())
 
