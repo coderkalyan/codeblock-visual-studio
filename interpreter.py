@@ -1,3 +1,5 @@
-file = open("mainwindow_controller.py", "r")
+
+
+file = open(path, "r")
 
 print(file.read())
