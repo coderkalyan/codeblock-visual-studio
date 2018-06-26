@@ -1,6 +1,0 @@
-<RCC>
-  <qresource prefix="icons">
-    <file>codeblock-icon.png</file>
-    <file>codeblock-icon.svg</file>
-  </qresource>
-</RCC>
