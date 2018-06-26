@@ -3,6 +3,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QApplication, QWidget, QFrame, QFileDialog, QTreeWidgetItem
 from mainwindow import MainWindow
 from about_dialog import AboutDialog
+import icons.icons_rc
 import sys
 import importlib.util
 import inspect

@@ -9,10 +9,12 @@
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QSizePolicy, QTabWidget, QMenuBar, QStatusBar, QApplication, QTreeWidget, \
     QTreeWidgetItem, QVBoxLayout, QScrollArea, QFrame, QSplitter, QPushButton, QMenu, QAction, QDesktopWidget
+from PyQt5.QtGui import QIcon, QPixmap
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__(flags=QtCore.Qt.Window)
+        self.setWindowIcon(QIcon(QPixmap(":/icon/codeblock_icon.svg")))
         scale_x = QDesktopWidget().screenGeometry().width()/1920
         scale_y = QDesktopWidget().screenGeometry().height()/1080
         self.resize(1280*scale_x, 720*scale_y)
