@@ -21,7 +21,7 @@ class Main(MainWindow):
 
     def bind(self):
         self.actionOpen.triggered.connect(self.open_file)
-        self.actionAbout.triggered.connect(self.about_dialog.show())
+        self.actionAbout.triggered.connect(self.about_dialog.show)
         self.classView.itemDoubleClicked.connect(self.classview_openclass)
 
     def classview_openclass(self):

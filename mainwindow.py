@@ -92,7 +92,7 @@ class MainWindow(QMainWindow):
         self.menubar.addAction(self.menuFile.menuAction())
 
         self.actionAbout = QAction(self)
-        self.actionAbout.setText("About Codeblock Visual Studio")
+        self.actionAbout.setText("bout Codeblock Visual Studio")
 
         self.menuHelp.addAction(self.actionAbout)
         self.menuHelp.setTitle("Help")
