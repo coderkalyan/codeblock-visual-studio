@@ -217,7 +217,7 @@ class CapBlock(BasicBlock):
         painter.setBrush(QColor("white"))
         painter.setPen(QColor("white"))
         # painter.drawChord(QRect(20, 60, 45, 45), 180 * 16, 180 * 16)
-        painter.drawText(10, self.height/2, self.content)
+        painter.drawText(10, 45*self.scale, self.content)
         painter.end()
 
 
