@@ -82,17 +82,22 @@ class MainWindow(QMainWindow):
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1280, 23))
         self.menubar.setObjectName("menubar")
         self.menuFile = QMenu(self.menubar)
-
-        self.actionNew = QAction(self)
-        self.actionNew.setText("New")
+        self.menuHelp = QMenu(self.menubar)
 
         self.actionOpen = QAction(self)
         self.actionOpen.setText("Open")
 
-        self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.setTitle("File")
         self.menubar.addAction(self.menuFile.menuAction())
+
+        self.actionAbout = QAction(self)
+        self.actionAbout.setText("About Codeblock Visual Studio")
+
+        self.menuHelp.addAction(self.actionAbout)
+        self.menuHelp.setTitle("Help")
+        self.menubar.addAction(self.menuHelp.menuAction())
+
         self.setMenuBar(self.menubar)
 
         self.statusbar = QStatusBar()
