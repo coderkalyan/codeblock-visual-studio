@@ -1,16 +1,16 @@
 * Codeblock Visual Studio Roadmap for Version 1.0
-** IN PROGRESS - iss1 (Flow/CtrlBlock Implementation) - 6/22 [6/9]
+** IN PROGRESS - iss1 (Flow/CtrlBlock Implementation) - 6/22 [8/9]
  - [X] Write CtrlTop class
  - [X] Write CtrlBar class
  - [X] Write CtrlBottom class
  - [X] Implement CtrlTop class
  - [X] Implement CtrlBar class
  - [X] Implement CtrlBottom class
- - [ ] Debug & tie up loose ends
- - [ ] Submit for test
+ - [X] Debug & tie up loose ends
+ - [X] Submit for test
  - [ ] Submit PR 
-** WAITING - iss10 (Text Interpreter) - 7/10 [0/8]
- - [ ] Check Kai's progress (recommended steps below, please fill out)
+** WAITING - iss10 (Text Interpreter) - 7/10 [1/8]
+ - [X] Check Kai's progress (recommended steps below, please fill out)
  - [ ] Write base of interpreter (perhaps interpreter class?)
  - [ ] Implement source code fetching through interpreter
  - [ ] Implement "parsing" of code to sort into functions through interpreter
@@ -18,11 +18,11 @@
  - [ ] Debug & tie up loose ends
  - [ ] Submit for test
  - [ ] Submit PR
-** IN PROGRESS - iss8 (HiDPI Scaling) 6/22 [3/5]
+** IN PROGRESS - iss8 (HiDPI Scaling) 6/22 [4/5]
  - [X] Implement HiDPI Scaling for CodeBlock
  - [X] Implement HiDPI Scaling for CapBlock
  - [X] Debug & tie up loose ends
- - [ ] Submit for testing
+ - [X] Submit for testing
  - [ ] Submit PR 
 ** TODO - iss6 (Support for Non-Object Oriented Files) 7/20 [0/5]
  - [ ] Merge text interpreter (requires text interpreter to be finished)
@@ -32,6 +32,7 @@
  - [ ] Submit for testing
  - [ ] Submit PR
 ** TODO - iss7 (Final Stuff) 7/20 [0/8]
+ - [ ] Patch CodeBlocks and CapBlocks to be undraggable (will be undone with implementation of iss4)
  - [ ] Test CVS thoroughly
  - [ ] Debug where needed
  - [ ] Implement features/bugfixes as descriped in iss #7 on issue tracker

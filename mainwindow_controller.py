@@ -37,7 +37,10 @@ class Main(MainWindow):
         self.regenerate_classview(filename)
 
     def regenerate_classview(self, file):
-        class_list = self.get_classes(file)
+        try:
+            class_list = self.get_classes(file)
+        except:
+            class_list = {}
         class_list_sorted = {}
         for k, v in class_list.items():
             filesplit = str(v).split("'")[1::2][0].split(".")
@@ -85,6 +88,11 @@ class Main(MainWindow):
         # svgWidget = HatBlock("test", self.code_blocks['test'][-1], self.codeArea)
         # self.function_blocks.append(svgWidget)
         # svgWidget.show()
+        for bar in self.code_blocks['ctrlbar']:
+            bar.adjust_bar()
+            bar.show()
+            bar.raise_()
+        print(self.code_blocks['ctrlbar'], "ctrlbar")
 
     def generate_function_blocks(self, funcs):
         f = 0
@@ -103,15 +111,50 @@ class Main(MainWindow):
         retblocks = {}
         funcs = funcs_list
         retblocks['test'] = []
+        retblocks['ctrlbar'] = []
+        ctrl_bar_count = 0
         for func, code in funcs.items():
             f = 0
             retblocks[func] = []
+            control_block_map = {}
             for line in code:
                 if func != "" and "def " not in line:
-                    retblocks[func].append(CodeBlock(line, parent=self.codeArea))
+                    line_leading_whitespace = len(line) - len(line.lstrip())
+                    if line_leading_whitespace in control_block_map.keys():
+                        # CtrlBottom detected (must be before ifblock)
+                        print(line, line_leading_whitespace, control_block_map, "control_map")
+                        sorted_keys = list(control_block_map.keys())
+                        sorted_keys.sort()
+                        if not line_leading_whitespace == \
+                                sorted_keys[-1]:
+                                    print(sorted_keys[-1], line_leading_whitespace, "sorted keys")
+                                    line = line.lstrip()
+                                    for l in range(sorted_keys[-1]):
+                                        print(l)
+                                        line = " " + line
+                                        print(line)
+
+                        retblocks[func].append(CtrlBottom(line, parent=self.codeArea))
+                        code.insert(f+1, line)
+                        retblocks['ctrlbar'].append(CtrlBar(parent=self.codeArea))
+                        retblocks['ctrlbar'][ctrl_bar_count].attach_top(control_block_map[len(line) - len(line.lstrip())])
+                        retblocks['ctrlbar'][ctrl_bar_count].attach_bottom(retblocks[func][f])
+                        print(control_block_map, 'controlmap in prog')
+                        ctrl_bar_count = ctrl_bar_count + 1
+                        del control_block_map[len(line) - len(line.lstrip())]
+                    elif line.strip()[-1] == ':':
+                        # Indented Block - use CtrlTop block
+                        retblocks[func].append(CtrlTop(line, parent=self.codeArea))
+                        # Store [whitespace, satisfied] values for ctrltop
+                        control_block_map[len(line) - len(line.lstrip())] = retblocks[func][f]
+                    else:
+                        # Just a regular CodeBlock
+                        retblocks[func].append(CodeBlock(line, parent=self.codeArea))
                     if f != 0:
                         retblocks[func][f-1].attach_child(retblocks[func][f])
                     f = f + 1
+                    print(line)
+        print(control_block_map, "controlmap remain")
         return retblocks
 
     def get_imports(self, file):
@@ -131,8 +174,8 @@ class Main(MainWindow):
         for i in dir(dirvar):
             if inspect.isroutine(getattr(dirvar, i)):
                 try:
-                    functions[i] = inspect.getsource(
-                        getattr(dirvar, i)).splitlines()
+                    functions[i] = list(filter(None, inspect.getsource(
+                        getattr(dirvar, i)).splitlines()))
                     print([s for s in functions[i]
                            if "            " in s], "function_list")
                 except TypeError:
@@ -142,6 +185,7 @@ class Main(MainWindow):
     def get_classes(self, file):
         classes = {}
         try:
+            sys.path.append("/".join(file.split("/")[:-1]))
             print(file)
             spec = importlib.util.spec_from_file_location(
                 file.split("/")[-1], file)
