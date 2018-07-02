@@ -3,7 +3,7 @@
 # Only use spaces to indent your .yml configuration.
 # -----
 # You can specify a custom docker image from Docker Hub as your build environment.
-image: python:3.5.1
+image: python:3.6.5
 
 pipelines:
   default:
@@ -12,3 +12,25 @@ pipelines:
           - pip
         script: # Modify the commands below to build your repository.
           - pip install -r requirements.txt
+  branches:
+    master:
+      - step:
+          script:
+            - echo "Merging to master; please MAKE SURE EVERYTHING IS STABLE"
+            - echo "Testing mainwindow_controller.py for non-runtime errors..."
+            - python -m pdb mainwindow_controller.py
+            - echo "Everything OK, building executable..."
+            - pip install pyinstaller
+            - cd build
+            - pyinstaller --onefile ../mainwindow_controller.py
+            - echo "Done!"
+      - step
+    develop:
+      - step:
+          script:
+            - echo "Running integration tests for mainwindow_controller..."
+            - echo "Testing for non runtime errors..."
+            - python -m pdb mainwindow_controller.py
+            - echo "Everything OK."
+
+          
