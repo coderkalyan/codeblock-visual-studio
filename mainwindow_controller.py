@@ -208,7 +208,6 @@ class Main(MainWindow):
             # do stuff
         return classes
 
-
     def get_vars(self, file):
         defined = []
         try:
@@ -225,6 +224,7 @@ class Main(MainWindow):
             else:
                 print(attr)
         returnvar = defined
+        print(returnvar, "keyword")
         return returnvar
 
 
