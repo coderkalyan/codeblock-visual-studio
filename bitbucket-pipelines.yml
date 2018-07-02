@@ -18,14 +18,14 @@ pipelines:
           script:
             - echo "Merging to master; please MAKE SURE EVERYTHING IS STABLE"
             - echo "Testing mainwindow_controller.py for non-runtime errors..."
-            - python -m pdb mainwindow_controller.py
+            - python -m unittest mainwindow_controller.py
             - echo "Done!"
     develop:
       - step:
           script:
             - echo "Running integration tests for mainwindow_controller..."
             - echo "Testing for non runtime errors..."
-            - python -m pdb mainwindow_controller.py
+            - python -m unittest mainwindow_controller.py
             - echo "Everything OK."
 
           
