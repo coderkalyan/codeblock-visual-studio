@@ -27,7 +27,7 @@ pipelines:
           script:
             - echo "Installing dependencies..."
             - pip install -r requirements.txt
-            - sudo apt install libgl1-mesa-glx
+            - apt-get update && apt-get install -y libgl1-mesa-glx
             - echo "Running integration tests for mainwindow_controller..."
             - echo "Testing for non runtime errors..."
             - python -m unittest mainwindow_controller.py
