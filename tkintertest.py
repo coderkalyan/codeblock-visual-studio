@@ -4,7 +4,7 @@ root = Tk()
 root.title("Tkinter Test GUI!")
 root.geometry('350x200')
 
-def peekaboo():
+def peekaboo(((()))):
     label2.grid(column=0, row=2)
 
 
