@@ -24,7 +24,6 @@ pipelines:
             - cd build
             - pyinstaller --onefile ../mainwindow_controller.py
             - echo "Done!"
-      - step
     develop:
       - step:
           script:
