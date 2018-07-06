@@ -3,8 +3,9 @@ import ast
 import _ast
 
 finder = ModuleFinder()
-path = "/home/kai/git/codeblock-visual-studio/tkintertest.py"
+path = "/home/kai/git/codeblock-visual-studio/mainwindow_controller.py"
 file = open(path).readlines()
+print(file)
 testvar = "poop to you!"
 
 def get_imports(file):
@@ -34,13 +35,10 @@ def get_functions(file):
     leading_whitespace = 0
     for line in file:
         current_line = current_line + 1
-        if line.startswith("def "):
+        if "def " in line:
             funcnumlines.append(current_line)
-            func_full = line.split("def ")[1]
-            for char in func_full:
-                if char == "(":
-                    removeend.append(char)
-            finalfuncnames.append(func_full.split(removeend[0])[0])
+            print(funcnumlines, "linenumoffuncs")
+            finalfuncnames.append(line)
             print(finalfuncnames, "funcnamesfinallist")
 
     for lof in funcnumlines:
@@ -63,5 +61,6 @@ def get_functions(file):
     funcs = dict(zip(finalfuncnames, fullfunclines))
 
     print(funcs, "totalyfinal")
+    return funcs
 
 get_functions(file)
