@@ -7,12 +7,12 @@ path = "/home/kai/git/codeblock-visual-studio/tkintertest.py"
 file = open(path).readlines()
 testvar = "poop to you!"
 
-def get_imports():
+def get_imports(file):
     finder.run_script(path)
     for name, mod in finder.modules.items():
         pass
 
-def get_variables(node):
+def get_variables(node, file):
     variables = set()
     if hasattr(node, 'body'):
         for subnode in node.body:
@@ -23,9 +23,45 @@ def get_variables(node):
                 variables.add(name.id)
     return variables
 
-def get_functions():
-    funcs = []
+def get_functions(file):
+    current_line = 0
+    finalfuncnames = []
+    funcs = {}
+    funcnumlines = []
+    funclines = []
+    fullfunclines = []
+    removeend = []
+    leading_whitespace = 0
     for line in file:
+        current_line = current_line + 1
         if line.startswith("def "):
-            funcs.append(line)
-            print(funcs)
+            funcnumlines.append(current_line)
+            func_full = line.split("def ")[1]
+            for char in func_full:
+                if char == "(":
+                    removeend.append(char)
+            finalfuncnames.append(func_full.split(removeend[0])[0])
+            print(finalfuncnames, "funcnamesfinallist")
+
+    for lof in funcnumlines:
+        print(lof, "forlines")
+        funcname = file[lof-1]
+        top_leading_whitespace = len(file[lof]) - len(file[lof].lstrip())
+        print(top_leading_whitespace, "initalwhitespace")
+        funcbody = file[lof]
+        for body in file[lof:]:
+            leading_whitespace = len(body) - len(body.lstrip())
+            print(leading_whitespace, "whitespacebody")
+            if leading_whitespace < top_leading_whitespace:
+                break
+            funclines.append(body)
+            print(funclines, "finalfunclines")
+        fullfunclines.append(funclines)
+        print(fullfunclines, "fullfunclines")
+        funclines = []
+
+    funcs = dict(zip(finalfuncnames, fullfunclines))
+
+    print(funcs, "totalyfinal")
+
+get_functions(file)
