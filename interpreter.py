@@ -1,15 +1,18 @@
-from modulefinder import ModuleFinder
 import ast
 import _ast
 
-finder = ModuleFinder()
 file = "/home/kai/git/codeblock-visual-studio/mainwindow_controller.py"
 testvar = "poop to you!"
 
 def get_imports(file):
-    finder.run_script(path)
-    for name, mod in finder.modules.items():
-        pass
+    filetxt = open(file).readlines()
+
+    importsfull = []
+
+    for line in filetxt:
+        if " import " in line or line.startswith("import "):
+            importsfull.append(line)
+    print(imports)
 
 def get_variables(node, file):
     variables = set()
@@ -60,12 +63,6 @@ def get_classes(file):
     print("\n\n\n", classes, "totlayfinalclass")
     return classes
 
-
-
-
-
-
-
 def get_functions(file):
     filetxt = open(file).readlines() # path may need to be changed
 
@@ -108,4 +105,4 @@ def get_functions(file):
     print(funcs, "totalyfinal")
     return funcs
 
-get_classes(file)
+get_imports(file)

@@ -164,6 +164,7 @@ class Main(MainWindow):
         im = []
         for name, mod in finder.modules.items():
             im.append(name)
+        print(im, "imports")
         return im
 
     def get_functions(self, file, class_name):
