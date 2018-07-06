@@ -23,7 +23,7 @@ def get_variables(node, file):
     return variables
 
 def get_functions(file):
-    filetxt = file(open(path).readlines()) # path may need to be changed
+    filetxt = open(file).readlines() # path may need to be changed
 
     current_line = 0
     finalfuncnames = []
