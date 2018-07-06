@@ -25,9 +25,11 @@ def get_variables(node, file):
 
 def get_functions(file):
     current_line = 0
+    finalfuncnames = []
     funcs = {}
     funcnumlines = []
     funclines = []
+    fullfunclines = []
     removeend = []
     leading_whitespace = 0
     for line in file:
@@ -38,8 +40,8 @@ def get_functions(file):
             for char in func_full:
                 if char == "(":
                     removeend.append(char)
-            finalfuncname = func_full.split(removeend[0])[0]
-            print(finalfuncname, "funcnamefinal")
+            finalfuncnames.append(func_full.split(removeend[0])[0])
+            print(finalfuncnames, "funcnamesfinallist")
 
     for lof in funcnumlines:
         print(lof, "forlines")
@@ -54,8 +56,12 @@ def get_functions(file):
                 break
             funclines.append(body)
             print(funclines, "finalfunclines")
-            funcs[finalfuncname] = funclines
+        fullfunclines.append(funclines)
+        print(fullfunclines, "fullfunclines")
         funclines = []
-    print(funcs, "totalyfina")
+
+    funcs = dict(zip(finalfuncnames, fullfunclines))
+
+    print(funcs, "totalyfinal")
 
 get_functions(file)
