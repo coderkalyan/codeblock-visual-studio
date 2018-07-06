@@ -3,7 +3,7 @@ import ast
 import _ast
 
 finder = ModuleFinder()
-file = "/home/kai/git/codeblock-visual-studio/mainwindow_controller.py"
+file = "/home/kai/git/codeblock-visual-studio/tkintertest.py"
 testvar = "poop to you!"
 
 def get_imports(file):
@@ -22,6 +22,12 @@ def get_variables(node, file):
                 variables.add(name.id)
     return variables
 
+def get_classes(file):
+    filetxt = open(file).readlines()
+
+    for line in filetxt:
+        pass
+
 def get_functions(file):
     filetxt = open(file).readlines() # path may need to be changed
 
@@ -31,8 +37,8 @@ def get_functions(file):
     funcnumlines = []
     funclines = []
     fullfunclines = []
-    removeend = []
     leading_whitespace = 0
+    whitespaceforchecking = 0
     for line in filetxt:
         current_line = current_line + 1
         if "def " in line:
@@ -49,11 +55,12 @@ def get_functions(file):
         funcbody = filetxt[lof]
         for body in filetxt[lof:]:
             leading_whitespace = len(body) - len(body.lstrip())
-            print(leading_whitespace, "whitespacebody")
+            print(whitespaceforchecking, "whitespacebody")
             if leading_whitespace < top_leading_whitespace:
-                break
+                if body != "\n" and len(body) - len(body.lstrip()) != top_leading_whitespace:
+                    break
             funclines.append(body)
-            print(funclines, "finalfunclines")
+        print(funclines, "finalfunclines")
         fullfunclines.append(funclines)
         print(fullfunclines, "fullfunclines")
         funclines = []
