@@ -1,26 +1,38 @@
+import sys, os
 import pylint.lint
-import sys
-from io import StringIO
+import importlib
 
-stdout = sys.stdout
-sys.stdout = StringIO()
+def get_lint(file):
+    lint = os.popen("python3 -m flake8 " + file).read()
 
-def get_errors(file):
-    lint = pylint.lint.Run(['-r', 'n', file], exit=False)
-
-    errors = sys.stdout.getvalue()
-    errors_to_return =  {}
-    sys.stdout.close()
-    sys.stdout = stdout
-
-    print(errors.split('\n'))
-    for i in errors.split('\n')[1:]:
+    errors_to_return = {}
+    warnings_to_return = {}
+    for i in lint.split("\n"):
         try:
-            errors_to_return[i.split(",")[0][-1]] = i
+            print(i)
+            if any(error in i for error in ["F4", "F8", "F901", "E999"]):
+                if "F403" in i:
+                    scan_import(i)
+
+                errors_to_return[i] = int(i.split(":")[1])
+            else:
+                warnings_to_return[i] = int(i.split(":")[1])
         except IndexError:
             pass
-    print(errors_to_return)
+    return errors_to_return
+
+
+def scan_import(line):
+    print(line, "KABOOOOOM")
+    print(line.split("'")[1])
+    line = line.split("'")[1]
+    try:
+        if line.startswith("from"):
+            importlib.import_module() # import package
+        else:
+            importlib.import_module(
+                    line.split("import")[-1]) # import module
 
 
 if __name__ == "__main__":
-    get_errors("err1.py")
+    print(get_lint("tkintertest.py"))
