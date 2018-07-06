@@ -36,11 +36,7 @@ def get_functions(file):
         current_line = current_line + 1
         if line.startswith("def "):
             funcnumlines.append(current_line)
-            func_full = line.split("def ")[1]
-            for char in func_full:
-                if char == "(":
-                    removeend.append(char)
-            finalfuncnames.append(func_full.split(removeend[0])[0])
+            finalfuncnames.append(line)
             print(finalfuncnames, "funcnamesfinallist")
 
     for lof in funcnumlines:
