@@ -12,7 +12,7 @@ def get_lint(file):
             print(i)
             if any(error in i for error in ["F4", "F8", "F901", "E999"]):
                 if "F403" in i:
-                    scan_import(i)
+                    print(scan_import(i))
 
                 errors_to_return[i] = int(i.split(":")[1])
             else:
@@ -28,10 +28,15 @@ def scan_import(line):
     line = line.split("'")[1]
     try:
         if line.startswith("from"):
-            importlib.import_module() # import package
+            importlib.import_module(
+                    line.split("import")[-1],
+                    line.split()[1]) # import package
         else:
             importlib.import_module(
                     line.split("import")[-1]) # import module
+        return True
+    except ImportError:
+        return False
 
 
 if __name__ == "__main__":
