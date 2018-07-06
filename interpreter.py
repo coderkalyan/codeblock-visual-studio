@@ -59,5 +59,6 @@ def get_functions(file):
     funcs = dict(zip(finalfuncnames, fullfunclines))
 
     print(funcs, "totalyfinal")
+    return funcs
 
-get_functions(file)
+print(get_functions(file))
