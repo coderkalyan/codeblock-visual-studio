@@ -28,10 +28,15 @@ def scan_import(line):
     line = line.split("'")[1]
     try:
         if line.startswith("from"):
-            importlib.import_module() # import package
+            importlib.import_module(
+                    line.split("import")[-1],
+                    line.split()[1]) # import package
         else:
             importlib.import_module(
                     line.split("import")[-1]) # import module
+        return True
+    except ImportError:
+        return False
 
 
 if __name__ == "__main__":
