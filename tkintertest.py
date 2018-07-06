@@ -4,9 +4,20 @@ root = Tk()
 root.title("Tkinter Test GUI!")
 root.geometry('350x200')
 
-def peekaboo(((()))):
+def peekaboo(((((()))))):
     label2.grid(column=0, row=2)
 
+def sayhi():
+    print("hi")
+    print("hello")
+    print("greetings")
+    print("bonjour")
+    print("hola")
+    print("konichiwa")
+    print("hallo")
+
+def saybye():
+    print("bye")
 
 label1 = Label(root, text="Hello!", font=("Ubuntu", 45))
 label1.grid(column=0, row=0)

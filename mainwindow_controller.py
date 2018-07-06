@@ -110,6 +110,7 @@ class Main(MainWindow):
         f = 0
         retblocks = {}
         funcs = funcs_list
+        print(funcs, "printfuncs")
         retblocks['test'] = []
         retblocks['ctrlbar'] = []
         ctrl_bar_count = 0
