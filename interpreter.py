@@ -3,7 +3,7 @@ import ast
 import _ast
 
 finder = ModuleFinder()
-file = "/home/kai/git/codeblock-visual-studio/tkintertest.py"
+file = "/home/kai/git/codeblock-visual-studio/mainwindow_controller.py"
 testvar = "poop to you!"
 
 def get_imports(file):
@@ -25,8 +25,46 @@ def get_variables(node, file):
 def get_classes(file):
     filetxt = open(file).readlines()
 
+    classes = {}
+    linenumofclass = []
+    classnames = []
+    fullclasslines = []
+    classlines = []
+    current_line = 0
+
     for line in filetxt:
-        pass
+        current_line = current_line + 1
+        if "class " in line:
+            linenumofclass.append(current_line)
+            classnames.append(line)
+            print(classnames, "classnames")
+
+    for loc in linenumofclass:
+        print(loc, "classlines")
+        clsname = [filetxt[loc-1]]
+        print(clsname, "whichclass")
+        top_leading_whitespace = len(filetxt[loc]) - len(filetxt[loc].lstrip())
+        print(top_leading_whitespace, "topclasswhitespace")
+        for body in filetxt[loc:]:
+            leading_whitespace = len(body) - len(body.lstrip())
+            print(leading_whitespace)
+            if leading_whitespace < top_leading_whitespace:
+                print(body)
+                if body != "\n" and len(body) - len(body.lstrip()) != top_leading_whitespace:
+                    break
+            classlines.append(body)
+        fullclasslines.append(classlines)
+        print(fullclasslines)
+        classlines = []
+    classes = dict(zip(classnames, fullclasslines))
+    print("\n\n\n", classes, "totlayfinalclass")
+    return classes
+
+
+
+
+
+
 
 def get_functions(file):
     filetxt = open(file).readlines() # path may need to be changed
@@ -70,4 +108,4 @@ def get_functions(file):
     print(funcs, "totalyfinal")
     return funcs
 
-get_functions(file)
+get_classes(file)
