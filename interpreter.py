@@ -3,9 +3,7 @@ import ast
 import _ast
 
 finder = ModuleFinder()
-path = "/home/kai/git/codeblock-visual-studio/mainwindow_controller.py"
-file = open(path).readlines()
-print(file)
+file = "/home/kai/git/codeblock-visual-studio/mainwindow_controller.py"
 testvar = "poop to you!"
 
 def get_imports(file):
@@ -25,6 +23,8 @@ def get_variables(node, file):
     return variables
 
 def get_functions(file):
+    filetxt = file(open(path).readlines()) # path may need to be changed
+
     current_line = 0
     finalfuncnames = []
     funcs = {}
@@ -33,7 +33,7 @@ def get_functions(file):
     fullfunclines = []
     removeend = []
     leading_whitespace = 0
-    for line in file:
+    for line in filetxt:
         current_line = current_line + 1
         if "def " in line:
             funcnumlines.append(current_line)
@@ -43,11 +43,11 @@ def get_functions(file):
 
     for lof in funcnumlines:
         print(lof, "forlines")
-        funcname = file[lof-1]
-        top_leading_whitespace = len(file[lof]) - len(file[lof].lstrip())
+        funcname = filetxt[lof-1]
+        top_leading_whitespace = len(filetxt[lof]) - len(filetxt[lof].lstrip())
         print(top_leading_whitespace, "initalwhitespace")
-        funcbody = file[lof]
-        for body in file[lof:]:
+        funcbody = filetxt[lof]
+        for body in filetxt[lof:]:
             leading_whitespace = len(body) - len(body.lstrip())
             print(leading_whitespace, "whitespacebody")
             if leading_whitespace < top_leading_whitespace:
