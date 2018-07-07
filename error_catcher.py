@@ -8,6 +8,7 @@ def get_lint(file):
     errors_to_return = {}
     warnings_to_return = {}
     verified_packages = []
+    sys.path.append("/".join(file.split("/")[:-1]))
     for i in lint.split("\n"):
         try:
             print(i)
@@ -17,13 +18,15 @@ def get_lint(file):
                     if not scan_import(i):
                         i = ":".join(i.split(":")[:3]) + ": F403 Package not installed or is unavailable."
                     else:
-                        verified_packages.append(i.split()[1])
+                        verified_packages.append(i.split("'")[1].split()[1])
                         continue
                         print("skipped")
                 elif "F405" in i:
-                    if i.split(":")[-1][1:] in verified_packages:
+                    if any(pkg in verified_packages for pkg in i.split(":")[-1][1:].split(", ")):
                         continue
                         print("skipped")
+                    else:
+                        i = ":".join(i.split(":")[:3]) + ": F405 '" + i.split("'")[1] + "'" + "is undefined."
                 errors_to_return[i] = int(i.split(":")[1])
             else:
                 warnings_to_return[i] = int(i.split(":")[1])
@@ -39,7 +42,6 @@ def scan_import(line):
     try:
         if line.startswith("from"):
             importlib.import_module(
-                    line.split("import")[-1],
                     line.split()[1]) # import package
         else:
             importlib.import_module(
@@ -50,4 +52,4 @@ def scan_import(line):
 
 
 if __name__ == "__main__":
-    print(get_lint("mainwindow_controller.py"))
+    print(get_lint("codeblock-visual-studio/mainwindow_controller.py"))
