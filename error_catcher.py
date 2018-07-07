@@ -7,13 +7,23 @@ def get_lint(file):
 
     errors_to_return = {}
     warnings_to_return = {}
+    verified_packages = []
     for i in lint.split("\n"):
         try:
             print(i)
             if any(error in i for error in ["F4", "F8", "F901", "E999"]):
                 if "F403" in i:
-                    print(scan_import(i))
-
+                    print((i))
+                    if not scan_import(i):
+                        i = ":".join(i.split(":")[:3]) + ": F403 Package not installed or is unavailable."
+                    else:
+                        verified_packages.append(i.split()[1])
+                        continue
+                        print("skipped")
+                elif "F405" in i:
+                    if i.split(":")[-1][1:] in verified_packages:
+                        continue
+                        print("skipped")
                 errors_to_return[i] = int(i.split(":")[1])
             else:
                 warnings_to_return[i] = int(i.split(":")[1])
@@ -40,4 +50,4 @@ def scan_import(line):
 
 
 if __name__ == "__main__":
-    print(get_lint("tkintertest.py"))
+    print(get_lint("mainwindow_controller.py"))
