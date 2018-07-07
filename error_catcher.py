@@ -32,7 +32,7 @@ def get_lint(file):
                 warnings_to_return[i] = int(i.split(":")[1])
         except IndexError:
             pass
-    return errors_to_return
+    return errors_to_return, warnings_to_return
 
 
 def scan_import(line):
@@ -52,4 +52,4 @@ def scan_import(line):
 
 
 if __name__ == "__main__":
-    print(get_lint("codeblock-visual-studio/mainwindow_controller.py"))
+    print(get_lint("tkintertest.py"))
