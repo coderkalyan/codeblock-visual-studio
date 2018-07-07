@@ -63,7 +63,7 @@ def get_classes(file):
     print("\n\n\n", classes, "totlayfinalclass")
     return classes
 
-def get_functions(file):
+def get_functions(file, ):
     filetxt = open(file).readlines() # path may need to be changed
 
     current_line = 0
