@@ -5,6 +5,7 @@ from mainwindow import MainWindow
 import sys
 import importlib.util
 import inspect
+import error_catcher
 from modulefinder import ModuleFinder
 from blocks import *
 testvar = "hi"
@@ -15,6 +16,8 @@ class Main(MainWindow):
         super().__init__()
         self.bind()
         self.classViewFileIndex = {}
+        self.lines = []
+        self.lint = {}
 
     def bind(self):
         self.actionOpen.triggered.connect(self.open_file)
@@ -34,6 +37,8 @@ class Main(MainWindow):
     def open_file(self):
         filename = QFileDialog.getOpenFileName(self, 'Open file for reading',
                                                '', "Python files (*.py)")[0]
+        self.lines = open(filename).readlines()
+        self.lint = error_catcher.get_lint(filename)
         self.regenerate_classview(filename)
 
     def regenerate_classview(self, file):
@@ -149,7 +154,12 @@ class Main(MainWindow):
                         control_block_map[len(line) - len(line.lstrip())] = retblocks[func][f]
                     else:
                         # Just a regular CodeBlock
-                        retblocks[func].append(CodeBlock(line, parent=self.codeArea))
+                        try:
+                            if self.lines.index(line) in self.lint.values():
+                                print("oh cool")
+                        except ValueError:
+                            pass
+                        retblocks[func].append(CodeBlock(line, "#496BD3", parent=self.codeArea))
                     if f != 0:
                         retblocks[func][f-1].attach_child(retblocks[func][f])
                     f = f + 1

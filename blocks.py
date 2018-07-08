@@ -144,7 +144,7 @@ class BasicBlock(QWidget):
             self.child.show()
 
 class CodeBlock(BasicBlock):
-    def __init__(self, text, *args, **kwargs):
+    def __init__(self, text, color="#496BD3", *args, **kwargs):
         super().__init__(text, *args, **kwargs)
 
         self.color = "#496BD3"
@@ -179,42 +179,6 @@ class CodeBlock(BasicBlock):
         painter.drawChord(QRect(20, -37, 45, 45), 180 * 16, 180 * 16)
         painter.end()
 
-
-class ErrorBlock(BasicBlock):
-    def __init__(self, text, *args, **kwargs):
-        super().__init__(text, *args, **kwargs)
-
-        self.color = "red"
-        font = QFont("Comic Sans MS", 15)
-        metric = QFontMetrics(font)
-        if QFontMetrics.width(metric, self.content) + 30 > 150*self.scale:
-            self.width = QFontMetrics.width(metric, self.content) + 30
-        else:
-            self.width = 150*self.scale
-        self.height = metric.height() + 30*self.scale
-        print(self.height, "hight")
-        self.text_size = 50
-
-        temp = self.geometry()
-        self.setGeometry(temp.x(), temp.y(), temp.x() + self.width, self.height)
-        self.repaint()
-
-    def paintEvent(self, QPaintEvent):
-        painter = QPainter()
-        painter.begin(self)
-        painter.setPen(QColor(self.color))
-        painter.setBrush(QColor(self.color))
-        painter.setFont(QFont("Comic Sans MS", 15))
-        painter.setRenderHint(QPainter.Antialiasing)
-        #painter.drawRoundedRect(0, 5, self.geometry().width() - 5, self.geometry().height() - 7, 3, 3)
-        painter.drawChord(QRect(20, self.height-50, 45, 45), 180 * 16, 180 * 16)
-        geom = self.geometry()
-        painter.drawRoundedRect(QRect(0, 0, geom.width(), geom.height() - 15), 6*self.scale, 6*self.scale)
-        painter.setBrush(QColor("white"))
-        painter.setPen(QColor("white"))
-        painter.drawText(10, self.height/2, self.content)
-        painter.drawChord(QRect(20, -37, 45, 45), 180 * 16, 180 * 16)
-        painter.end()
 
 
 class CapBlock(BasicBlock):
