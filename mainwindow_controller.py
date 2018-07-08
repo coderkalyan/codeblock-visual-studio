@@ -17,7 +17,7 @@ class Main(MainWindow):
         self.bind()
         self.classViewFileIndex = {}
         self.lines = []
-        self.lint = {}
+        self.lint = ()
 
     def bind(self):
         self.actionOpen.triggered.connect(self.open_file)
@@ -87,9 +87,6 @@ class Main(MainWindow):
             v.raiseEvent()
             self.code_blocks[k].append(v)
 
-        for i in list(self.function_blocks.values()):
-            i.move_recurse(list(self.function_blocks.values()).index(i)*400, i.geometry().y())
-            print(i, "eye")
         # svgWidget = HatBlock("test", self.code_blocks['test'][-1], self.codeArea)
         # self.function_blocks.append(svgWidget)
         # svgWidget.show()
@@ -97,6 +94,11 @@ class Main(MainWindow):
             bar.adjust_bar()
             bar.show()
             bar.raise_()
+
+        for i in list(self.function_blocks.values()):
+            i.move_recurse(list(self.function_blocks.values()).index(i)*400, i.geometry().y())
+            i.raiseEvent()
+            print(i, "eye")
         print(self.code_blocks['ctrlbar'], "ctrlbar")
 
     def generate_function_blocks(self, funcs):
@@ -155,11 +157,17 @@ class Main(MainWindow):
                     else:
                         # Just a regular CodeBlock
                         try:
-                            if self.lines.index(line) in self.lint.values():
-                                print("oh cool")
-                        except ValueError:
-                            pass
-                        retblocks[func].append(CodeBlock(line, "#496BD3", parent=self.codeArea))
+                            print(self.lint)
+                            if self.lines.index(line + "\n")+1 in self.lint[0].values():
+                                color = "red"
+                            elif self.lines.index(line + "\n")+1 in self.lint[1].values():
+                                color = "#FFBB33"
+                            else:
+                                color = "#496BD3"
+                        except ValueError as v:
+                            color = "#496BD3"
+                            print(v, self.lines, line, "ValueError")
+                        retblocks[func].append(CodeBlock(line, color, parent=self.codeArea))
                     if f != 0:
                         retblocks[func][f-1].attach_child(retblocks[func][f])
                     f = f + 1

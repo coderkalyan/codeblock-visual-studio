@@ -147,7 +147,7 @@ class CodeBlock(BasicBlock):
     def __init__(self, text, color="#496BD3", *args, **kwargs):
         super().__init__(text, *args, **kwargs)
 
-        self.color = "#496BD3"
+        self.color = color
         font = QFont("Comic Sans MS", 15)
         metric = QFontMetrics(font)
         if QFontMetrics.width(metric, self.content) + 30 > 150*self.scale:

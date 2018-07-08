@@ -12,7 +12,15 @@ def get_lint(file):
     for i in lint.split("\n"):
         try:
             print(i)
-            if any(error in i for error in ["F4", "F8", "F901", "E999"]):
+            if any(error in i for error in ["F402",
+                                            "F403",
+                                            "F404",
+                                            "F405",
+                                            "F406",
+                                            "F407",
+                                            "F8",
+                                            "F901",
+                                            "E999"]):
                 if "F403" in i:
                     print((i))
                     if not scan_import(i):
@@ -52,4 +60,4 @@ def scan_import(line):
 
 
 if __name__ == "__main__":
-    print(get_lint("tkintertest.py"))
+    print(27 in get_lint("mainwindow_controller.py")[1].values())
