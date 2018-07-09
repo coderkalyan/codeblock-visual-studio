@@ -35,9 +35,11 @@ def get_lint(file):
                         print("skipped")
                     else:
                         i = ":".join(i.split(":")[:3]) + ": F405 '" + i.split("'")[1] + "'" + "is undefined."
-                errors_to_return[i] = int(i.split(":")[1])
+                i = "E: " + i
+                errors_to_return[i] = int(i.split(":")[2])
             else:
-                warnings_to_return[i] = int(i.split(":")[1])
+                i = "W: " + i
+                warnings_to_return[i] = int(i.split(":")[2])
         except IndexError:
             pass
     return errors_to_return, warnings_to_return
@@ -60,4 +62,4 @@ def scan_import(line):
 
 
 if __name__ == "__main__":
-    print(27 in get_lint("mainwindow_controller.py")[1].values())
+    print(get_lint("mainwindow_controller.py"))

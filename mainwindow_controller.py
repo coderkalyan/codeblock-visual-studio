@@ -117,7 +117,7 @@ class Main(MainWindow):
         f = 0
         retblocks = {}
         funcs = funcs_list
-        retblocks['test'] = []
+        retblocks['comments'] = []
         retblocks['ctrlbar'] = []
         ctrl_bar_count = 0
         for func, code in funcs.items():

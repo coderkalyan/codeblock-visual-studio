@@ -199,6 +199,7 @@ class CommentBubble(QWidget):
         print(self.bounding_rect, "boundrect")
         self.width = self.bounding_rect.width()
         self.height = self.bounding_rect.height()
+        self.height_minimized = metric.height()
         self.toggle_collapsed(self.geometry().x(), self.geometry().y())
         print(self.width, self.height, "dimension")
         self.repaint()
@@ -213,7 +214,7 @@ class CommentBubble(QWidget):
         geom = self.geometry()
         print(self.height)
         if self.minimized:
-            self.setGeometry(x, y, self.width, 20)
+            self.setGeometry(x, y, self.width, self.height_minimized)
         else:
             self.setGeometry(x, y, self.width, self.height)
 
@@ -222,7 +223,7 @@ class CommentBubble(QWidget):
 
     def toggle_collapsed(self, x, y):
         if not self.minimized:
-            self.setGeometry(x, y, self.width, 20)
+            self.setGeometry(x, y, self.width, self.height_minimized)
             self.minimized = True
         else:
             self.setGeometry(x, y, self.width, self.height)
@@ -241,10 +242,9 @@ class CommentBubble(QWidget):
         painter.drawRoundedRect(QRect(20, 0, geom.width()-20, geom.height()), 6, 6)
         painter.setBrush(QColor("white"))
         painter.setPen(QColor("white"))
-        if not self.minimized:
-            painter.drawText(QRect(35, 0, geom.width()-40, geom.height()),
-                    Qt.TextWordWrap,
-                    self.content)
+        painter.drawText(QRect(35, 0, geom.width()-40, geom.height()),
+            Qt.TextWordWrap,
+            self.content)
         painter.end()
 
     def adjust(self):
@@ -489,7 +489,7 @@ if __name__ == "__main__":
     c1 = CtrlTop("tests", parent=w)
     c2 = CtrlBottom("tetss", parent=w)
     c3 = CtrlBar(parent=w)
-    e1 = CommentBubble("mainwindow_controller.py:224:16: F405 'FileNotFoundError' may be undefined, or defined from star imports: PyQt5.QtCore, blocks", b10, parent=w)
+    e1 = CommentBubble("W:mainwindow_controller.py:224:16: F405 'FileNotFoundError' may be undefined, or defined from star imports: PyQt5.QtCore, blocks", b10, parent=w)
 
     b6.attach_child(c1)
     c1.attach_child(b9)
