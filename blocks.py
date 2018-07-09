@@ -2,8 +2,8 @@
 import random
 
 from PyQt5.QtWidgets import QWidget, QApplication, QDesktopWidget
-from PyQt5.QtCore import QRect, QPoint, QSize, Qt, pyqtSignal
-from PyQt5.QtGui import QPainter, QFont, QColor, QImage, QFontMetrics
+from PyQt5.QtCore import QRect, QRectF, QPoint, QSize, Qt, pyqtSignal
+from PyQt5.QtGui import QPainter, QFont, QColor, QImage, QFontMetrics, QPen
 import time
 
 blocks = []
@@ -179,6 +179,48 @@ class CodeBlock(BasicBlock):
         painter.drawChord(QRect(20, -37, 45, 45), 180 * 16, 180 * 16)
         painter.end()
 
+
+class ErrorBubble(QWidget):
+    def __init__(self, text, block, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.content = text
+        self.block = block
+        font = QFont("Comic Sans MS", 15)
+        metric = QFontMetrics(font)
+        self.bounding_rect = metric.boundingRect(QRect(0, 0, 400, 100),
+                Qt.TextWordWrap,
+                self.content)
+        print(self.bounding_rect, "boundrect")
+        self.width = self.bounding_rect.width()
+        self.height = self.bounding_rect.height()
+        self.setGeometry(block.geometry().x(), block.geometry().y(), self.width, self.height)
+        print(self.width, self.height, "dimension")
+        self.repaint()
+
+    def paintEvent(self, QPaintEvent):
+        painter = QPainter()
+        painter.begin(self)
+        painter.setPen(QColor("#FFC966"))
+        painter.setBrush(QColor("#FFC966"))
+        painter.setFont(QFont("Comic Sans MS", 15))
+        painter.setRenderHint(QPainter.Antialiasing)
+        #painter.drawRoundedRect(0, 5, self.geometry().width() - 5, self.geometry().height() - 7, 3, 3)
+        geom = self.geometry()
+        painter.drawRect(0, 0, geom.width(), 5)
+        painter.drawRoundedRect(QRect(20, 0, geom.width()-20, geom.height()), 6, 6)
+        painter.setBrush(QColor("white"))
+        painter.setPen(QColor("white"))
+        painter.drawText(QRect(35, 0, geom.width()-40, geom.height()),
+                Qt.TextWordWrap,
+                self.content)
+        painter.end()
+
+    def adjust(self):
+        self.setGeometry(self.block.geometry().x()+self.block.geometry().width()-5,
+                self.block.geometry().y(),
+                self.width,
+                self.height)
 
 
 class CapBlock(BasicBlock):
@@ -416,6 +458,7 @@ if __name__ == "__main__":
     c1 = CtrlTop("tests", parent=w)
     c2 = CtrlBottom("tetss", parent=w)
     c3 = CtrlBar(parent=w)
+    e1 = ErrorBubble("mainwindow_controller.py:224:16: F405 'FileNotFoundError' may be undefined, or defined from star imports: PyQt5.QtCore, blocks", b10, parent=w)
 
     b6.attach_child(c1)
     c1.attach_child(b9)
@@ -425,6 +468,7 @@ if __name__ == "__main__":
     c3.attach_bottom(c2)
 
     b6.move_recurse(20,20)
+    e1.adjust()
     # b1.move(20, 20)
     test = []
     #b6.raiseEvent()
