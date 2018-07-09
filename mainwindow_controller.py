@@ -90,16 +90,20 @@ class Main(MainWindow):
         # svgWidget = HatBlock("test", self.code_blocks['test'][-1], self.codeArea)
         # self.function_blocks.append(svgWidget)
         # svgWidget.show()
+        for i in list(self.function_blocks.values()):
+            i.move_recurse(list(self.function_blocks.values()).index(i)*400, i.geometry().y())
+            i.raiseEvent()
+            print(i, "eye")
+
+        print(self.code_blocks['ctrlbar'], "ctrlbar")
         for bar in self.code_blocks['ctrlbar']:
             bar.adjust_bar()
             bar.show()
             bar.raise_()
 
-        for i in list(self.function_blocks.values()):
-            i.move_recurse(list(self.function_blocks.values()).index(i)*400, i.geometry().y())
-            i.raiseEvent()
-            print(i, "eye")
-        print(self.code_blocks['ctrlbar'], "ctrlbar")
+        for comment in self.code_blocks['comments']:
+            comment.adjust()
+            comment.show()
 
     def generate_function_blocks(self, funcs):
         f = 0
@@ -160,14 +164,19 @@ class Main(MainWindow):
                             print(self.lint)
                             if self.lines.index(line + "\n")+1 in self.lint[0].values():
                                 color = "red"
+                                lintline = list(self.lint[0].keys())[list(self.lint[0].values()).index(self.lines.index(line + "\n")+1)]
                             elif self.lines.index(line + "\n")+1 in self.lint[1].values():
                                 color = "#FFBB33"
+                                lintline = list(self.lint[1].keys())[list(self.lint[1].values()).index(self.lines.index(line + "\n")+1)]
                             else:
                                 color = "#496BD3"
+                                lintline = None
                         except ValueError as v:
                             color = "#496BD3"
                             print(v, self.lines, line, "ValueError")
                         retblocks[func].append(CodeBlock(line, color, parent=self.codeArea))
+                        if lintline is not None:
+                            retblocks['comments'].append(CommentBubble(lintline, retblocks[func][f], parent=self.codeArea))
                     if f != 0:
                         retblocks[func][f-1].attach_child(retblocks[func][f])
                     f = f + 1
