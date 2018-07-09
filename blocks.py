@@ -16,6 +16,7 @@ class BasicBlock(QWidget):
         self.content = content
         self.child = None
         self.parent = None
+        self.comment = None
         self.text_size = 50
         self.scale = QDesktopWidget().screenGeometry().height()/1080
         self.dragging = -10
@@ -116,6 +117,8 @@ class BasicBlock(QWidget):
         self.move_to(x, y)
         if self.child is not None:
             self.child.move_recurse(x, y + self.geometry().height() - 15)
+        if self.comment is not None:
+            self.comment.move_to(x+self.geometry().width()-5, y)
 
     def mouseMoveEvent(self, event):
         if self.dragging == -10:
@@ -180,12 +183,14 @@ class CodeBlock(BasicBlock):
         painter.end()
 
 
-class ErrorBubble(QWidget):
+class CommentBubble(QWidget):
     def __init__(self, text, block, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.minimized = True
         self.content = text
         self.block = block
+        self.block.comment = self
         font = QFont("Comic Sans MS", 15)
         metric = QFontMetrics(font)
         self.bounding_rect = metric.boundingRect(QRect(0, 0, 400, 100),
@@ -194,9 +199,34 @@ class ErrorBubble(QWidget):
         print(self.bounding_rect, "boundrect")
         self.width = self.bounding_rect.width()
         self.height = self.bounding_rect.height()
-        self.setGeometry(block.geometry().x(), block.geometry().y(), self.width, self.height)
+        self.toggle_collapsed(self.geometry().x(), self.geometry().y())
         print(self.width, self.height, "dimension")
         self.repaint()
+
+    def move_to(self, x, y):
+        """
+        Moves the current block to a position
+        :param x: x position to move to
+        :param y: y position to move to
+        """
+
+        geom = self.geometry()
+        print(self.height)
+        if self.minimized:
+            self.setGeometry(x, y, self.width, 20)
+        else:
+            self.setGeometry(x, y, self.width, self.height)
+
+    def mousePressEvent(self, event):
+        self.toggle_collapsed(self.geometry().x(), self.geometry().y())
+
+    def toggle_collapsed(self, x, y):
+        if not self.minimized:
+            self.setGeometry(x, y, self.width, 20)
+            self.minimized = True
+        else:
+            self.setGeometry(x, y, self.width, self.height)
+            self.minimized = False
 
     def paintEvent(self, QPaintEvent):
         painter = QPainter()
@@ -211,9 +241,10 @@ class ErrorBubble(QWidget):
         painter.drawRoundedRect(QRect(20, 0, geom.width()-20, geom.height()), 6, 6)
         painter.setBrush(QColor("white"))
         painter.setPen(QColor("white"))
-        painter.drawText(QRect(35, 0, geom.width()-40, geom.height()),
-                Qt.TextWordWrap,
-                self.content)
+        if not self.minimized:
+            painter.drawText(QRect(35, 0, geom.width()-40, geom.height()),
+                    Qt.TextWordWrap,
+                    self.content)
         painter.end()
 
     def adjust(self):
@@ -458,7 +489,7 @@ if __name__ == "__main__":
     c1 = CtrlTop("tests", parent=w)
     c2 = CtrlBottom("tetss", parent=w)
     c3 = CtrlBar(parent=w)
-    e1 = ErrorBubble("mainwindow_controller.py:224:16: F405 'FileNotFoundError' may be undefined, or defined from star imports: PyQt5.QtCore, blocks", b10, parent=w)
+    e1 = CommentBubble("mainwindow_controller.py:224:16: F405 'FileNotFoundError' may be undefined, or defined from star imports: PyQt5.QtCore, blocks", b10, parent=w)
 
     b6.attach_child(c1)
     c1.attach_child(b9)
