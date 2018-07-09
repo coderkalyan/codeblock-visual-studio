@@ -145,6 +145,9 @@ class BasicBlock(QWidget):
             self.child.raiseEvent()
             self.raise_()
             self.child.show()
+        if self.comment is not None:
+            self.comment.raise_()
+            self.comment.show()
 
 class CodeBlock(BasicBlock):
     def __init__(self, text, color="#496BD3", *args, **kwargs):
