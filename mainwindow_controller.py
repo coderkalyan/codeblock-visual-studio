@@ -5,6 +5,7 @@ from mainwindow import MainWindow
 import sys
 import importlib.util
 import inspect
+import error_catcher
 from modulefinder import ModuleFinder
 from blocks import *
 testvar = "hi"
@@ -15,6 +16,8 @@ class Main(MainWindow):
         super().__init__()
         self.bind()
         self.classViewFileIndex = {}
+        self.lines = []
+        self.lint = ()
 
     def bind(self):
         self.actionOpen.triggered.connect(self.open_file)
@@ -34,6 +37,8 @@ class Main(MainWindow):
     def open_file(self):
         filename = QFileDialog.getOpenFileName(self, 'Open file for reading',
                                                '', "Python files (*.py)")[0]
+        self.lines = open(filename).readlines()
+        self.lint = error_catcher.get_lint(filename)
         self.regenerate_classview(filename)
 
     def regenerate_classview(self, file):
@@ -82,17 +87,23 @@ class Main(MainWindow):
             v.raiseEvent()
             self.code_blocks[k].append(v)
 
-        for i in list(self.function_blocks.values()):
-            i.move_recurse(list(self.function_blocks.values()).index(i)*400, i.geometry().y())
-            print(i, "eye")
         # svgWidget = HatBlock("test", self.code_blocks['test'][-1], self.codeArea)
         # self.function_blocks.append(svgWidget)
         # svgWidget.show()
+        for i in list(self.function_blocks.values()):
+            i.move_recurse(list(self.function_blocks.values()).index(i)*400, i.geometry().y())
+            i.raiseEvent()
+            print(i, "eye")
+
+        print(self.code_blocks['ctrlbar'], "ctrlbar")
         for bar in self.code_blocks['ctrlbar']:
             bar.adjust_bar()
             bar.show()
             bar.raise_()
-        print(self.code_blocks['ctrlbar'], "ctrlbar")
+
+        for comment in self.code_blocks['comments']:
+            comment.adjust()
+            comment.show()
 
     def generate_function_blocks(self, funcs):
         f = 0
@@ -110,8 +121,7 @@ class Main(MainWindow):
         f = 0
         retblocks = {}
         funcs = funcs_list
-        print(funcs, "printfuncs")
-        retblocks['test'] = []
+        retblocks['comments'] = []
         retblocks['ctrlbar'] = []
         ctrl_bar_count = 0
         for func, code in funcs.items():
@@ -150,7 +160,23 @@ class Main(MainWindow):
                         control_block_map[len(line) - len(line.lstrip())] = retblocks[func][f]
                     else:
                         # Just a regular CodeBlock
-                        retblocks[func].append(CodeBlock(line, parent=self.codeArea))
+                        try:
+                            print(self.lint)
+                            if self.lines.index(line + "\n")+1 in self.lint[0].values():
+                                color = "red"
+                                lintline = list(self.lint[0].keys())[list(self.lint[0].values()).index(self.lines.index(line + "\n")+1)]
+                            elif self.lines.index(line + "\n")+1 in self.lint[1].values():
+                                color = "#FFBB33"
+                                lintline = list(self.lint[1].keys())[list(self.lint[1].values()).index(self.lines.index(line + "\n")+1)]
+                            else:
+                                color = "#496BD3"
+                                lintline = None
+                        except ValueError as v:
+                            color = "#496BD3"
+                            print(v, self.lines, line, "ValueError")
+                        retblocks[func].append(CodeBlock(line, color, parent=self.codeArea))
+                        if lintline is not None:
+                            retblocks['comments'].append(CommentBubble(lintline, retblocks[func][f], parent=self.codeArea))
                     if f != 0:
                         retblocks[func][f-1].attach_child(retblocks[func][f])
                     f = f + 1
@@ -209,6 +235,7 @@ class Main(MainWindow):
             # do stuff
         return classes
 
+
     def get_vars(self, file):
         defined = []
         try:
@@ -225,7 +252,6 @@ class Main(MainWindow):
             else:
                 print(attr)
         returnvar = defined
-        print(returnvar, "keyword")
         return returnvar
 
 
