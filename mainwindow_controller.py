@@ -2,6 +2,8 @@
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QApplication, QWidget, QFrame, QFileDialog, QTreeWidgetItem
 from mainwindow import MainWindow
+from about_dialog import AboutDialog
+import icons.icons_rc
 import sys
 import importlib.util
 import inspect
@@ -14,6 +16,8 @@ testvar = "hi"
 class Main(MainWindow):
     def __init__(self):
         super().__init__()
+        self.about_dialog = AboutDialog()
+        self.about_dialog.hide()
         self.bind()
         self.classViewFileIndex = {}
         self.lines = []
@@ -21,6 +25,7 @@ class Main(MainWindow):
 
     def bind(self):
         self.actionOpen.triggered.connect(self.open_file)
+        self.actionAbout.triggered.connect(self.about_dialog.show)
         self.classView.itemDoubleClicked.connect(self.classview_openclass)
 
     def classview_openclass(self):
