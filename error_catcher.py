@@ -1,5 +1,4 @@
 import sys, os
-import pylint.lint
 import importlib
 
 def get_lint(file):
