@@ -178,6 +178,7 @@ class Main(MainWindow):
                                 lintline = None
                         except ValueError as v:
                             color = "#496BD3"
+                            lintline = None
                             print(v, self.lines, line, "ValueError")
                         retblocks[func].append(CodeBlock(line, color, parent=self.codeArea))
                         if lintline is not None:
