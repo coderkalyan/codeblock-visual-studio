@@ -133,6 +133,7 @@ class Main(MainWindow):
             f = 0
             retblocks[func] = []
             control_block_map = {}
+            not_done = True
             for line in code:
                 if func != "" and "def " not in line:
                     line_leading_whitespace = len(line) - len(line.lstrip())
@@ -178,6 +179,7 @@ class Main(MainWindow):
                                 lintline = None
                         except ValueError as v:
                             color = "#496BD3"
+                            lintline = None
                             print(v, self.lines, line, "ValueError")
                         retblocks[func].append(CodeBlock(line, color, parent=self.codeArea))
                         if lintline is not None:
@@ -186,6 +188,29 @@ class Main(MainWindow):
                         retblocks[func][f-1].attach_child(retblocks[func][f])
                     f = f + 1
                     print(line)
+                    if f == len(code)-1 and len(control_block_map) > 0 and not_done:
+                        # CtrlBottom detected (must be before ifblock)
+                        print(line, line_leading_whitespace, control_block_map, "control_map")
+                        sorted_keys = list(control_block_map.keys())
+                        sorted_keys.sort()
+                        if not line_leading_whitespace == \
+                                sorted_keys[-1]:
+                                    print(sorted_keys[-1], line_leading_whitespace, "sorted keys")
+                                    line = line.lstrip()
+                                    for l in range(sorted_keys[-1]):
+                                        print(l)
+                                        line = " " + line
+                                        print(line)
+
+                        retblocks[func].append(CtrlBottom(line, parent=self.codeArea))
+                        code.insert(f+1, line)
+                        retblocks['ctrlbar'].append(CtrlBar(parent=self.codeArea))
+                        retblocks['ctrlbar'][ctrl_bar_count].attach_top(control_block_map[len(line) - len(line.lstrip())])
+                        retblocks['ctrlbar'][ctrl_bar_count].attach_bottom(retblocks[func][f])
+                        print(control_block_map, 'controlmap in prog')
+                        ctrl_bar_count = ctrl_bar_count + 1
+                        del control_block_map[len(line) - len(line.lstrip())]
+                        not_done = False
         print(control_block_map, "controlmap remain")
         return retblocks
 
