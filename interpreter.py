@@ -1,11 +1,10 @@
 import ast
 import _ast
 
-file = "/home/kai/git/codeblock-visual-studio/mainwindow_controller.py"
-testvar = "poop to you!"
+file = "/home/kalyan/git/codeblock-visual-studio/blocks.py"
 
-def get_imports(file):
-    filetxt = open(file).readlines()
+def get_imports_kai(file):
+    # filetxt = open(file).readlines()
 
     importsfull = []
 
@@ -14,7 +13,19 @@ def get_imports(file):
             importsfull.append(line)
     print(imports)
 
-def get_variables(node, file):
+# this is what you meant to do, kai...
+def get_imports(file):
+    imports = []
+    with open(file, "r") as f:
+        for line in f:
+            line = line.lstrip()
+            if line.startswith("import ") or line.startswith("from "):
+                imports.append(line)
+
+    return imports
+
+
+def get_variables_kai(node, file):
     variables = set()
     if hasattr(node, 'body'):
         for subnode in node.body:
@@ -25,7 +36,7 @@ def get_variables(node, file):
                 variables.add(name.id)
     return variables
 
-def get_classes(file):
+def get_classes_kai(file):
     filetxt = open(file).readlines()
 
     classes = {}
@@ -63,7 +74,54 @@ def get_classes(file):
     print("\n\n\n", classes, "totlayfinalclass")
     return classes
 
-def get_functions(file, ):
+# this is what you meant to do, kai...
+def get_classes(file):
+    classes = dict()
+    funcnames = list()
+    funcs = dict()
+    cache = []
+    saved_indent_class = -1
+    saved_indent_func = -1
+    class_name = ""
+
+    with open(file, "r") as f:
+        for line in f:
+            indent_level = len(line) - len(line.lstrip())
+            if line.lstrip().startswith("class "):
+                if saved_indent_class != -1 and indent_level <= saved_indent_class:
+                    classes[class_name] = funcs
+                    funcs = {}
+                saved_indent_class = -1
+                class_name = line.split("class ")[-1].split("(")[0]
+                saved_indent_class = indent_level
+                continue
+
+            if line.lstrip().startswith("def "):
+                func_name = line.split("def ")[-1].split("(")[0]
+                saved_indent_func = indent_level
+                continue
+
+            if saved_indent_func != -1 and indent_level > saved_indent_func:
+                cache.append(line)
+            elif saved_indent_func != -1 and indent_level <= saved_indent_func:
+                saved_indent_func = -1
+                funcs[func_name] = cache
+                cache = []
+            if saved_indent_class != -1 and indent_level <= saved_indent_class:
+                classes[class_name] = funcs
+                funcs = {}
+                saved_indent_class = -1
+
+    """
+    for k, v in classes.items():
+        print(k)
+        for a, b in v.items():
+             print(a)
+             print("".join(b))
+    """
+    return classes, funcs
+
+def get_functions_kai(file):
     filetxt = open(file).readlines() # path may need to be changed
 
     current_line = 0
@@ -105,4 +163,50 @@ def get_functions(file, ):
     print(funcs, "totalyfinal")
     return funcs
 
-get_imports(file)
+# this is what you meant to do, kai...
+def get_functions(file):
+    finalfuncnames = []
+    funcs = {}
+    funcnumlines = []
+    funclines = []
+    fullfunclines = []
+    leading_whitespace = 0
+    whitespaceforchecking = 0
+    cache = ""
+    with open(file, "r") as f:
+        for line in f:
+            if line.lstrip().startswith("def "):
+                func_name = line.split("def ")[-1].split("(")[0]
+            current_line = current_line + 1
+            if "def " in line:
+                funcnumlines.append(current_line)
+                print(funcnumlines, "linenumoffuncs")
+                finalfuncnames.append(line)
+                print(finalfuncnames, "funcnamesfinallist")
+
+    for lof in funcnumlines:
+        print(lof, "forlines")
+        funcname = filetxt[lof-1]
+        top_leading_whitespace = len(filetxt[lof]) - len(filetxt[lof].lstrip())
+        print(top_leading_whitespace, "initalwhitespace")
+        funcbody = filetxt[lof]
+        for body in filetxt[lof:]:
+            leading_whitespace = len(body) - len(body.lstrip())
+            print(whitespaceforchecking, "whitespacebody")
+            if leading_whitespace < top_leading_whitespace:
+                if body != "\n" and len(body) - len(body.lstrip()) != top_leading_whitespace:
+                    break
+            funclines.append(body)
+        print(funclines, "finalfunclines")
+        fullfunclines.append(funclines)
+        print(fullfunclines, "fullfunclines")
+        funclines = []
+
+    funcs = dict(zip(finalfuncnames, fullfunclines))
+
+    print(funcs, "totalyfinal")
+    return funcs
+
+# get_imports(file)
+if __name__ == "__main__":
+    get_classes(file)
