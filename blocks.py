@@ -192,15 +192,16 @@ class CommentBubble(QWidget):
 
         self.minimized = True
         self.content = text
+        print(self.content, "selfcontent")
         self.block = block
         self.block.comment = self
         font = QFont("Comic Sans MS", 15)
         metric = QFontMetrics(font)
-        self.bounding_rect = metric.boundingRect(QRect(0, 0, 400, 100),
+        self.bounding_rect = metric.boundingRect(QRect(0, 0, 400, 900),
                 Qt.TextWordWrap,
                 self.content)
         print(self.bounding_rect, "boundrect")
-        self.width = self.bounding_rect.width()
+        self.width = self.bounding_rect.width() + 40
         self.height = self.bounding_rect.height()
         self.height_minimized = metric.height()
         self.toggle_collapsed(self.geometry().x(), self.geometry().y())

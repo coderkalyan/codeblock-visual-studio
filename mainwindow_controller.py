@@ -181,6 +181,7 @@ class Main(MainWindow):
                             color = "#496BD3"
                             lintline = None
                             print(v, self.lines, line, "ValueError")
+                        print(lintline, "lintline")
                         retblocks[func].append(CodeBlock(line, color, parent=self.codeArea))
                         if lintline is not None:
                             retblocks['comments'].append(CommentBubble(lintline, retblocks[func][f], parent=self.codeArea))
