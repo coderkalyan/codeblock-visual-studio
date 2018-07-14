@@ -133,7 +133,7 @@ def get_classes(file):
              print(a)
              print("".join(b))
     """
-    return classes, funcs
+    return classes
 
 def get_functions_kai(file):
     filetxt = open(file).readlines() # path may need to be changed
@@ -221,7 +221,17 @@ def get_functions(file):
     print(funcs, "totalyfinal")
     return funcs
 
+def get_classes_all(file):
+    imports = get_imports(file)
+    ret_classes = {}
+    for i in imports:
+        if i.endswith(".so"):
+            continue
+        ret_classes[i] = get_classes(i)
+        print(i)
+    ret_classes[file] = get_classes(file)
+    return ret_classes
+
 # get_imports(file)
 if __name__ == "__main__":
-    get_classes("mainwindow_controller.py")
-    print(get_imports("mainwindow_controller.py"))
+    print(get_classes_all("mainwindow_controller.py"))
