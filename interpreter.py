@@ -1,6 +1,7 @@
 import ast
 import _ast
 import importlib
+import error_catcher
 
 file = "/home/kalyan/git/codeblock-visual-studio/blocks.py"
 
@@ -224,13 +225,15 @@ def get_functions(file):
 def get_classes_all(file):
     imports = get_imports(file)
     ret_classes = {}
+    ret_lint = {}
     for i in imports:
         if i.endswith(".so"):
             continue
         ret_classes[i] = get_classes(i)
-        print(i)
-    ret_classes[file] = get_classes(file)
-    return ret_classes
+        ret_lint[i] = error_catcher.get_lint(i)
+    ret_classes[file] = get_classes(file),
+    ret_lint[file] = error_catcher.get_lint(file)
+    return ret_classes, ret_lint
 
 # get_imports(file)
 if __name__ == "__main__":
