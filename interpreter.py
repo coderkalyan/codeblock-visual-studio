@@ -1,5 +1,6 @@
 import ast
 import _ast
+import importlib
 
 file = "/home/kalyan/git/codeblock-visual-studio/blocks.py"
 
@@ -19,9 +20,22 @@ def get_imports(file):
     with open(file, "r") as f:
         for line in f:
             line = line.lstrip()
-            if line.startswith("import ") or line.startswith("from "):
-                imports.append(line)
-
+            if line.startswith("import "):
+                mod = line.split("import ")[-1]
+            elif line.startswith("from "):
+                mod = line.split("from ")[-1].split("import")[0]
+            else:
+                continue
+            print(mod, "mod")
+            try:
+                imports.append(importlib.import_module(mod.rstrip()).__file__)
+            except ImportError as e:
+                print(e)
+                continue
+            except AttributeError as e:
+                print(e)
+                print("assuming builtin, continuing")
+                continue
     return imports
 
 
@@ -209,4 +223,5 @@ def get_functions(file):
 
 # get_imports(file)
 if __name__ == "__main__":
-    get_classes(file)
+    get_classes("mainwindow_controller.py")
+    print(get_imports("mainwindow_controller.py"))
