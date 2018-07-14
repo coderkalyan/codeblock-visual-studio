@@ -8,6 +8,7 @@ import sys
 import importlib.util
 import inspect
 import error_catcher
+import interpreter
 from modulefinder import ModuleFinder
 from blocks import *
 testvar = "hi"
@@ -48,18 +49,18 @@ class Main(MainWindow):
 
     def regenerate_classview(self, file):
         try:
-            class_list = self.get_classes(file)
+            class_list = interpreter.get_classes_all(file)
         except:
             class_list = {}
         class_list_sorted = {}
-        for k, v in class_list.items():
-            filesplit = str(v).split("'")[1::2][0].split(".")
-            if len(filesplit) > 2:
-                # use Package-style naming
-                filename = ".".join(filesplit[:2])
-            else:
+        for k, v in class_list[0].items():
+            filesplit = str(k).split("/")[-1]
+            if filesplit.endswith(".py"):
                 # use Module-style naming (.py extension)
-                filename = ".".join([filesplit[0], "py"])
+                filename = filesplit
+            else:
+                # use Package-style naming
+                filename = class_list[2][k]
             class_list_sorted[filename] = {}
             for i, j in class_list.items():
                 if len(filename.split(".")) > 2:

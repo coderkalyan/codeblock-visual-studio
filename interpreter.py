@@ -17,7 +17,7 @@ def get_imports_kai(file):
 
 # this is what you meant to do, kai...
 def get_imports(file):
-    imports = []
+    imports = {}
     with open(file, "r") as f:
         for line in f:
             line = line.lstrip()
@@ -29,7 +29,7 @@ def get_imports(file):
                 continue
             print(mod, "mod")
             try:
-                imports.append(importlib.import_module(mod.rstrip()).__file__)
+                imports[importlib.import_module(mod.rstrip()).__file__] = mod.rstrip()
             except ImportError as e:
                 print(e)
                 continue
@@ -226,15 +226,15 @@ def get_classes_all(file):
     imports = get_imports(file)
     ret_classes = {}
     ret_lint = {}
-    for i in imports:
+    for i in imports.keys():
         if i.endswith(".so"):
             continue
         ret_classes[i] = get_classes(i)
         ret_lint[i] = error_catcher.get_lint(i)
     ret_classes[file] = get_classes(file),
     ret_lint[file] = error_catcher.get_lint(file)
-    return ret_classes, ret_lint
+    return ret_classes, ret_lint, imports
 
 # get_imports(file)
 if __name__ == "__main__":
-    print(get_classes_all("mainwindow_controller.py"))
+    print(get_imports("mainwindow_controller.py"))
