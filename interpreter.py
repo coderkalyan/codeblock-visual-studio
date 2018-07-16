@@ -1,6 +1,7 @@
 import ast
 import _ast
 import importlib
+import inspect
 import error_catcher
 
 file = "/home/kalyan/git/codeblock-visual-studio/blocks.py"
@@ -11,8 +12,7 @@ def get_imports_kai(file):
     importsfull = []
 
     for line in filetxt:
-        if " import " in line or line.startswith("import "):
-            importsfull.append(line)
+        if " import " in line or line.startswith("import "): importsfull.append(line)
     print(imports)
 
 # this is what you meant to do, kai...
@@ -226,15 +226,25 @@ def get_classes_all(file):
     imports = get_imports(file)
     ret_classes = {}
     ret_lint = {}
-    for i in imports.keys():
+    for i,v in imports.items():
         if i.endswith(".so"):
+            uninspectable_classes = {}
+            print(i, "uninspecting")
+            foo = importlib.import_module(v)
+            for name, obj in inspect.getmembers(foo):
+                if inspect.isclass(obj):
+                    try:
+                        uninspectable_classes[name] = None
+                    except:
+                        print(i, "uninspectable")
+            ret_classes[i] = uninspectable_classes
             continue
         ret_classes[i] = get_classes(i)
         ret_lint[i] = error_catcher.get_lint(i)
-    ret_classes[file] = get_classes(file),
+    ret_classes[file] = get_classes(file)
     ret_lint[file] = error_catcher.get_lint(file)
     return ret_classes, ret_lint, imports
 
 # get_imports(file)
 if __name__ == "__main__":
-    print(get_imports("mainwindow_controller.py"))
+    print(get_classes_all("mainwindow_controller.py")[0])
