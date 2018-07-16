@@ -2,6 +2,7 @@ import ast
 import _ast
 import importlib
 import inspect
+import sys, os
 import error_catcher
 
 file = "/home/kalyan/git/codeblock-visual-studio/blocks.py"
@@ -28,15 +29,11 @@ def get_imports(file):
             else:
                 continue
             print(mod, "mod")
-            try:
-                imports[importlib.import_module(mod.rstrip()).__file__] = mod.rstrip()
-            except ImportError as e:
-                print(e)
-                continue
-            except AttributeError as e:
-                print(e)
-                print("assuming builtin, continuing")
-                continue
+            for path in sys.path:
+                for file in os.listdir(path):
+                    if file.split(".")[0] == mod.rstrip().split(".")[0]:
+                        imports[os.path.join(path, file)] = mod.rstrip()
+                        break
     return imports
 
 
