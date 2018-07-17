@@ -34,33 +34,34 @@ def get_imports(file):
             else:
                 continue
             print(mod, "mod")
-            for path in sys.path:
-                    for file in os.listdir(path):
-                        if file.split(".")[0] == mod.rstrip().split(".")[0]:
-                            if file.split(".")[-1] in ["py", "so"]:
-                                imports[mod.rstrip()] = os.path.join(path, file)
-                                print("yay")
-                                break
-                            elif os.path.isdir(os.path.join(path, file)):
-                                if len(mod.split(".")) > 1:
-                                    print(mod, "package")
-                                    path = os.path.join(path, file)
-                                    for j in mod.split(".")[1:]:
-                                        for file2 in os.listdir(path):
-                                            if os.path.isdir(os.path.join(path, file2)) and \
-                                                    file2 == j:
-                                                        path = os.path.join(path, file2)
-                                            elif file2.split(".")[0] == mod.split(".")[-1].rstrip():
-                                                imports[mod.rstrip()] = os.path.join(path, file2)
-                                                break
-                                else:
-                                    print(mod.split("."), "modsplit")
-                                    imports[mod.rstrip()] = os.path.join(path, file)+"/__init__.py"
+            if mod.split(".")[0] != '':
+                for path in paths_to_search:
+                        for file in os.listdir(path):
+                            if file.split(".")[0] == mod.rstrip().split(".")[0]:
+                                if file.split(".")[-1] in ["py", "so"]:
+                                    imports[mod.rstrip()] = os.path.join(path, file)
+                                    print("yay")
                                     break
-                        elif mod.rstrip() in sys.builtin_module_names:
-                            imports[mod.rstrip()] = mod.rstrip() + " - builtin"
-                        else:
-                            pass
+                                elif os.path.isdir(os.path.join(path, file)):
+                                    if len(mod.split(".")) > 1:
+                                        print(mod, "package")
+                                        path = os.path.join(path, file)
+                                        for j in mod.split(".")[1:]:
+                                            for file2 in os.listdir(path):
+                                                if os.path.isdir(os.path.join(path, file2)) and \
+                                                        file2 == j:
+                                                            path = os.path.join(path, file2)
+                                                elif file2.split(".")[0] == mod.split(".")[-1].rstrip():
+                                                    imports[mod.rstrip()] = os.path.join(path, file2)
+                                                    break
+                                    else:
+                                        print(mod.split("."), "modsplit")
+                                        imports[mod.rstrip()] = os.path.join(path, file)+"/__init__.py"
+                                        break
+                            elif mod.rstrip() in sys.builtin_module_names:
+                                imports[mod.rstrip()] = mod.rstrip() + " - builtin"
+                            else:
+                                pass
     return imports
 
 
