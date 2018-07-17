@@ -35,14 +35,19 @@ def get_imports(file):
                 continue
             print(mod, "mod")
             if mod.split(".")[0] != '':
+                # Import is absolute
                 for path in paths_to_search:
                         for file in os.listdir(path):
                             if file.split(".")[0] == mod.rstrip().split(".")[0]:
                                 if file.split(".")[-1] in ["py", "so"]:
+                                    # If detected as module available in sys.path, append to imports
                                     imports[mod.rstrip()] = os.path.join(path, file)
                                     print("yay")
                                     break
                                 elif os.path.isdir(os.path.join(path, file)):
+                                    # Detected as package, recurse through directories
+                                    # TODO: Optimize this code
+                                    # (could try adapting relative import code)
                                     if len(mod.split(".")) > 1:
                                         print(mod, "package")
                                         path = os.path.join(path, file)
@@ -62,6 +67,19 @@ def get_imports(file):
                                 imports[mod.rstrip()] = mod.rstrip() + " - builtin"
                             else:
                                 pass
+            else:
+                # Import is relative
+                print("relative")
+                for part in mod.split(".")[1:]:
+                    try:
+                        os.chdir(part)
+                    except NotADirectoryError:
+                        for file in os.listdir():
+                            if file.split(".")[0] == mod.split(".")[-1].rstrip() and \
+                                    file.split(".")[1] in [".py", ".so"]:
+                                        imports[mod.rstrip()] = os.path.join(path, file)
+
+
     return imports
 
 
