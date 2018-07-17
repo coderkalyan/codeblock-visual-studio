@@ -19,6 +19,11 @@ def get_imports_kai(file):
 # this is what you meant to do, kai...
 def get_imports(file):
     imports = {}
+    paths_to_search = sys.path
+    paths_to_search.reverse()
+    for p in paths_to_search:
+        if p.endswith(".egg") or p.endswith(".zip"):
+            paths_to_search.remove(p)
     with open(file, "r") as f:
         for line in f:
             line = line.lstrip()
@@ -30,10 +35,32 @@ def get_imports(file):
                 continue
             print(mod, "mod")
             for path in sys.path:
-                for file in os.listdir(path):
-                    if file.split(".")[0] == mod.rstrip().split(".")[0]:
-                        imports[os.path.join(path, file)] = mod.rstrip()
-                        break
+                    for file in os.listdir(path):
+                        if file.split(".")[0] == mod.rstrip().split(".")[0]:
+                            if file.split(".")[-1] in ["py", "so"]:
+                                imports[mod.rstrip()] = os.path.join(path, file)
+                                print("yay")
+                                break
+                            elif os.path.isdir(os.path.join(path, file)):
+                                if len(mod.split(".")) > 1:
+                                    print(mod, "package")
+                                    path = os.path.join(path, file)
+                                    for j in mod.split(".")[1:]:
+                                        for file2 in os.listdir(path):
+                                            if os.path.isdir(os.path.join(path, file2)) and \
+                                                    file2 == j:
+                                                        path = os.path.join(path, file2)
+                                            elif file2.split(".")[0] == mod.split(".")[-1].rstrip():
+                                                imports[mod.rstrip()] = os.path.join(path, file2)
+                                                break
+                                else:
+                                    print(mod.split("."), "modsplit")
+                                    imports[mod.rstrip()] = os.path.join(path, file)+"/__init__.py"
+                                    break
+                        elif mod.rstrip() in sys.builtin_module_names:
+                            imports[mod.rstrip()] = mod.rstrip() + " - builtin"
+                        else:
+                            pass
     return imports
 
 
@@ -224,20 +251,20 @@ def get_classes_all(file):
     ret_classes = {}
     ret_lint = {}
     for i,v in imports.items():
-        if i.endswith(".so"):
+        if v.endswith(".so") or v.endswith("builtin"):
             uninspectable_classes = {}
             print(i, "uninspecting")
-            foo = importlib.import_module(v)
+            foo = importlib.import_module(i)
             for name, obj in inspect.getmembers(foo):
                 if inspect.isclass(obj):
                     try:
                         uninspectable_classes[name] = None
                     except:
                         print(i, "uninspectable")
-            ret_classes[i] = uninspectable_classes
+            ret_classes[v] = uninspectable_classes
             continue
-        ret_classes[i] = get_classes(i)
-        ret_lint[i] = error_catcher.get_lint(i)
+        ret_classes[v] = get_classes(v)
+        ret_lint[v] = error_catcher.get_lint(v)
     ret_classes[file] = get_classes(file)
     ret_lint[file] = error_catcher.get_lint(file)
     return ret_classes, ret_lint, imports
