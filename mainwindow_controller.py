@@ -23,6 +23,7 @@ class Main(MainWindow):
         self.classViewFileIndex = {}
         self.lines = []
         self.lint = ()
+        self.class_list = {}
 
     def bind(self):
         self.actionOpen.triggered.connect(self.open_file)
@@ -49,30 +50,40 @@ class Main(MainWindow):
 
     def regenerate_classview(self, file):
         try:
-            class_list = interpreter.get_classes_all(file)
+            # Get everything in format (classes, lint, imports)
+            # classes is in format {file: {class: {functions: {list_of_source}}}}
+            # Lint is in format {file: [list_of_lint_warns]}
+            # Imports is in format {module: file}
+            self.class_list = interpreter.get_classes_all(file)
         except:
-            class_list = {}
+            self.class_list = {}
         class_list_sorted = {}
-        for k, v in class_list[0].items():
-            filesplit = str(k).split("/")[-1]
-            if filesplit.endswith(".py"):
-                # use Module-style naming (.py extension)
-                filename = filesplit
-            else:
-                # use Package-style naming
-                filename = class_list[2][k]
+        for k, v in self.class_list[0].items():
+            # Get name of modules
+            try:
+                filename = list(self.class_list[2].keys())[list(self.class_list[2].values()).index(k)]
+            except ValueError:
+                print("assuming main file, skipping")
+            if len(filename.split(".")) < 2:
+                # Use module-style naming (.py or .so extension)
+                filename = filename+"."+k.split(".")[-1]
+
             class_list_sorted[filename] = {}
-            for i, j in class_list.items():
-                if len(filename.split(".")) > 2:
-                    filecompare = filename
-                else:
-                    filecompare = filename.split(".")[0]
-                if filecompare in str(j):
-                    class_list_sorted[filename][i] = j
+            print(v)
+            for i,j in v.items():
+                class_list_sorted[filename][i] = None
+            # for i, j in self.class_list[0].items():
+            #     if len(filename.split(".")) > 2:
+            #         filecompare = filename
+            #     else:
+            #         filecompare = filename.split(".")[0]
+            #     if filecompare in str(j):
+            #         class_list_sorted[filename][i] = j
         class_tree_index = {}
         print("generating tree view...")
         self.classView.clear()
         ind0 = 0
+        # class_list_sorted should be in the format {module_name: {class_name:[arbitrary val]}}
         for k2, v2 in class_list_sorted.items():
             class_tree_index[ind0] = QTreeWidgetItem(self.classView)
             class_tree_index[ind0].setText(0, k2)

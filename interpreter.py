@@ -289,4 +289,4 @@ def get_classes_all(file):
 
 # get_imports(file)
 if __name__ == "__main__":
-    print(get_classes_all("mainwindow_controller.py")[0])
+    print(get_classes_all("mainwindow_controller.py")[])
