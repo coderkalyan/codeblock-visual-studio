@@ -170,7 +170,6 @@ class Main(MainWindow):
                                         print(l)
                                         line = " " + line
                                         print(line)
-
                         retblocks[func].append(CtrlBottom(line, parent=self.codeArea))
                         code.insert(f+1, line)
                         retblocks['ctrlbar'].append(CtrlBar(parent=self.codeArea))

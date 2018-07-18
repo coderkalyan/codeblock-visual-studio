@@ -147,6 +147,21 @@ def get_classes(file):
     with open(file, "r") as f:
         for line in f:
             indent_level = len(line) - len(line.lstrip())
+            if line.strip() == '':
+                print("line", line)
+                continue
+
+            if saved_indent_func != -1 and indent_level > saved_indent_func:
+                cache.append(line)
+            elif saved_indent_func != -1 and indent_level <= saved_indent_func:
+                saved_indent_func = -1
+                funcs[func_name] = cache
+                cache = []
+            if saved_indent_class != -1 and indent_level <= saved_indent_class:
+                classes[class_name] = funcs
+                funcs = {}
+                saved_indent_class = -1
+
             if line.lstrip().startswith("class "):
                 if saved_indent_class != -1 and indent_level <= saved_indent_class:
                     classes[class_name] = funcs
@@ -162,16 +177,6 @@ def get_classes(file):
                 cache.append(line)
                 continue
 
-            if saved_indent_func != -1 and indent_level > saved_indent_func:
-                cache.append(line)
-            elif saved_indent_func != -1 and indent_level <= saved_indent_func:
-                saved_indent_func = -1
-                funcs[func_name] = cache
-                cache = []
-            if saved_indent_class != -1 and indent_level <= saved_indent_class:
-                classes[class_name] = funcs
-                funcs = {}
-                saved_indent_class = -1
 
     """
     for k, v in classes.items():
@@ -293,4 +298,4 @@ def get_classes_all(file):
 
 # get_imports(file)
 if __name__ == "__main__":
-    print(get_imports("mainwindow_controller.py"))
+    print(get_classes("mainwindow_controller.py")['Main'])
