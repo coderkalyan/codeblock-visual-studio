@@ -31,15 +31,21 @@ class Main(MainWindow):
         self.classView.itemDoubleClicked.connect(self.classview_openclass)
 
     def classview_openclass(self):
-        if self.classView.selectedItems()[0].parent().text(0).split(".")[1] == "py":
-            inspect_typed = self.classView.selectedItems(
-            )[0].parent().text(0).split(".")[0]
+        # if self.classView.selectedItems()[0].parent().text(0).split(".")[1] == "py":
+        #     inspect_typed = self.classView.selectedItems(
+        #     )[0].parent().text(0).split(".")[0]
+        # else:
+        #     inspect_typed = self.classView.selectedItems()[0].parent().text(0)
+        selected_item = self.classView.selectedItems()[0].parent().text(0)
+        if selected_item.split(".")[-1] in ["py", "so"]:
+            inspect_typed = selected_item.split(".")[0]
         else:
-            inspect_typed = self.classView.selectedItems()[0].parent().text(0)
-        self.create_blocks(self.get_functions(
-            self.classViewFileIndex[inspect_typed +
-                                    "."+self.classView.selectedItems()[0].text(0)],
-            self.classView.selectedItems()[0].text(0)))
+            inspect_typed = selected_item
+        # self.create_blocks(self.get_functions(
+        #     self.class_list[],
+        #     self.classView.selectedItems()[0].text(0)))
+        print(self.class_list[2][inspect_typed])
+        self.create_blocks(self.class_list[0][self.class_list[2][inspect_typed]][self.classView.selectedItems()[0].text(0)])
 
     def open_file(self):
         filename = QFileDialog.getOpenFileName(self, 'Open file for reading',
@@ -64,6 +70,7 @@ class Main(MainWindow):
                 filename = list(self.class_list[2].keys())[list(self.class_list[2].values()).index(k)]
             except ValueError:
                 print("assuming main file, skipping")
+                filename = file.split("/")[-1]
             if len(filename.split(".")) < 2:
                 # Use module-style naming (.py or .so extension)
                 filename = filename+"."+k.split(".")[-1]
@@ -96,6 +103,7 @@ class Main(MainWindow):
         for child in self.codeArea.children():
             child.deleteLater()
         self.codeArea.setUpdatesEnabled(True)
+        print(funcs, "funcs")
         self.function_blocks = self.generate_function_blocks(funcs)
         self.code_blocks = self.generate_code_blocks(funcs)
         for k, v in self.function_blocks.items():

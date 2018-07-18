@@ -18,7 +18,9 @@ def get_imports_kai(file):
 
 # this is what you meant to do, kai...
 def get_imports(file):
+    print(file, "file to search")
     imports = {}
+    imports[file.split("/")[-1].split(".")[0]] = file
     paths_to_search = sys.path
     paths_to_search.reverse()
     for p in paths_to_search:
@@ -79,6 +81,7 @@ def get_imports(file):
                                     file.split(".")[1] in [".py", ".so"]:
                                         imports[mod.rstrip()] = os.path.join(path, file)
 
+    print(imports[file.split("/")[-1].split(".")[0]], "file")
     return imports
 
 
@@ -156,6 +159,7 @@ def get_classes(file):
             if line.lstrip().startswith("def "):
                 func_name = line.split("def ")[-1].split("(")[0]
                 saved_indent_func = indent_level
+                cache.append(line)
                 continue
 
             if saved_indent_func != -1 and indent_level > saved_indent_func:
@@ -289,4 +293,4 @@ def get_classes_all(file):
 
 # get_imports(file)
 if __name__ == "__main__":
-    print(get_classes_all("mainwindow_controller.py")[])
+    print(get_imports("mainwindow_controller.py"))
