@@ -162,6 +162,8 @@ class Main(MainWindow):
             not_done = True
             for line in code:
                 if func != "" and "def " not in line:
+                    if line.lstrip().startswith("#"):
+                        continue
                     print(line, "thisisline")
                     line_leading_whitespace = len(line) - len(line.lstrip())
                     if line_leading_whitespace in control_block_map.keys():
