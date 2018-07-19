@@ -163,6 +163,7 @@ class Main(MainWindow):
             for line in code:
                 if func != "" and "def " not in line:
                     if line.lstrip().startswith("#"):
+                        self.lint[2][line.lstrip()] = self.lines.index(line.lstrip())+1
                         continue
                     print(line, "thisisline")
                     line_leading_whitespace = len(line) - len(line.lstrip())
