@@ -44,14 +44,20 @@ class Main(MainWindow):
         # self.create_blocks(self.get_functions(
         #     self.class_list[],
         #     self.classView.selectedItems()[0].text(0)))
-        print(self.class_list[2][inspect_typed])
+        print(self.class_list[2][inspect_typed], "throwawaygrep")
+        with open(self.class_list[2][inspect_typed]) as f:
+            self.lines = []
+            for l in f:
+                self.lines.append(l.lstrip())
+        print(self.lines, "selflines")
+        for line in self.lines:
+            print(line.rstrip(), "derp")
+        self.lint = error_catcher.get_lint(self.class_list[2][inspect_typed])
         self.create_blocks(self.class_list[0][self.class_list[2][inspect_typed]][self.classView.selectedItems()[0].text(0)])
 
     def open_file(self):
         filename = QFileDialog.getOpenFileName(self, 'Open file for reading',
                                                '', "Python files (*.py)")[0]
-        self.lines = open(filename).readlines()
-        self.lint = error_catcher.get_lint(filename)
         self.regenerate_classview(filename)
 
     def regenerate_classview(self, file):
@@ -156,6 +162,7 @@ class Main(MainWindow):
             not_done = True
             for line in code:
                 if func != "" and "def " not in line:
+                    print(line, "thisisline")
                     line_leading_whitespace = len(line) - len(line.lstrip())
                     if line_leading_whitespace in control_block_map.keys():
                         # CtrlBottom detected (must be before ifblock)
@@ -186,20 +193,21 @@ class Main(MainWindow):
                     else:
                         # Just a regular CodeBlock
                         try:
-                            print(self.lint)
-                            if self.lines.index(line + "\n")+1 in self.lint[0].values():
+                            if self.lines.index(line.lstrip())+1 in self.lint[0].values():
                                 color = "red"
-                                lintline = list(self.lint[0].keys())[list(self.lint[0].values()).index(self.lines.index(line + "\n")+1)]
-                            elif self.lines.index(line + "\n")+1 in self.lint[1].values():
+                                lintline = list(self.lint[0].keys())[list(self.lint[0].values()).index(self.lines.index(line.lstrip())+1)]
+                            elif self.lines.index(line.lstrip())+1 in self.lint[1].values():
                                 color = "#FFBB33"
-                                lintline = list(self.lint[1].keys())[list(self.lint[1].values()).index(self.lines.index(line + "\n")+1)]
+                                lintline = list(self.lint[1].keys())[list(self.lint[1].values()).index(self.lines.index(line.lstrip())+1)]
                             else:
                                 color = "#496BD3"
                                 lintline = None
                         except ValueError as v:
+                            print(self.lines.index(line.lstrip()))
+                            print(line, "thisislinevalue")
                             color = "#496BD3"
                             lintline = None
-                            print(v, self.lines, line, "ValueError")
+                            print(v, "ValeError")
                         print(lintline, "lintline")
                         retblocks[func].append(CodeBlock(line, color, parent=self.codeArea))
                         if lintline is not None:
