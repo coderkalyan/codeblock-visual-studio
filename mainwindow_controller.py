@@ -68,7 +68,7 @@ class Main(MainWindow):
             # Imports is in format {module: file}
             self.class_list = interpreter.get_classes_all(file)
         except:
-            self.class_list = {}
+            self.class_list = ({}, {}, {})
         class_list_sorted = {}
         for k, v in self.class_list[0].items():
             # Get name of modules

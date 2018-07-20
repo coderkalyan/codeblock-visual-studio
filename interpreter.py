@@ -81,7 +81,6 @@ def get_imports(file):
                                     file.split(".")[1] in [".py", ".so"]:
                                         imports[mod.rstrip()] = os.path.join(path, file)
 
-    print(imports[file.split("/")[-1].split(".")[0]], "file")
     return imports
 
 
@@ -277,6 +276,7 @@ def get_classes_all(file):
     imports = get_imports(file)
     ret_classes = {}
     ret_lint = {}
+    print(imports, "imports")
     for i,v in imports.items():
         if v.endswith(".so") or v.endswith("builtin"):
             uninspectable_classes = {}
@@ -298,4 +298,4 @@ def get_classes_all(file):
 
 # get_imports(file)
 if __name__ == "__main__":
-    print(get_classes("mainwindow_controller.py")['Main'])
+    print(get_classes_all("/home/bbworld/git/vst_project/main.py"))
