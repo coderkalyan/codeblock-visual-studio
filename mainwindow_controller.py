@@ -164,7 +164,6 @@ class Main(MainWindow):
                 if func != "" and "def " not in line:
                     if line.lstrip().startswith("#"):
                         self.lint[2][line.lstrip()] = self.lines.index(line.lstrip())+1
-                        continue
                     print(line, "thisisline")
                     line_leading_whitespace = len(line) - len(line.lstrip())
                     if line_leading_whitespace in control_block_map.keys():
@@ -188,7 +187,7 @@ class Main(MainWindow):
                         print(control_block_map, 'controlmap in prog')
                         ctrl_bar_count = ctrl_bar_count + 1
                         del control_block_map[len(line) - len(line.lstrip())]
-                    elif line.strip()[-1] == ':':
+                    elif line.strip()[-1] == ':' and not line.lstrip().startswith("#"):
                         # Indented Block - use CtrlTop block
                         retblocks[func].append(CtrlTop(line, parent=self.codeArea))
                         # Store [whitespace, satisfied] values for ctrltop
