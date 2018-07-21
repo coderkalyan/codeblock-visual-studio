@@ -36,6 +36,7 @@ def get_imports(file):
             else:
                 continue
             print(mod, "mod")
+            print(mod.split("."))
             if mod.split(".")[0] != '':
                 # Import is absolute
                 for path in paths_to_search:
@@ -73,14 +74,24 @@ def get_imports(file):
                 # Import is relative
                 print("relative")
                 for part in mod.split(".")[1:]:
+                    print(part, "part")
                     try:
-                        os.chdir(part)
+                        os.chdir(part.rstrip())
+                        print("attempt chdir")
                     except NotADirectoryError:
+                        print("found module", part)
                         for file in os.listdir():
                             if file.split(".")[0] == mod.split(".")[-1].rstrip() and \
                                     file.split(".")[1] in [".py", ".so"]:
                                         imports[mod.rstrip()] = os.path.join(path, file)
-
+                    except FileNotFoundError:
+                        if part.rstrip() + ".py" in os.listdir() or \
+                                part.rstrip() + ".so" in os.listdir():
+                            print("found module", part)
+                            for file in os.listdir():
+                                if file.split(".")[0] == mod.split(".")[-1].rstrip() and \
+                                        file.split(".")[1] in [".py", ".so"]:
+                                            imports[mod.rstrip()] = os.path.join(path, file)
     return imports
 
 
@@ -147,11 +158,12 @@ def get_classes(file):
         for line in f:
             indent_level = len(line) - len(line.lstrip())
             if line.strip() == '':
-                print("line", line)
+                print("newline", line)
                 continue
 
             if saved_indent_func != -1 and indent_level > saved_indent_func:
                 cache.append(line)
+                print(line)
             elif saved_indent_func != -1 and indent_level <= saved_indent_func:
                 saved_indent_func = -1
                 funcs[func_name] = cache
@@ -160,8 +172,10 @@ def get_classes(file):
                 classes[class_name] = funcs
                 funcs = {}
                 saved_indent_class = -1
+                print("end of class")
 
             if line.lstrip().startswith("class "):
+                print("found class!")
                 if saved_indent_class != -1 and indent_level <= saved_indent_class:
                     classes[class_name] = funcs
                     funcs = {}
@@ -175,6 +189,15 @@ def get_classes(file):
                 saved_indent_func = indent_level
                 cache.append(line)
                 continue
+
+        # Flush any remaining classes and functions
+        saved_indent_func = -1
+        funcs[func_name] = cache
+        classes[class_name] = funcs
+        cache = []
+        funcs = {}
+        saved_indent_class = -1
+        print("EOF")
 
 
     """
@@ -298,4 +321,4 @@ def get_classes_all(file):
 
 # get_imports(file)
 if __name__ == "__main__":
-    print(get_classes_all("/home/bbworld/git/vst_project/main.py"))
+    print(get_classes("/home/bbworld/git/old-codeblock-visual/codeblock-visual-studio/codeblock-visual-studio/blocks/core_blocks.py"))
