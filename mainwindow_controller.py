@@ -49,7 +49,7 @@ class Main(MainWindow):
             self.lines = []
             for l in f:
                 self.lines.append(l.lstrip())
-        print(self.lines, "selflines")
+        print(self.class_list[0], "selflines")
         for line in self.lines:
             print(line.rstrip(), "derp")
         self.lint = error_catcher.get_lint(self.class_list[2][inspect_typed])
@@ -141,6 +141,7 @@ class Main(MainWindow):
         retblocks = {}
         for func, func_def in funcs.items():
             if func != "":
+                print(funcs, "thesearefunctions")
                 if "def " in func_def[0].strip():
                     retblocks[func] = CapBlock(func_def[0].strip(), parent=self.codeArea)
                 else:

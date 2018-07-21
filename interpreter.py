@@ -5,8 +5,6 @@ import inspect
 import sys, os
 import error_catcher
 
-file = "/home/kalyan/git/codeblock-visual-studio/blocks.py"
-
 def get_imports_kai(file):
     # filetxt = open(file).readlines()
 
@@ -17,18 +15,25 @@ def get_imports_kai(file):
     print(imports)
 
 # this is what you meant to do, kai...
+# Reference Implementation of get_imports
 def get_imports(file):
     print(file, "file to search")
+    # Initialize variables for storage
     imports = {}
     curpath = file
+    # Add file itself to list of imports
     imports[file.split("/")[-1].split(".")[0]] = file
     paths_to_search = sys.path
+    # Reverse sys.path - search backwards (this way path hierarchy is saved)
     paths_to_search.reverse()
+
+    # Remove unsearchable paths (eggs and zip archives)
     for p in paths_to_search:
         if p.endswith(".egg") or p.endswith(".zip"):
             paths_to_search.remove(p)
     with open(file, "r") as f:
         for line in f:
+            # Scan for imports, if none found, continue to next line
             line = line.lstrip()
             if line.startswith("import "):
                 mod = line.split("import ")[-1]
@@ -41,12 +46,14 @@ def get_imports(file):
             if mod.split(".")[0] != '':
                 # Import is absolute
                 for path in paths_to_search:
+                        # Iterate through all files in current directory (could be optimized)
+                        # If name of file matches module and file extension is .py or .so,
+                        # module is found
                         for file in os.listdir(path):
                             if file.split(".")[0] == mod.rstrip().split(".")[0]:
                                 if file.split(".")[-1] in ["py", "so"]:
                                     # If detected as module available in sys.path, append to imports
                                     imports[mod.rstrip()] = os.path.join(path, file)
-                                    print("yay")
                                     break
                                 elif os.path.isdir(os.path.join(path, file)):
                                     # Detected as package, recurse through directories
@@ -55,6 +62,8 @@ def get_imports(file):
                                     if len(mod.split(".")) > 1:
                                         print(mod, "package")
                                         path = os.path.join(path, file)
+                                        # Search for each part of package
+                                        # split by . and go through directory
                                         for j in mod.split(".")[1:]:
                                             for file2 in os.listdir(path):
                                                 if os.path.isdir(os.path.join(path, file2)) and \
@@ -64,6 +73,7 @@ def get_imports(file):
                                                     imports[mod.rstrip()] = os.path.join(path, file2)
                                                     break
                                     else:
+                                        # User imported whole package, treat as __init__.py
                                         print(mod.split("."), "modsplit")
                                         imports[mod.rstrip()] = os.path.join(path, file)+"/__init__.py"
                                         break
@@ -193,13 +203,14 @@ def get_classes(file):
                 continue
 
         # Flush any remaining classes and functions
-        saved_indent_func = -1
-        funcs[func_name] = cache
-        classes[class_name] = funcs
-        cache = []
-        funcs = {}
-        saved_indent_class = -1
-        print("EOF")
+        if cache != [] and funcs != {}:
+            saved_indent_func = -1
+            funcs[func_name] = cache
+            classes[class_name] = funcs
+            cache = []
+            funcs = {}
+            saved_indent_class = -1
+            print("EOF")
 
 
     """
