@@ -9,12 +9,12 @@
  - [X] Debug & tie up loose ends
  - [X] Submit for test
  - [ ] Submit PR 
-** WAITING - iss10 (Text Interpreter) - 7/10 [1/8]
+** WAITING - iss10 (Text Interpreter) - 7/10 [5/8]
  - [X] Check Kai's progress (recommended steps below, please fill out)
- - [ ] Write base of interpreter (perhaps interpreter class?)
- - [ ] Implement source code fetching through interpreter
- - [ ] Implement "parsing" of code to sort into functions through interpreter
- - [ ] Implement interpreter into mainwindow_controller.py
+ - [X] Write base of interpreter (perhaps interpreter class?)
+ - [X] Implement source code fetching through interpreter
+ - [X] Implement "parsing" of code to sort into functions through interpreter
+ - [X] Implement interpreter into mainwindow_controller.py
  - [ ] Debug & tie up loose ends
  - [ ] Submit for test
  - [ ] Submit PR

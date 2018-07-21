@@ -41,7 +41,7 @@ def get_lint(file):
                 warnings_to_return[i] = int(i.split(":")[2])
         except IndexError:
             pass
-    return errors_to_return, warnings_to_return
+    return errors_to_return, warnings_to_return, dict()
 
 
 def scan_import(line):

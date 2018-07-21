@@ -1,9 +1,9 @@
 import ast
 import _ast
 import importlib
+import inspect
+import sys, os
 import error_catcher
-
-file = "/home/kalyan/git/codeblock-visual-studio/blocks.py"
 
 def get_imports_kai(file):
     # filetxt = open(file).readlines()
@@ -11,15 +11,29 @@ def get_imports_kai(file):
     importsfull = []
 
     for line in filetxt:
-        if " import " in line or line.startswith("import "):
-            importsfull.append(line)
+        if " import " in line or line.startswith("import "): importsfull.append(line)
     print(imports)
 
 # this is what you meant to do, kai...
+# Reference Implementation of get_imports
 def get_imports(file):
-    imports = []
+    print(file, "file to search")
+    # Initialize variables for storage
+    imports = {}
+    curpath = file
+    # Add file itself to list of imports
+    imports[file.split("/")[-1].split(".")[0]] = file
+    paths_to_search = sys.path
+    # Reverse sys.path - search backwards (this way path hierarchy is saved)
+    paths_to_search.reverse()
+
+    # Remove unsearchable paths (eggs and zip archives)
+    for p in paths_to_search:
+        if p.endswith(".egg") or p.endswith(".zip"):
+            paths_to_search.remove(p)
     with open(file, "r") as f:
         for line in f:
+            # Scan for imports, if none found, continue to next line
             line = line.lstrip()
             if line.startswith("import "):
                 mod = line.split("import ")[-1]
@@ -28,15 +42,68 @@ def get_imports(file):
             else:
                 continue
             print(mod, "mod")
-            try:
-                imports.append(importlib.import_module(mod.rstrip()).__file__)
-            except ImportError as e:
-                print(e)
-                continue
-            except AttributeError as e:
-                print(e)
-                print("assuming builtin, continuing")
-                continue
+            print(mod.split("."))
+            if mod.split(".")[0] != '':
+                # Import is absolute
+                for path in paths_to_search:
+                        # Iterate through all files in current directory (could be optimized)
+                        # If name of file matches module and file extension is .py or .so,
+                        # module is found
+                        for file in os.listdir(path):
+                            if file.split(".")[0] == mod.rstrip().split(".")[0]:
+                                if file.split(".")[-1] in ["py", "so"]:
+                                    # If detected as module available in sys.path, append to imports
+                                    imports[mod.rstrip()] = os.path.join(path, file)
+                                    break
+                                elif os.path.isdir(os.path.join(path, file)):
+                                    # Detected as package, recurse through directories
+                                    # TODO: Optimize this code
+                                    # (could try adapting relative import code)
+                                    if len(mod.split(".")) > 1:
+                                        print(mod, "package")
+                                        path = os.path.join(path, file)
+                                        # Search for each part of package
+                                        # split by . and go through directory
+                                        for j in mod.split(".")[1:]:
+                                            for file2 in os.listdir(path):
+                                                if os.path.isdir(os.path.join(path, file2)) and \
+                                                        file2 == j:
+                                                            path = os.path.join(path, file2)
+                                                elif file2.split(".")[0] == mod.split(".")[-1].rstrip():
+                                                    imports[mod.rstrip()] = os.path.join(path, file2)
+                                                    break
+                                    else:
+                                        # User imported whole package, treat as __init__.py
+                                        print(mod.split("."), "modsplit")
+                                        imports[mod.rstrip()] = os.path.join(path, file)+"/__init__.py"
+                                        break
+                            elif mod.rstrip() in sys.builtin_module_names:
+                                imports[mod.rstrip()] = mod.rstrip() + " - builtin"
+                            else:
+                                pass
+            else:
+                # Import is relative
+                print("relative")
+                os.chdir("/".join(curpath.split("/")[:-1]))
+                for part in mod.split(".")[1:]:
+                    print(part, "part")
+                    try:
+                        os.chdir(part.rstrip())
+                        print("attempt chdir")
+                    except NotADirectoryError:
+                        print("found module", part)
+                        for file in os.listdir():
+                            if file.split(".")[0] == mod.split(".")[-1].rstrip() and \
+                                    file.split(".")[1] in [".py", ".so"]:
+                                        imports[mod.rstrip()] = os.path.join(path, file)
+                    except FileNotFoundError:
+                        print("found module", part, os.listdir())
+                        for file in os.listdir():
+                            if file.split(".")[0] == mod.split(".")[-1].rstrip() and \
+                                    file.split(".")[-1] in ["py", "so"]:
+                                        imports[mod.rstrip()] = os.path.join(os.getcwd(), file)
+                            else:
+                                print("not found")
     return imports
 
 
@@ -102,7 +169,25 @@ def get_classes(file):
     with open(file, "r") as f:
         for line in f:
             indent_level = len(line) - len(line.lstrip())
+            if line.strip() == '':
+                print("newline", line)
+                continue
+
+            if saved_indent_func != -1 and indent_level > saved_indent_func:
+                cache.append(line)
+                print(line)
+            elif saved_indent_func != -1 and indent_level <= saved_indent_func:
+                saved_indent_func = -1
+                funcs[func_name] = cache
+                cache = []
+            if saved_indent_class != -1 and indent_level <= saved_indent_class:
+                classes[class_name] = funcs
+                funcs = {}
+                saved_indent_class = -1
+                print("end of class")
+
             if line.lstrip().startswith("class "):
+                print("found class!")
                 if saved_indent_class != -1 and indent_level <= saved_indent_class:
                     classes[class_name] = funcs
                     funcs = {}
@@ -114,18 +199,19 @@ def get_classes(file):
             if line.lstrip().startswith("def "):
                 func_name = line.split("def ")[-1].split("(")[0]
                 saved_indent_func = indent_level
+                cache.append(line)
                 continue
 
-            if saved_indent_func != -1 and indent_level > saved_indent_func:
-                cache.append(line)
-            elif saved_indent_func != -1 and indent_level <= saved_indent_func:
-                saved_indent_func = -1
-                funcs[func_name] = cache
-                cache = []
-            if saved_indent_class != -1 and indent_level <= saved_indent_class:
-                classes[class_name] = funcs
-                funcs = {}
-                saved_indent_class = -1
+        # Flush any remaining classes and functions
+        if cache != [] and funcs != {}:
+            saved_indent_func = -1
+            funcs[func_name] = cache
+            classes[class_name] = funcs
+            cache = []
+            funcs = {}
+            saved_indent_class = -1
+            print("EOF")
+
 
     """
     for k, v in classes.items():
@@ -226,15 +312,26 @@ def get_classes_all(file):
     imports = get_imports(file)
     ret_classes = {}
     ret_lint = {}
-    for i in imports:
-        if i.endswith(".so"):
+    print(imports, "imports")
+    for i,v in imports.items():
+        if v.endswith(".so") or v.endswith("builtin"):
+            uninspectable_classes = {}
+            print(i, "uninspecting")
+            foo = importlib.import_module(i)
+            for name, obj in inspect.getmembers(foo):
+                if inspect.isclass(obj):
+                    try:
+                        uninspectable_classes[name] = None
+                    except:
+                        print(i, "uninspectable")
+            ret_classes[v] = uninspectable_classes
             continue
-        ret_classes[i] = get_classes(i)
-        ret_lint[i] = error_catcher.get_lint(i)
-    ret_classes[file] = get_classes(file),
+        ret_classes[v] = get_classes(v)
+        ret_lint[v] = error_catcher.get_lint(v)
+    ret_classes[file] = get_classes(file)
     ret_lint[file] = error_catcher.get_lint(file)
-    return ret_classes, ret_lint
+    return ret_classes, ret_lint, imports
 
 # get_imports(file)
 if __name__ == "__main__":
-    print(get_classes_all("mainwindow_controller.py"))
+    print(get_imports("/home/bbworld/git/old-codeblock-visual/codeblock-visual-studio/codeblock-visual-studio/blocks/blocks.py"))

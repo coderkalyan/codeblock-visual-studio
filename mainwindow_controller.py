@@ -8,6 +8,7 @@ import sys
 import importlib.util
 import inspect
 import error_catcher
+import interpreter
 from modulefinder import ModuleFinder
 from blocks import *
 testvar = "hi"
@@ -22,6 +23,7 @@ class Main(MainWindow):
         self.classViewFileIndex = {}
         self.lines = []
         self.lint = ()
+        self.class_list = {}
 
     def bind(self):
         self.actionOpen.triggered.connect(self.open_file)
@@ -29,49 +31,72 @@ class Main(MainWindow):
         self.classView.itemDoubleClicked.connect(self.classview_openclass)
 
     def classview_openclass(self):
-        if self.classView.selectedItems()[0].parent().text(0).split(".")[1] == "py":
-            inspect_typed = self.classView.selectedItems(
-            )[0].parent().text(0).split(".")[0]
+        # if self.classView.selectedItems()[0].parent().text(0).split(".")[1] == "py":
+        #     inspect_typed = self.classView.selectedItems(
+        #     )[0].parent().text(0).split(".")[0]
+        # else:
+        #     inspect_typed = self.classView.selectedItems()[0].parent().text(0)
+        selected_item = self.classView.selectedItems()[0].parent().text(0)
+        if selected_item.split(".")[-1] in ["py", "so"]:
+            inspect_typed = selected_item.split(".")[0]
         else:
-            inspect_typed = self.classView.selectedItems()[0].parent().text(0)
-        self.create_blocks(self.get_functions(
-            self.classViewFileIndex[inspect_typed +
-                                    "."+self.classView.selectedItems()[0].text(0)],
-            self.classView.selectedItems()[0].text(0)))
+            inspect_typed = selected_item
+        # self.create_blocks(self.get_functions(
+        #     self.class_list[],
+        #     self.classView.selectedItems()[0].text(0)))
+        print(self.class_list[2][inspect_typed], "throwawaygrep")
+        with open(self.class_list[2][inspect_typed]) as f:
+            self.lines = []
+            for l in f:
+                self.lines.append(l.lstrip())
+        print(self.class_list[0], "selflines")
+        for line in self.lines:
+            print(line.rstrip(), "derp")
+        self.lint = error_catcher.get_lint(self.class_list[2][inspect_typed])
+        self.create_blocks(self.class_list[0][self.class_list[2][inspect_typed]][self.classView.selectedItems()[0].text(0)])
 
     def open_file(self):
         filename = QFileDialog.getOpenFileName(self, 'Open file for reading',
                                                '', "Python files (*.py)")[0]
-        self.lines = open(filename).readlines()
-        self.lint = error_catcher.get_lint(filename)
         self.regenerate_classview(filename)
 
     def regenerate_classview(self, file):
         try:
-            class_list = self.get_classes(file)
+            # Get everything in format (classes, lint, imports)
+            # classes is in format {file: {class: {functions: {list_of_source}}}}
+            # Lint is in format {file: [list_of_lint_warns]}
+            # Imports is in format {module: file}
+            self.class_list = interpreter.get_classes_all(file)
         except:
-            class_list = {}
+            self.class_list = ({}, {}, {})
         class_list_sorted = {}
-        for k, v in class_list.items():
-            filesplit = str(v).split("'")[1::2][0].split(".")
-            if len(filesplit) > 2:
-                # use Package-style naming
-                filename = ".".join(filesplit[:2])
-            else:
-                # use Module-style naming (.py extension)
-                filename = ".".join([filesplit[0], "py"])
+        for k, v in self.class_list[0].items():
+            # Get name of modules
+            try:
+                filename = list(self.class_list[2].keys())[list(self.class_list[2].values()).index(k)]
+            except ValueError:
+                print("assuming main file, skipping")
+                filename = file.split("/")[-1]
+            if len(filename.split(".")) < 2:
+                # Use module-style naming (.py or .so extension)
+                filename = filename+"."+k.split(".")[-1]
+
             class_list_sorted[filename] = {}
-            for i, j in class_list.items():
-                if len(filename.split(".")) > 2:
-                    filecompare = filename
-                else:
-                    filecompare = filename.split(".")[0]
-                if filecompare in str(j):
-                    class_list_sorted[filename][i] = j
+            print(v)
+            for i,j in v.items():
+                class_list_sorted[filename][i] = None
+            # for i, j in self.class_list[0].items():
+            #     if len(filename.split(".")) > 2:
+            #         filecompare = filename
+            #     else:
+            #         filecompare = filename.split(".")[0]
+            #     if filecompare in str(j):
+            #         class_list_sorted[filename][i] = j
         class_tree_index = {}
         print("generating tree view...")
         self.classView.clear()
         ind0 = 0
+        # class_list_sorted should be in the format {module_name: {class_name:[arbitrary val]}}
         for k2, v2 in class_list_sorted.items():
             class_tree_index[ind0] = QTreeWidgetItem(self.classView)
             class_tree_index[ind0].setText(0, k2)
@@ -84,6 +109,7 @@ class Main(MainWindow):
         for child in self.codeArea.children():
             child.deleteLater()
         self.codeArea.setUpdatesEnabled(True)
+        print(funcs, "funcs")
         self.function_blocks = self.generate_function_blocks(funcs)
         self.code_blocks = self.generate_code_blocks(funcs)
         for k, v in self.function_blocks.items():
@@ -115,6 +141,7 @@ class Main(MainWindow):
         retblocks = {}
         for func, func_def in funcs.items():
             if func != "":
+                print(funcs, "thesearefunctions")
                 if "def " in func_def[0].strip():
                     retblocks[func] = CapBlock(func_def[0].strip(), parent=self.codeArea)
                 else:
@@ -136,6 +163,9 @@ class Main(MainWindow):
             not_done = True
             for line in code:
                 if func != "" and "def " not in line:
+                    if line.lstrip().startswith("#"):
+                        self.lint[2][line.lstrip()] = self.lines.index(line.lstrip())+1
+                    print(line, "thisisline")
                     line_leading_whitespace = len(line) - len(line.lstrip())
                     if line_leading_whitespace in control_block_map.keys():
                         # CtrlBottom detected (must be before ifblock)
@@ -150,7 +180,6 @@ class Main(MainWindow):
                                         print(l)
                                         line = " " + line
                                         print(line)
-
                         retblocks[func].append(CtrlBottom(line, parent=self.codeArea))
                         code.insert(f+1, line)
                         retblocks['ctrlbar'].append(CtrlBar(parent=self.codeArea))
@@ -159,7 +188,7 @@ class Main(MainWindow):
                         print(control_block_map, 'controlmap in prog')
                         ctrl_bar_count = ctrl_bar_count + 1
                         del control_block_map[len(line) - len(line.lstrip())]
-                    elif line.strip()[-1] == ':':
+                    elif line.strip()[-1] == ':' and not line.lstrip().startswith("#"):
                         # Indented Block - use CtrlTop block
                         retblocks[func].append(CtrlTop(line, parent=self.codeArea))
                         # Store [whitespace, satisfied] values for ctrltop
@@ -167,20 +196,21 @@ class Main(MainWindow):
                     else:
                         # Just a regular CodeBlock
                         try:
-                            print(self.lint)
-                            if self.lines.index(line + "\n")+1 in self.lint[0].values():
+                            if self.lines.index(line.lstrip())+1 in self.lint[0].values():
                                 color = "red"
-                                lintline = list(self.lint[0].keys())[list(self.lint[0].values()).index(self.lines.index(line + "\n")+1)]
-                            elif self.lines.index(line + "\n")+1 in self.lint[1].values():
+                                lintline = list(self.lint[0].keys())[list(self.lint[0].values()).index(self.lines.index(line.lstrip())+1)]
+                            elif self.lines.index(line.lstrip())+1 in self.lint[1].values():
                                 color = "#FFBB33"
-                                lintline = list(self.lint[1].keys())[list(self.lint[1].values()).index(self.lines.index(line + "\n")+1)]
+                                lintline = list(self.lint[1].keys())[list(self.lint[1].values()).index(self.lines.index(line.lstrip())+1)]
                             else:
                                 color = "#496BD3"
                                 lintline = None
                         except ValueError as v:
+                            print(self.lines.index(line.lstrip()))
+                            print(line, "thisislinevalue")
                             color = "#496BD3"
                             lintline = None
-                            print(v, self.lines, line, "ValueError")
+                            print(v, "ValeError")
                         print(lintline, "lintline")
                         retblocks[func].append(CodeBlock(line, color, parent=self.codeArea))
                         if lintline is not None:
