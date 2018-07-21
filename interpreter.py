@@ -20,6 +20,7 @@ def get_imports_kai(file):
 def get_imports(file):
     print(file, "file to search")
     imports = {}
+    curpath = file
     imports[file.split("/")[-1].split(".")[0]] = file
     paths_to_search = sys.path
     paths_to_search.reverse()
@@ -73,6 +74,7 @@ def get_imports(file):
             else:
                 # Import is relative
                 print("relative")
+                os.chdir("/".join(curpath.split("/")[:-1]))
                 for part in mod.split(".")[1:]:
                     print(part, "part")
                     try:
@@ -85,13 +87,13 @@ def get_imports(file):
                                     file.split(".")[1] in [".py", ".so"]:
                                         imports[mod.rstrip()] = os.path.join(path, file)
                     except FileNotFoundError:
-                        if part.rstrip() + ".py" in os.listdir() or \
-                                part.rstrip() + ".so" in os.listdir():
-                            print("found module", part)
-                            for file in os.listdir():
-                                if file.split(".")[0] == mod.split(".")[-1].rstrip() and \
-                                        file.split(".")[1] in [".py", ".so"]:
-                                            imports[mod.rstrip()] = os.path.join(path, file)
+                        print("found module", part, os.listdir())
+                        for file in os.listdir():
+                            if file.split(".")[0] == mod.split(".")[-1].rstrip() and \
+                                    file.split(".")[-1] in ["py", "so"]:
+                                        imports[mod.rstrip()] = os.path.join(os.getcwd(), file)
+                            else:
+                                print("not found")
     return imports
 
 
@@ -321,4 +323,4 @@ def get_classes_all(file):
 
 # get_imports(file)
 if __name__ == "__main__":
-    print(get_classes("/home/bbworld/git/old-codeblock-visual/codeblock-visual-studio/codeblock-visual-studio/blocks/core_blocks.py"))
+    print(get_imports("/home/bbworld/git/old-codeblock-visual/codeblock-visual-studio/codeblock-visual-studio/blocks/blocks.py"))
