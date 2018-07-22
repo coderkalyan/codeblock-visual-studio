@@ -327,10 +327,9 @@ def get_classes_all(file):
             ret_classes[v] = uninspectable_classes
             continue
         ret_classes[v] = get_classes(v)
-        ret_lint[v] = error_catcher.get_lint(v)
     ret_classes[file] = get_classes(file)
     ret_lint[file] = error_catcher.get_lint(file)
-    return ret_classes, ret_lint, imports
+    return ret_classes, (), imports
 
 # get_imports(file)
 if __name__ == "__main__":
