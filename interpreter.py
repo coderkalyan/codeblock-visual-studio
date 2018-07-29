@@ -174,17 +174,23 @@ def get_classes(file):
                 continue
 
             if saved_indent_func != -1 and indent_level > saved_indent_func:
+                # Found line within function
                 cache.append(line)
                 print(line)
             elif saved_indent_func != -1 and indent_level <= saved_indent_func:
+                # Found end of function
                 saved_indent_func = -1
                 funcs[func_name] = cache
                 cache = []
             if saved_indent_class != -1 and indent_level <= saved_indent_class:
+                # Found end of class, add funcs to class
                 classes[class_name] = funcs
                 funcs = {}
                 saved_indent_class = -1
                 print("end of class")
+            elif saved_indent_class == -1 and saved_indent_func == 0:
+                # Found toplevel funcs (no class), append to ++main++ class
+                classes["++main++"] = funcs
 
             if line.lstrip().startswith("class "):
                 print("found class!")
@@ -333,4 +339,4 @@ def get_classes_all(file):
 
 # get_imports(file)
 if __name__ == "__main__":
-    print(get_imports("/home/bbworld/git/old-codeblock-visual/codeblock-visual-studio/codeblock-visual-studio/blocks/blocks.py"))
+    print(get_classes("/home/bbworld/git/codeblock-visual-studio/tkintertest.py"))

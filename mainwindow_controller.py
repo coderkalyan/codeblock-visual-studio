@@ -242,7 +242,6 @@ class Main(MainWindow):
                         ctrl_bar_count = ctrl_bar_count + 1
                         del control_block_map[len(line) - len(line.lstrip())]
                         not_done = False
-        print(control_block_map, "controlmap remain")
         return retblocks
 
     def get_imports(self, file):
