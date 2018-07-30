@@ -162,6 +162,8 @@ def get_classes(file):
     funcnames = list()
     funcs = dict()
     cache = []
+    toplvlcache = []
+    toplvlcache.append("on run")
     saved_indent_class = -1
     saved_indent_func = -1
     class_name = ""
@@ -182,6 +184,12 @@ def get_classes(file):
                 saved_indent_func = -1
                 funcs[func_name] = cache
                 cache = []
+            # elif saved_indent_func == -1 and saved_indent_class == -1 \
+            #         and saved_indent_func == -1 and not \
+            #         line.lstrip().startswith("class ") and not line.startswith("#!"):
+            #     # toplvl code
+            #     toplvlcache.append(line)
+
             if saved_indent_class != -1 and indent_level <= saved_indent_class:
                 # Found end of class, add funcs to class
                 classes[class_name] = funcs
@@ -217,6 +225,14 @@ def get_classes(file):
             funcs = {}
             saved_indent_class = -1
             print("EOF")
+
+        # if "++main++" in classes.keys():
+        #     classes["++main++"]["on run"] = toplvlcache
+        # else:
+        #     if len(toplvlcache) != 0:
+        #         classes["++main++"] = {"on run": toplvlcache}
+        #     else:
+        #         print("toplvl empty")
 
 
     """
@@ -339,4 +355,4 @@ def get_classes_all(file):
 
 # get_imports(file)
 if __name__ == "__main__":
-    print(get_classes("/home/bbworld/git/codeblock-visual-studio/tkintertest.py"))
+    print(get_classes("/home/bbworld/git/codeblock-visual-studio/blocks.py")["++main++"])

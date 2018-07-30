@@ -142,10 +142,10 @@ class Main(MainWindow):
         for func, func_def in funcs.items():
             if func != "":
                 print(funcs, "thesearefunctions")
-                if "def " in func_def[0].strip():
-                    retblocks[func] = CapBlock(func_def[0].strip(), parent=self.codeArea)
-                else:
+                if func_def[0].startswith("@"):
                     retblocks[func] = CapBlock(func_def[1].strip(), parent=self.codeArea)
+                else:
+                    retblocks[func] = CapBlock(func_def[0].strip(), parent=self.codeArea)
             f = f + 1
         return retblocks
 
@@ -206,7 +206,6 @@ class Main(MainWindow):
                                 color = "#496BD3"
                                 lintline = None
                         except ValueError as v:
-                            print(self.lines.index(line.lstrip()))
                             print(line, "thisislinevalue")
                             color = "#496BD3"
                             lintline = None
