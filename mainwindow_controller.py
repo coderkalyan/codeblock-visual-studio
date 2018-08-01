@@ -142,10 +142,10 @@ class Main(MainWindow):
         for func, func_def in funcs.items():
             if func != "":
                 print(funcs, "thesearefunctions")
-                if "def " in func_def[0].strip():
-                    retblocks[func] = CapBlock(func_def[0].strip(), parent=self.codeArea)
-                else:
+                if func_def[0].startswith("@"):
                     retblocks[func] = CapBlock(func_def[1].strip(), parent=self.codeArea)
+                else:
+                    retblocks[func] = CapBlock(func_def[0].strip(), parent=self.codeArea)
             f = f + 1
         return retblocks
 
@@ -162,7 +162,10 @@ class Main(MainWindow):
             control_block_map = {}
             not_done = True
             for line in code:
-                if func != "" and "def " not in line:
+                if code.index(line) == 0:
+                    # Skip first line (which, by spec, contains function header)
+                    continue
+                if func != "":
                     if line.lstrip().startswith("#"):
                         self.lint[2][line.lstrip()] = self.lines.index(line.lstrip())+1
                     print(line, "thisisline")
@@ -206,7 +209,6 @@ class Main(MainWindow):
                                 color = "#496BD3"
                                 lintline = None
                         except ValueError as v:
-                            print(self.lines.index(line.lstrip()))
                             print(line, "thisislinevalue")
                             color = "#496BD3"
                             lintline = None
@@ -242,7 +244,6 @@ class Main(MainWindow):
                         ctrl_bar_count = ctrl_bar_count + 1
                         del control_block_map[len(line) - len(line.lstrip())]
                         not_done = False
-        print(control_block_map, "controlmap remain")
         return retblocks
 
     def get_imports(self, file):
