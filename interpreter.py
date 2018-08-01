@@ -163,7 +163,7 @@ def get_classes(file):
     funcs = dict()
     cache = []
     toplvlcache = []
-    toplvlcache.append("on run")
+    toplvlcache.append("on run:")
     saved_indent_class = -1
     saved_indent_func = -1
     class_name = ""
@@ -184,11 +184,6 @@ def get_classes(file):
                 saved_indent_func = -1
                 funcs[func_name] = cache
                 cache = []
-            # elif saved_indent_func == -1 and saved_indent_class == -1 \
-            #         and saved_indent_func == -1 and not \
-            #         line.lstrip().startswith("class ") and not line.startswith("#!"):
-            #     # toplvl code
-            #     toplvlcache.append(line)
 
             if saved_indent_class != -1 and indent_level <= saved_indent_class:
                 # Found end of class, add funcs to class
@@ -210,11 +205,17 @@ def get_classes(file):
                 saved_indent_class = indent_level
                 continue
 
-            if line.lstrip().startswith("def "):
+            if line.lstrip().startswith("def ") and saved_indent_func == -1:
                 func_name = line.split("def ")[-1].split("(")[0]
                 saved_indent_func = indent_level
                 cache.append(line)
                 continue
+
+            elif saved_indent_func == -1 and saved_indent_class == -1 \
+                    and not \
+                    line.lstrip().startswith("class ") and not line.startswith("#!"):
+                # toplvl code
+                toplvlcache.append(line)
 
         # Flush any remaining classes and functions
         if cache != [] and funcs != {}:
@@ -226,13 +227,13 @@ def get_classes(file):
             saved_indent_class = -1
             print("EOF")
 
-        # if "++main++" in classes.keys():
-        #     classes["++main++"]["on run"] = toplvlcache
-        # else:
-        #     if len(toplvlcache) != 0:
-        #         classes["++main++"] = {"on run": toplvlcache}
-        #     else:
-        #         print("toplvl empty")
+        if "++main++" in classes.keys():
+            classes["++main++"]["on run"] = toplvlcache
+        else:
+            if len(toplvlcache) != 0:
+                classes["++main++"] = {"on run": toplvlcache}
+            else:
+                print("toplvl empty")
 
 
     """
@@ -355,4 +356,4 @@ def get_classes_all(file):
 
 # get_imports(file)
 if __name__ == "__main__":
-    print(get_classes("/home/bbworld/git/codeblock-visual-studio/blocks.py")["++main++"])
+    print(get_classes("/usr/lib/python3.5/importlib/util.py")["++main++"])

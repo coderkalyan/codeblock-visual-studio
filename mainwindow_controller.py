@@ -162,7 +162,10 @@ class Main(MainWindow):
             control_block_map = {}
             not_done = True
             for line in code:
-                if func != "" and "def " not in line:
+                if code.index(line) == 0:
+                    # Skip first line (which, by spec, contains function header)
+                    continue
+                if func != "":
                     if line.lstrip().startswith("#"):
                         self.lint[2][line.lstrip()] = self.lines.index(line.lstrip())+1
                     print(line, "thisisline")
