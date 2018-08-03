@@ -3,12 +3,15 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QApplication, QWidget, QFrame, QFileDialog, QTreeWidgetItem
 from mainwindow import MainWindow
 from about_dialog import AboutDialog
+from help_dialog import HelpDialog
 import icons.icons_rc
-import sys
+import sys, os
 import importlib.util
 import inspect
 import error_catcher
 import interpreter
+import configparser
+from pathlib import Path
 from modulefinder import ModuleFinder
 from blocks import *
 testvar = "hi"
@@ -18,7 +21,18 @@ class Main(MainWindow):
     def __init__(self):
         super().__init__()
         self.about_dialog = AboutDialog()
+        self.tutorial_dialog = HelpDialog()
         self.about_dialog.hide()
+        self.tutorial_dialog.hide()
+        configpath = str(Path.home()) + "/.config/codeblock_visual_studio/config"
+        configread = configparser.ConfigParser()
+        config = configread.read(configpath)
+        if len(config) == 0:
+            # First Run, open tutorial and autogenerate config
+            os.makedirs(os.path.dirname(configpath), exist_ok=True)
+            with open(configpath, 'w') as f:
+                f.write("")
+                self.tutorial_dialog.show()
         self.bind()
         self.classViewFileIndex = {}
         self.lines = []
@@ -28,6 +42,7 @@ class Main(MainWindow):
     def bind(self):
         self.actionOpen.triggered.connect(self.open_file)
         self.actionAbout.triggered.connect(self.about_dialog.show)
+        self.actionTutorial.triggered.connect(self.tutorial_dialog.show)
         self.classView.itemDoubleClicked.connect(self.classview_openclass)
 
     def classview_openclass(self):

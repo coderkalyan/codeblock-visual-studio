@@ -96,7 +96,11 @@ class MainWindow(QMainWindow):
         self.actionAbout = QAction(self)
         self.actionAbout.setText("About Codeblock Visual Studio")
 
+        self.actionTutorial = QAction(self)
+        self.actionTutorial.setText("Rerun Tutorial")
+
         self.menuHelp.addAction(self.actionAbout)
+        self.menuHelp.addAction(self.actionTutorial)
         self.menuHelp.setTitle("Help")
         self.menubar.addAction(self.menuHelp.menuAction())
 
