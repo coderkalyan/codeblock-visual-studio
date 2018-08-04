@@ -198,7 +198,7 @@ class Main(MainWindow):
                                         print(l)
                                         line = " " + line
                                         print(line)
-                        retblocks[func].append(CtrlBottom(line, parent=self.codeArea))
+                        retblocks[func].append(CtrlBottom(line.lstrip(), parent=self.codeArea))
                         code.insert(f+1, line)
                         retblocks['ctrlbar'].append(CtrlBar(parent=self.codeArea))
                         retblocks['ctrlbar'][ctrl_bar_count].attach_top(control_block_map[len(line) - len(line.lstrip())])
@@ -208,7 +208,7 @@ class Main(MainWindow):
                         del control_block_map[len(line) - len(line.lstrip())]
                     elif line.strip()[-1] == ':' and not line.lstrip().startswith("#"):
                         # Indented Block - use CtrlTop block
-                        retblocks[func].append(CtrlTop(line, parent=self.codeArea))
+                        retblocks[func].append(CtrlTop(line.lstrip(), parent=self.codeArea))
                         # Store [whitespace, satisfied] values for ctrltop
                         control_block_map[len(line) - len(line.lstrip())] = retblocks[func][f]
                     else:
@@ -229,7 +229,7 @@ class Main(MainWindow):
                             lintline = None
                             print(v, "ValeError")
                         print(lintline, "lintline")
-                        retblocks[func].append(CodeBlock(line, color, parent=self.codeArea))
+                        retblocks[func].append(CodeBlock(line.lstrip(), color, parent=self.codeArea))
                         if lintline is not None:
                             retblocks['comments'].append(CommentBubble(lintline, retblocks[func][f], parent=self.codeArea))
                     if f != 0:

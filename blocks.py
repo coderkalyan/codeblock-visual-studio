@@ -327,7 +327,7 @@ class CtrlTop(BasicBlock):
         if self.bar is not None:
             print(x, y)
             print(self.bar.geometry(), "bargeom report")
-            self.bar.move_to(x, y)
+            self.bar.move_to(x, y+self.geometry().height()-18)
         if self.child is not None:
             self.child.move_recurse(x + 20, y + self.geometry().height() - 15)
 
@@ -364,7 +364,8 @@ class CtrlBar(QWidget):
         self.repaint()
 
     def attach_top(self, block: CtrlTop):
-        self.setGeometry(block.geometry().x(), block.geometry().y(), self.width, self.height)
+        self.setGeometry(block.geometry().x(), block.geometry().y()+block.geometry().height()-18,
+                self.width, self.height)
         self.top = block
         block.bar = self
 
@@ -373,7 +374,7 @@ class CtrlBar(QWidget):
                 block.geometry().x() - self.top.geometry().x(),
                 block.geometry().y() - self.top.geometry().y())
         self.bottom = block
-        self.height = block.geometry().y() - self.top.geometry().y() + 10
+        self.height = block.geometry().y() - self.top.geometry().y() + 25 - self.top.geometry().height()
         print(self.geometry(), "bargeom")
         print(self.top.geometry(), self.bottom.geometry())
 
@@ -381,10 +382,11 @@ class CtrlBar(QWidget):
         print(self.top.geometry(), self.bottom.geometry(), "newbot")
         global_pos_top = self.mapToGlobal(self.top.pos())
         global_pos_bottom = self.mapToGlobal(self.bottom.pos())
-        self.setGeometry(self.top.geometry().x(), self.top.geometry().y(),
+        self.height = self.bottom.geometry().y() - self.top.geometry().y() + 25 - self.top.geometry().height()
+        self.setGeometry(self.top.geometry().x(),
+                self.top.geometry().y()+self.top.geometry().height()-18,
                 self.width,
-                self.bottom.geometry().y() - self.top.geometry().y() + 10)
-        self.height = self.bottom.geometry().y() - self.top.geometry().y() + 10
+                self.height)
 
     def move_to(self, x, y):
         """
@@ -404,8 +406,12 @@ class CtrlBar(QWidget):
         painter.setFont(QFont("Comic Sans MS", 15))
         painter.setRenderHint(QPainter.Antialiasing)
         geom = self.geometry()
-        painter.drawRoundedRect(QRect(0, 0, geom.width(), geom.height()), 6*self.scale, 6*self.scale)
+        painter.drawRect(QRect(0, 0, geom.width(), geom.height()))
         painter.end()
+
+    def raiseEvent(self):
+        self.raise_()
+        self.top.raise_()
 
 
 class CtrlBottom(BasicBlock):
