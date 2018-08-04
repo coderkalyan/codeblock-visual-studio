@@ -91,7 +91,7 @@ class MainWindow(QMainWindow):
 
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.setTitle("File")
-        self.menubar.addAction(self.menuFile.menuAction())
+        self.menubar.addAction(self.actionOpen)
 
         self.actionAbout = QAction(self)
         self.actionAbout.setText("About Codeblock Visual Studio")
