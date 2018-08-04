@@ -46,20 +46,12 @@ class MainWindow(QMainWindow):
 
         self.tabWidget.addTab(self.tab, "")
 
-        self.tab_2 = QWidget()
-        self.tab_2.setObjectName("tab_2")
-
-        self.tabWidget.addTab(self.tab_2, "")
-
         self.splitter.addWidget(self.tabWidget)
 
         self.tabWidget_2 = QTabWidget(self.centralwidget)
         self.tab_3 = QWidget()
         self.tab_3.setObjectName("tab_3")
         self.tabWidget_2.addTab(self.tab_3, "")
-        self.tab_4 = QWidget()
-        self.tab_4.setObjectName("tab_4")
-        self.tabWidget_2.addTab(self.tab_4, "")
 
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 184, 148))
@@ -123,9 +115,7 @@ class MainWindow(QMainWindow):
         self.scroll.setWidget(self.scrollContents)
 
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), "Class View")
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), "Tab 2")
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_3), "Code Area")
-        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_4), "Tab 2")
 
 
 if __name__ == "__main__":
