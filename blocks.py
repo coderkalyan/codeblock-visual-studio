@@ -111,7 +111,7 @@ class BasicBlock(QWidget):
     def mousePressEvent(self, event):
         self.dragging = self.mapToGlobal(event.pos())
         self.drag_geom = (self.pos())
-        self.raiseEvent()
+        # self.raiseEvent()
 
     def move_recurse(self, x, y):
         self.move_to(x, y)
@@ -167,6 +167,9 @@ class CodeBlock(BasicBlock):
         temp = self.geometry()
         self.setGeometry(temp.x(), temp.y(), temp.x() + self.width, self.height)
         self.repaint()
+
+    def mouseMoveEvent(self, event):
+        pass
 
     def paintEvent(self, QPaintEvent):
         painter = QPainter()
@@ -327,6 +330,9 @@ class CtrlTop(BasicBlock):
             self.bar.move_to(x, y)
         if self.child is not None:
             self.child.move_recurse(x + 20, y + self.geometry().height() - 15)
+
+    def mouseMoveEvent(self, event):
+        pass
 
     def paintEvent(self, QPaintEvent):
         print("paintevent")
