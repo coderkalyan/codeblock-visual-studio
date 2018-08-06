@@ -1,8 +1,22 @@
 import sys, os
 import importlib
+import flake8.api.legacy
+from io import StringIO
 
 def get_lint(file):
-    lint = os.popen("python3 -m flake8 " + file).read()
+    # Temporarily redirect stdout to the lintstdout variable to get flake8 output
+    oldstdout = sys.stdout
+    sys.stdout = lintstdout = StringIO()
+
+    # Get output using Flake8's "legacy" API
+    guide = flake8.api.legacy.get_style_guide()
+    guide.check_files(["mainwindow_controller.py"])
+
+    # Reset stdout
+    sys.stdout = oldstdout
+
+    # set lint variable to captured output
+    lint = lintstdout.getvalue()
 
     errors_to_return = {}
     warnings_to_return = {}
