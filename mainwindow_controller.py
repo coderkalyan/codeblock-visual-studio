@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QFrame, QFileDialog, QTreeWid
 from mainwindow import MainWindow
 from about_dialog import AboutDialog
 from help_dialog import HelpDialog
+from size_warning import SizeWarning
 import icons.icons_rc
 import sys, os
 import importlib.util
@@ -20,10 +21,16 @@ testvar = "hi"
 class Main(MainWindow):
     def __init__(self):
         super().__init__()
+
+        # Create all dialogs
         self.about_dialog = AboutDialog()
         self.tutorial_dialog = HelpDialog()
+        self.size_warning = SizeWarning()
         self.about_dialog.hide()
         self.tutorial_dialog.hide()
+        self.size_warning.hide()
+
+        # Read config file to find out if this is first run
         configpath = str(Path.home()) + "/.config/codeblock_visual_studio/config"
         configread = configparser.ConfigParser()
         config = configread.read(configpath)
@@ -33,10 +40,13 @@ class Main(MainWindow):
             with open(configpath, 'w') as f:
                 f.write("")
                 self.tutorial_dialog.show()
+
+        # Bind buttons to functions and initialize varibales
         self.bind()
         self.classViewFileIndex = {}
         self.lines = []
         self.lint = ()
+        self.go_ahead = True
         self.class_list = {}
 
     def bind(self):
@@ -44,29 +54,39 @@ class Main(MainWindow):
         self.actionAbout.triggered.connect(self.about_dialog.show)
         self.actionTutorial.triggered.connect(self.tutorial_dialog.show)
         self.classView.itemDoubleClicked.connect(self.classview_openclass)
+        self.size_warning.buttonBox.accepted.connect(self.size_warning.hide)
+        self.size_warning.buttonBox.rejected.connect(self.check_size)
+
+    def check_size(self):
+        self.size_warning.hide()
+        self.go_ahead = False
+
 
     def classview_openclass(self):
-        # if self.classView.selectedItems()[0].parent().text(0).split(".")[1] == "py":
-        #     inspect_typed = self.classView.selectedItems(
-        #     )[0].parent().text(0).split(".")[0]
-        # else:
-        #     inspect_typed = self.classView.selectedItems()[0].parent().text(0)
+        # Get the selected class (should be first one selected)
         selected_item = self.classView.selectedItems()[0].parent().text(0)
+
+        # Figure out whether to use package naming or module naming
         if selected_item.split(".")[-1] in ["py", "so"]:
+            # Select module naming
             inspect_typed = selected_item.split(".")[0]
         else:
+            # Select package naming
             inspect_typed = selected_item
-        # self.create_blocks(self.get_functions(
-        #     self.class_list[],
-        #     self.classView.selectedItems()[0].text(0)))
-        print(self.class_list[2][inspect_typed], "throwawaygrep")
+
+        # Read entire file into self.lines
         with open(self.class_list[2][inspect_typed]) as f:
             self.lines = []
             for l in f:
                 self.lines.append(l.lstrip())
-        print(self.class_list[0], "selflines")
-        for line in self.lines:
-            print(line.rstrip(), "derp")
+
+        if len(self.lines) > 2000:
+            self.size_warning.exec_()
+            if self.go_ahead == False:
+                self.go_ahead = True
+                return 0
+
+        # Get output from linter and use the read code to generate the code blocks
         self.lint = error_catcher.get_lint(self.class_list[2][inspect_typed])
         self.create_blocks(self.class_list[0][self.class_list[2][inspect_typed]][self.classView.selectedItems()[0].text(0)])
 
@@ -183,7 +203,6 @@ class Main(MainWindow):
                 if func != "":
                     if line.lstrip().startswith("#"):
                         self.lint[2][line.lstrip()] = self.lines.index(line.lstrip())+1
-                    print(line, "thisisline")
                     line_leading_whitespace = len(line) - len(line.lstrip())
                     if line_leading_whitespace in control_block_map.keys():
                         # CtrlBottom detected (must be before ifblock)
