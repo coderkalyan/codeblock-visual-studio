@@ -12,6 +12,7 @@ import inspect
 import error_catcher
 import interpreter
 import configparser
+import copy
 from pathlib import Path
 from modulefinder import ModuleFinder
 from blocks import *
@@ -67,7 +68,7 @@ class Main(MainWindow):
         try:
             selected_item = self.classView.selectedItems()[0].parent().text(0)
         except AttributeError:
-            return 0 
+            return 0
 
         # Figure out whether to use package naming or module naming
         if selected_item.split(".")[-1] in ["py", "so"]:
@@ -159,8 +160,8 @@ class Main(MainWindow):
         # svgWidget = HatBlock("test", self.code_blocks['test'][-1], self.codeArea)
         # self.function_blocks.append(svgWidget)
         # svgWidget.show()
-        for i in list(self.function_blocks.values()):
-            i.move_recurse(list(self.function_blocks.values()).index(i)*400, i.geometry().y())
+        for c,i in enumerate(self.function_blocks.values()):
+            i.move_recurse(self.code_blocks['func-widths'][c-1]*c, i.geometry().y())
             i.raiseEvent()
             print(i, "eye")
 
@@ -190,12 +191,16 @@ class Main(MainWindow):
     def generate_code_blocks(self, funcs_list):
         f = 0
         retblocks = {}
-        funcs = funcs_list
+        # We need a fresh copy of funcs_list due to mutations that occur during function run
+        funcs = copy.deepcopy(funcs_list)
+        print(funcs_list, "funcslist")
         retblocks['comments'] = []
         retblocks['ctrlbar'] = []
+        retblocks['func-widths'] = []
         ctrl_bar_count = 0
         for func, code in funcs.items():
             f = 0
+            maxwidth = 0
             retblocks[func] = []
             control_block_map = {}
             not_done = True
@@ -256,6 +261,8 @@ class Main(MainWindow):
                             retblocks['comments'].append(CommentBubble(lintline, retblocks[func][f], parent=self.codeArea))
                     if f != 0:
                         retblocks[func][f-1].attach_child(retblocks[func][f])
+                    if retblocks[func][f].geometry().width() > maxwidth:
+                        maxwidth = retblocks[func][f].geometry().width()
                     f = f + 1
                     print(line)
                     if f == len(code)-1 and len(control_block_map) > 0 and not_done:
@@ -281,6 +288,8 @@ class Main(MainWindow):
                         ctrl_bar_count = ctrl_bar_count + 1
                         del control_block_map[len(line) - len(line.lstrip())]
                         not_done = False
+                retblocks['func-widths'].append(maxwidth)
+
         return retblocks
 
     def get_imports(self, file):

@@ -111,7 +111,7 @@ class BasicBlock(QWidget):
     def mousePressEvent(self, event):
         self.dragging = self.mapToGlobal(event.pos())
         self.drag_geom = (self.pos())
-        # self.raiseEvent()
+        self.raiseEvent()
 
     def move_recurse(self, x, y):
         self.move_to(x, y)
@@ -321,6 +321,19 @@ class CtrlTop(BasicBlock):
         temp = self.geometry()
         self.setGeometry(temp.x(), temp.y(), temp.x() + self.width, self.height)
         self.repaint()
+
+    def raiseEvent(self):
+        self.raise_()
+        self.show()
+        if self.child is not None:
+            self.child.raiseEvent()
+            self.raise_()
+            self.child.show()
+        if self.comment is not None:
+            self.comment.raise_()
+            self.comment.show()
+        if self.bar is not None:
+            self.bar.raise_()
 
     def move_recurse(self, x, y):
         self.move_to(x, y)
