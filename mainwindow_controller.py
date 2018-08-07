@@ -64,7 +64,10 @@ class Main(MainWindow):
 
     def classview_openclass(self):
         # Get the selected class (should be first one selected)
-        selected_item = self.classView.selectedItems()[0].parent().text(0)
+        try:
+            selected_item = self.classView.selectedItems()[0].parent().text(0)
+        except AttributeError:
+            return 0 
 
         # Figure out whether to use package naming or module naming
         if selected_item.split(".")[-1] in ["py", "so"]:
