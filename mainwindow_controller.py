@@ -161,7 +161,8 @@ class Main(MainWindow):
         # self.function_blocks.append(svgWidget)
         # svgWidget.show()
         for c,i in enumerate(self.function_blocks.values()):
-            i.move_recurse(self.code_blocks['func-widths'][c-1]*c, i.geometry().y())
+            print(self.code_blocks['func-widths'], "sum")
+            i.move_recurse(sum(self.code_blocks['func-widths'][0:c]), i.geometry().y())
             i.raiseEvent()
             print(i, "eye")
 
@@ -261,9 +262,6 @@ class Main(MainWindow):
                             retblocks['comments'].append(CommentBubble(lintline, retblocks[func][f], parent=self.codeArea))
                     if f != 0:
                         retblocks[func][f-1].attach_child(retblocks[func][f])
-                    if retblocks[func][f].geometry().width() > maxwidth:
-                        maxwidth = retblocks[func][f].geometry().width()
-                    f = f + 1
                     print(line)
                     if f == len(code)-1 and len(control_block_map) > 0 and not_done:
                         # CtrlBottom detected (must be before ifblock)
@@ -288,7 +286,10 @@ class Main(MainWindow):
                         ctrl_bar_count = ctrl_bar_count + 1
                         del control_block_map[len(line) - len(line.lstrip())]
                         not_done = False
-                retblocks['func-widths'].append(maxwidth)
+                if retblocks[func][f].geometry().width() > maxwidth:
+                    maxwidth = retblocks[func][f].geometry().width()
+                f = f + 1
+            retblocks['func-widths'].append(maxwidth)
 
         return retblocks
 
