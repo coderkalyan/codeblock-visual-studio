@@ -108,8 +108,8 @@ class MainWindow(QMainWindow):
         self.scrollContents.setGeometry(QtCore.QRect(0, 0, 5000, 50000))
         self.scrollLayout = QHBoxLayout(self.scrollContents)
 
-        self.codeArea = QFrame(self.scrollAreaWidgetContents)
-        self.codeArea.setMinimumSize(QtCore.QSize(2000, 2000))
+        self.codeArea = QFrame(self.scrollContents)
+        self.codeArea.setMinimumSize(QtCore.QSize(200, 2000))
         self.scrollLayout.addWidget(self.codeArea)
         self.frameLayout.addWidget(self.scroll)
         self.scroll.setWidget(self.scrollContents)

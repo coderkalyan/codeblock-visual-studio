@@ -137,6 +137,11 @@ class BasicBlock(QWidget):
 
     def mouseReleaseEvent(self, event):
         self.dragging = -10
+        print(self.parentWidget().geometry(), "parentgeom")
+        self.parentWidget().adjustSize()
+        print(self.parentWidget().geometry(), "parentgeom")
+        self.parentWidget().parentWidget().resize(self.parentWidget().geometry().size())
+        print(self.parentWidget().parentWidget().geometry(), "parentgeomgeom")
 
     def raiseEvent(self):
         self.raise_()
