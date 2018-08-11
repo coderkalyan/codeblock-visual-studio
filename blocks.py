@@ -173,6 +173,9 @@ class CodeBlock(BasicBlock):
         self.setGeometry(temp.x(), temp.y(), temp.x() + self.width, self.height)
         self.repaint()
 
+    def mousePressEvent(self, event):
+        pass
+
     def mouseMoveEvent(self, event):
         pass
 
@@ -326,6 +329,9 @@ class CtrlTop(BasicBlock):
         temp = self.geometry()
         self.setGeometry(temp.x(), temp.y(), temp.x() + self.width, self.height)
         self.repaint()
+
+    def mousePressEvent(self, event):
+        pass
 
     def raiseEvent(self):
         self.raise_()
