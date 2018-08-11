@@ -5,6 +5,7 @@ from mainwindow import MainWindow
 from about_dialog import AboutDialog
 from help_dialog import HelpDialog
 from size_warning import SizeWarning
+from source_code_warning import SourceCodeWarning
 import icons.icons_rc
 import sys, os
 import importlib.util
@@ -27,9 +28,11 @@ class Main(MainWindow):
         self.about_dialog = AboutDialog()
         self.tutorial_dialog = HelpDialog()
         self.size_warning = SizeWarning()
+        self.source_warning = SourceCodeWarning()
         self.about_dialog.hide()
         self.tutorial_dialog.hide()
         self.size_warning.hide()
+        self.source_warning.hide()
 
         # Read config file to find out if this is first run
         configpath = str(Path.home()) + "/.config/codeblock_visual_studio/config"
@@ -79,10 +82,14 @@ class Main(MainWindow):
             inspect_typed = selected_item
 
         # Read entire file into self.lines
-        with open(self.class_list[2][inspect_typed]) as f:
-            self.lines = []
-            for l in f:
-                self.lines.append(l.lstrip())
+        try:
+            with open(self.class_list[2][inspect_typed]) as f:
+                self.lines = []
+                for l in f:
+                    self.lines.append(l.lstrip())
+        except UnicodeDecodeError:
+            self.source_warning.show()
+            return 1
 
         if len(self.lines) > 2000:
             self.size_warning.exec_()
