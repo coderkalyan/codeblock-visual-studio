@@ -1,6 +1,4 @@
 .ropeproject/
 __pycache__/
-build/
-dist/
 *.swp
 .idea/
