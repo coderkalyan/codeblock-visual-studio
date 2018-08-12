@@ -43,7 +43,7 @@ class Main(MainWindow):
             os.makedirs(os.path.dirname(configpath), exist_ok=True)
             with open(configpath, 'w') as f:
                 f.write("")
-                self.tutorial_dialog.show()
+                self.tutorial_dialog.exec_()
 
         # Bind buttons to functions and initialize varibales
         self.bind()
