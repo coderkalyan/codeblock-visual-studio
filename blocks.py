@@ -2,8 +2,8 @@
 import random
 
 from PyQt5.QtWidgets import QWidget, QApplication, QDesktopWidget
-from PyQt5.QtCore import QRect, QPoint, QSize, Qt, pyqtSignal
-from PyQt5.QtGui import QPainter, QFont, QColor, QImage, QFontMetrics
+from PyQt5.QtCore import QRect, QRectF, QPoint, QSize, Qt, pyqtSignal
+from PyQt5.QtGui import QPainter, QFont, QColor, QImage, QFontMetrics, QPen
 import time
 
 blocks = []
@@ -16,6 +16,7 @@ class BasicBlock(QWidget):
         self.content = content
         self.child = None
         self.parent = None
+        self.comment = None
         self.text_size = 50
         self.scale = QDesktopWidget().screenGeometry().height()/1080
         self.dragging = -10
@@ -116,6 +117,8 @@ class BasicBlock(QWidget):
         self.move_to(x, y)
         if self.child is not None:
             self.child.move_recurse(x, y + self.geometry().height() - 15)
+        if self.comment is not None:
+            self.comment.move_to(x+self.geometry().width()-5, y)
 
     def mouseMoveEvent(self, event):
         if self.dragging == -10:
@@ -134,6 +137,11 @@ class BasicBlock(QWidget):
 
     def mouseReleaseEvent(self, event):
         self.dragging = -10
+        print(self.parentWidget().geometry(), "parentgeom")
+        self.parentWidget().adjustSize()
+        print(self.parentWidget().geometry(), "parentgeom")
+        self.parentWidget().parentWidget().resize(self.parentWidget().geometry().size())
+        print(self.parentWidget().parentWidget().geometry(), "parentgeomgeom")
 
     def raiseEvent(self):
         self.raise_()
@@ -142,12 +150,15 @@ class BasicBlock(QWidget):
             self.child.raiseEvent()
             self.raise_()
             self.child.show()
+        if self.comment is not None:
+            self.comment.raise_()
+            self.comment.show()
 
 class CodeBlock(BasicBlock):
-    def __init__(self, text, *args, **kwargs):
+    def __init__(self, text, color="#496BD3", *args, **kwargs):
         super().__init__(text, *args, **kwargs)
 
-        self.color = "#496BD3"
+        self.color = color
         font = QFont("Comic Sans MS", 15)
         metric = QFontMetrics(font)
         if QFontMetrics.width(metric, self.content) + 30 > 150*self.scale:
@@ -161,6 +172,12 @@ class CodeBlock(BasicBlock):
         temp = self.geometry()
         self.setGeometry(temp.x(), temp.y(), temp.x() + self.width, self.height)
         self.repaint()
+
+    def mousePressEvent(self, event):
+        pass
+
+    def mouseMoveEvent(self, event):
+        pass
 
     def paintEvent(self, QPaintEvent):
         painter = QPainter()
@@ -178,6 +195,78 @@ class CodeBlock(BasicBlock):
         painter.drawText(10, self.height/2, self.content)
         painter.drawChord(QRect(20, -37, 45, 45), 180 * 16, 180 * 16)
         painter.end()
+
+
+class CommentBubble(QWidget):
+    def __init__(self, text, block, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.minimized = True
+        self.content = text
+        print(self.content, "selfcontent")
+        self.block = block
+        self.block.comment = self
+        font = QFont("Comic Sans MS", 15)
+        metric = QFontMetrics(font)
+        self.bounding_rect = metric.boundingRect(QRect(0, 0, 400, 900),
+                Qt.TextWordWrap,
+                self.content)
+        print(self.bounding_rect, "boundrect")
+        self.width = self.bounding_rect.width() + 40
+        self.height = self.bounding_rect.height()
+        self.height_minimized = metric.height()
+        self.toggle_collapsed(self.geometry().x(), self.geometry().y())
+        print(self.width, self.height, "dimension")
+        self.repaint()
+
+    def move_to(self, x, y):
+        """
+        Moves the current block to a position
+        :param x: x position to move to
+        :param y: y position to move to
+        """
+
+        geom = self.geometry()
+        print(self.height)
+        if self.minimized:
+            self.setGeometry(x, y, self.width, self.height_minimized)
+        else:
+            self.setGeometry(x, y, self.width, self.height)
+
+    def mousePressEvent(self, event):
+        self.toggle_collapsed(self.geometry().x(), self.geometry().y())
+
+    def toggle_collapsed(self, x, y):
+        if not self.minimized:
+            self.setGeometry(x, y, self.width, self.height_minimized)
+            self.minimized = True
+        else:
+            self.setGeometry(x, y, self.width, self.height)
+            self.minimized = False
+
+    def paintEvent(self, QPaintEvent):
+        painter = QPainter()
+        painter.begin(self)
+        painter.setPen(QColor("#FFC966"))
+        painter.setBrush(QColor("#FFC966"))
+        painter.setFont(QFont("Comic Sans MS", 15))
+        painter.setRenderHint(QPainter.Antialiasing)
+        #painter.drawRoundedRect(0, 5, self.geometry().width() - 5, self.geometry().height() - 7, 3, 3)
+        geom = self.geometry()
+        painter.drawRect(0, 0, geom.width(), 5)
+        painter.drawRoundedRect(QRect(20, 0, geom.width()-20, geom.height()), 6, 6)
+        painter.setBrush(QColor("white"))
+        painter.setPen(QColor("white"))
+        painter.drawText(QRect(35, 0, geom.width()-40, geom.height()),
+            Qt.TextWordWrap,
+            self.content)
+        painter.end()
+
+    def adjust(self):
+        self.setGeometry(self.block.geometry().x()+self.block.geometry().width()-5,
+                self.block.geometry().y(),
+                self.width,
+                self.height)
 
 
 class CapBlock(BasicBlock):
@@ -217,7 +306,7 @@ class CapBlock(BasicBlock):
         painter.setBrush(QColor("white"))
         painter.setPen(QColor("white"))
         # painter.drawChord(QRect(20, 60, 45, 45), 180 * 16, 180 * 16)
-        painter.drawText(10, 50*self.scale, self.content)
+        painter.drawText(15, 55*self.scale, self.content)
         painter.end()
 
 
@@ -233,7 +322,7 @@ class CtrlTop(BasicBlock):
             self.width = QFontMetrics.width(metric, self.content) + 30
         else:
             self.width = 150
-        self.height = (metric.height() + 30)*self.scale
+        self.height = (metric.height() + 50)*self.scale
         print(self.height, "hight")
         self.text_size = 50
 
@@ -241,14 +330,33 @@ class CtrlTop(BasicBlock):
         self.setGeometry(temp.x(), temp.y(), temp.x() + self.width, self.height)
         self.repaint()
 
+    def mousePressEvent(self, event):
+        pass
+
+    def raiseEvent(self):
+        self.raise_()
+        self.show()
+        if self.child is not None:
+            self.child.raiseEvent()
+            self.raise_()
+            self.child.show()
+        if self.comment is not None:
+            self.comment.raise_()
+            self.comment.show()
+        if self.bar is not None:
+            self.bar.raise_()
+
     def move_recurse(self, x, y):
         self.move_to(x, y)
         if self.bar is not None:
             print(x, y)
             print(self.bar.geometry(), "bargeom report")
-            self.bar.move_to(x, y)
+            self.bar.move_to(x, y+self.geometry().height()-18)
         if self.child is not None:
             self.child.move_recurse(x + 20, y + self.geometry().height() - 15)
+
+    def mouseMoveEvent(self, event):
+        pass
 
     def paintEvent(self, QPaintEvent):
         print("paintevent")
@@ -264,7 +372,7 @@ class CtrlTop(BasicBlock):
         painter.drawRoundedRect(QRect(0, 0, geom.width(), geom.height() - 15), 6*self.scale, 6*self.scale)
         painter.setBrush(QColor("white"))
         painter.setPen(QColor("white"))
-        painter.drawText(10, 25*self.scale, self.content)
+        painter.drawText(10, self.height/2 + 5, self.content)
         painter.drawChord(QRect(20, -37, 45, 45), 180 * 16, 180 * 16)
         painter.end()
 
@@ -280,7 +388,8 @@ class CtrlBar(QWidget):
         self.repaint()
 
     def attach_top(self, block: CtrlTop):
-        self.setGeometry(block.geometry().x(), block.geometry().y(), self.width, self.height)
+        self.setGeometry(block.geometry().x(), block.geometry().y()+block.geometry().height()-18,
+                self.width, self.height)
         self.top = block
         block.bar = self
 
@@ -289,7 +398,7 @@ class CtrlBar(QWidget):
                 block.geometry().x() - self.top.geometry().x(),
                 block.geometry().y() - self.top.geometry().y())
         self.bottom = block
-        self.height = block.geometry().y() - self.top.geometry().y() + 10
+        self.height = block.geometry().y() - self.top.geometry().y() + 25 - self.top.geometry().height()
         print(self.geometry(), "bargeom")
         print(self.top.geometry(), self.bottom.geometry())
 
@@ -297,10 +406,11 @@ class CtrlBar(QWidget):
         print(self.top.geometry(), self.bottom.geometry(), "newbot")
         global_pos_top = self.mapToGlobal(self.top.pos())
         global_pos_bottom = self.mapToGlobal(self.bottom.pos())
-        self.setGeometry(self.top.geometry().x(), self.top.geometry().y(),
+        self.height = self.bottom.geometry().y() - self.top.geometry().y() + 25 - self.top.geometry().height()
+        self.setGeometry(self.top.geometry().x(),
+                self.top.geometry().y()+self.top.geometry().height()-18,
                 self.width,
-                self.bottom.geometry().y() - self.top.geometry().y() + 10)
-        self.height = self.bottom.geometry().y() - self.top.geometry().y() + 10
+                self.height)
 
     def move_to(self, x, y):
         """
@@ -320,8 +430,12 @@ class CtrlBar(QWidget):
         painter.setFont(QFont("Comic Sans MS", 15))
         painter.setRenderHint(QPainter.Antialiasing)
         geom = self.geometry()
-        painter.drawRoundedRect(QRect(0, 0, geom.width(), geom.height()), 6*self.scale, 6*self.scale)
+        painter.drawRect(QRect(0, 0, geom.width(), geom.height()))
         painter.end()
+
+    def raiseEvent(self):
+        self.raise_()
+        self.top.raise_()
 
 
 class CtrlBottom(BasicBlock):
@@ -374,67 +488,7 @@ class CtrlBottom(BasicBlock):
         painter.drawRoundedRect(QRect(0, 0, geom.width(), geom.height() - 15), 6*self.scale, 6*self.scale)
         painter.setBrush(QColor("white"))
         painter.setPen(QColor("white"))
-        painter.drawText(
-            20 * self.scale,
-            (self.geometry().height() / 2 + 10) * self.scale,
-            self.text)
         painter.end()
-
-
-# class CodeBlock(AbstractDraggableBlock):
-# """
-#     #A puzzle-piece type CodeBlock meant to represent code in a program
-# """
-#
-#     def __init__(self, text, attached, parent, *args, **kwargs):
-#         super().__init__(attached, parent=parent, *args, **kwargs)
-#         self.text = text
-#         self.scale = 1
-#         self.setGeometry(0, 0, 200 * self.scale, 60 * self.scale)
-#         if self.attached is not None:
-#             new_geometry_attached = QRect(
-#                 self.geometry().x(),
-#                 self.geometry().y() + self.geometry().height() - 17,
-#                 self.attached.geometry().width(),
-#                 self.attached.geometry().height())
-#             print(self.geometry(), "NOOTO")
-#             self.attached.setGeometry(new_geometry_attached)
-#
-#     def paintEvent(self, QPaintEvent):
-#         painter = QPainter()
-#         painter.begin(self)
-#         painter.setPen(QColor("#496BD3"))
-#         painter.setBrush(QColor("#4A6CD4"))
-#         painter.setFont(QFont("Comic Sans MS", 15 * self.scale))
-#
-#         textsize = painter.boundingRect(
-#             self.geometry(), 1, self.text + "       ")
-#
-#         if textsize.width() > 100:
-#             rectwidth = textsize.width()
-#             self.setFixedWidth(textsize.width())
-#         else:
-#             rectwidth = 100
-#
-#         painter.setRenderHint(QPainter.Antialiasing)
-#         painter.drawRect(QRect(0, 0, rectwidth * self.scale, 45 * self.scale))
-#         painter.drawChord(
-#             QRect(
-#                 20 * self.scale,
-#                 12 * self.scale,
-#                 45 * self.scale,
-#                 45 * self.scale),
-#             180 * 16,
-#             180 * 16)
-#         painter.setBrush(QColor("white"))
-#         painter.setPen(QColor("white"))
-#         painter.drawChord(QRect(20 * self.scale, -32 * self.scale,
-#                                 45 * self.scale, 45 * self.scale), 180 * 16, 180 * 16)
-#         painter.drawText(
-#             20 * self.scale,
-#             (self.geometry().height() / 2) * self.scale,
-#             self.text)
-#         painter.end()
 
 
 if __name__ == "__main__":
@@ -473,6 +527,7 @@ if __name__ == "__main__":
     c1 = CtrlTop("tests", parent=w)
     c2 = CtrlBottom("tetss", parent=w)
     c3 = CtrlBar(parent=w)
+    e1 = CommentBubble("W:mainwindow_controller.py:224:16: F405 'FileNotFoundError' may be undefined, or defined from star imports: PyQt5.QtCore, blocks", b10, parent=w)
 
     b6.attach_child(c1)
     c1.attach_child(b9)
@@ -482,6 +537,7 @@ if __name__ == "__main__":
     c3.attach_bottom(c2)
 
     b6.move_recurse(20,20)
+    e1.adjust()
     # b1.move(20, 20)
     test = []
     #b6.raiseEvent()

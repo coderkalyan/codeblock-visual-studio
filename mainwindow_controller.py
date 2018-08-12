@@ -2,9 +2,19 @@
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QApplication, QWidget, QFrame, QFileDialog, QTreeWidgetItem
 from mainwindow import MainWindow
-import sys
+from about_dialog import AboutDialog
+from help_dialog import HelpDialog
+from size_warning import SizeWarning
+from source_code_warning import SourceCodeWarning
+import icons.icons_rc
+import sys, os
 import importlib.util
 import inspect
+import error_catcher
+import interpreter
+import configparser
+import copy
+from pathlib import Path
 from modulefinder import ModuleFinder
 from blocks import *
 testvar = "hi"
@@ -13,23 +23,83 @@ testvar = "hi"
 class Main(MainWindow):
     def __init__(self):
         super().__init__()
+
+        # Create all dialogs
+        self.about_dialog = AboutDialog()
+        self.tutorial_dialog = HelpDialog()
+        self.size_warning = SizeWarning()
+        self.source_warning = SourceCodeWarning()
+        self.about_dialog.hide()
+        self.tutorial_dialog.hide()
+        self.size_warning.hide()
+        self.source_warning.hide()
+
+        # Read config file to find out if this is first run
+        configpath = str(Path.home()) + "/.config/codeblock_visual_studio/config"
+        configread = configparser.ConfigParser()
+        config = configread.read(configpath)
+        if len(config) == 0:
+            # First Run, open tutorial and autogenerate config
+            os.makedirs(os.path.dirname(configpath), exist_ok=True)
+            with open(configpath, 'w') as f:
+                f.write("")
+                self.tutorial_dialog.exec_()
+
+        # Bind buttons to functions and initialize varibales
         self.bind()
         self.classViewFileIndex = {}
+        self.lines = []
+        self.lint = ()
+        self.go_ahead = True
+        self.class_list = {}
 
     def bind(self):
         self.actionOpen.triggered.connect(self.open_file)
+        self.actionAbout.triggered.connect(self.about_dialog.show)
+        self.actionTutorial.triggered.connect(self.tutorial_dialog.show)
         self.classView.itemDoubleClicked.connect(self.classview_openclass)
+        self.size_warning.buttonBox.accepted.connect(self.size_warning.hide)
+        self.size_warning.buttonBox.rejected.connect(self.check_size)
+
+    def check_size(self):
+        self.size_warning.hide()
+        self.go_ahead = False
+
 
     def classview_openclass(self):
-        if self.classView.selectedItems()[0].parent().text(0).split(".")[1] == "py":
-            inspect_typed = self.classView.selectedItems(
-            )[0].parent().text(0).split(".")[0]
+        # Get the selected class (should be first one selected)
+        try:
+            selected_item = self.classView.selectedItems()[0].parent().text(0)
+        except AttributeError:
+            return 0
+
+        # Figure out whether to use package naming or module naming
+        if selected_item.split(".")[-1] in ["py", "so"]:
+            # Select module naming
+            inspect_typed = selected_item.split(".")[0]
         else:
-            inspect_typed = self.classView.selectedItems()[0].parent().text(0)
-        self.create_blocks(self.get_functions(
-            self.classViewFileIndex[inspect_typed +
-                                    "."+self.classView.selectedItems()[0].text(0)],
-            self.classView.selectedItems()[0].text(0)))
+            # Select package naming
+            inspect_typed = selected_item
+
+        # Read entire file into self.lines
+        try:
+            with open(self.class_list[2][inspect_typed]) as f:
+                self.lines = []
+                for l in f:
+                    self.lines.append(l.lstrip())
+        except UnicodeDecodeError:
+            self.source_warning.show()
+            return 0
+
+        if len(self.lines) > 2000:
+            self.size_warning.exec_()
+            if self.go_ahead == False:
+                self.go_ahead = True
+                return 0
+
+        # Get output from linter and use the read code to generate the code blocks
+        self.lint = error_catcher.get_lint(self.class_list[2][inspect_typed])
+        self.create_blocks(self.class_list[0][self.class_list[2][inspect_typed]][self.classView.selectedItems()[0].text(0)])
 
     def open_file(self):
         filename = QFileDialog.getOpenFileName(self, 'Open file for reading',
@@ -38,30 +108,41 @@ class Main(MainWindow):
 
     def regenerate_classview(self, file):
         try:
-            class_list = self.get_classes(file)
+            # Get everything in format (classes, lint, imports)
+            # classes is in format {file: {class: {functions: {list_of_source}}}}
+            # Lint is in format {file: [list_of_lint_warns]}
+            # Imports is in format {module: file}
+            self.class_list = interpreter.get_classes_all(file)
         except:
-            class_list = {}
+            self.class_list = ({}, {}, {})
         class_list_sorted = {}
-        for k, v in class_list.items():
-            filesplit = str(v).split("'")[1::2][0].split(".")
-            if len(filesplit) > 2:
-                # use Package-style naming
-                filename = ".".join(filesplit[:2])
-            else:
-                # use Module-style naming (.py extension)
-                filename = ".".join([filesplit[0], "py"])
+        for k, v in self.class_list[0].items():
+            # Get name of modules
+            try:
+                filename = list(self.class_list[2].keys())[list(self.class_list[2].values()).index(k)]
+            except ValueError:
+                print("assuming main file, skipping")
+                filename = file.split("/")[-1]
+            if len(filename.split(".")) < 2:
+                # Use module-style naming (.py or .so extension)
+                filename = filename+"."+k.split(".")[-1]
+
             class_list_sorted[filename] = {}
-            for i, j in class_list.items():
-                if len(filename.split(".")) > 2:
-                    filecompare = filename
-                else:
-                    filecompare = filename.split(".")[0]
-                if filecompare in str(j):
-                    class_list_sorted[filename][i] = j
+            print(v)
+            for i,j in v.items():
+                class_list_sorted[filename][i] = None
+            # for i, j in self.class_list[0].items():
+            #     if len(filename.split(".")) > 2:
+            #         filecompare = filename
+            #     else:
+            #         filecompare = filename.split(".")[0]
+            #     if filecompare in str(j):
+            #         class_list_sorted[filename][i] = j
         class_tree_index = {}
         print("generating tree view...")
         self.classView.clear()
         ind0 = 0
+        # class_list_sorted should be in the format {module_name: {class_name:[arbitrary val]}}
         for k2, v2 in class_list_sorted.items():
             class_tree_index[ind0] = QTreeWidgetItem(self.classView)
             class_tree_index[ind0].setText(0, k2)
@@ -74,6 +155,7 @@ class Main(MainWindow):
         for child in self.codeArea.children():
             child.deleteLater()
         self.codeArea.setUpdatesEnabled(True)
+        print(funcs, "funcs")
         self.function_blocks = self.generate_function_blocks(funcs)
         self.code_blocks = self.generate_code_blocks(funcs)
         for k, v in self.function_blocks.items():
@@ -82,43 +164,61 @@ class Main(MainWindow):
             v.raiseEvent()
             self.code_blocks[k].append(v)
 
-        for i in list(self.function_blocks.values()):
-            i.move_recurse(list(self.function_blocks.values()).index(i)*400, i.geometry().y())
-            print(i, "eye")
         # svgWidget = HatBlock("test", self.code_blocks['test'][-1], self.codeArea)
         # self.function_blocks.append(svgWidget)
         # svgWidget.show()
+        for c,i in enumerate(self.function_blocks.values()):
+            print(self.code_blocks['func-widths'], "sum")
+            i.move_recurse(sum(self.code_blocks['func-widths'][0:c]), i.geometry().y())
+            i.raiseEvent()
+            print(i, "eye")
+
+        print(self.code_blocks['ctrlbar'], "ctrlbar")
         for bar in self.code_blocks['ctrlbar']:
             bar.adjust_bar()
             bar.show()
             bar.raise_()
-        print(self.code_blocks['ctrlbar'], "ctrlbar")
+
+        for comment in self.code_blocks['comments']:
+            comment.adjust()
+            comment.show()
 
     def generate_function_blocks(self, funcs):
         f = 0
         retblocks = {}
         for func, func_def in funcs.items():
             if func != "":
-                if "def " in func_def[0].strip():
-                    retblocks[func] = CapBlock(func_def[0].strip(), parent=self.codeArea)
-                else:
+                print(funcs, "thesearefunctions")
+                if func_def[0].startswith("@"):
                     retblocks[func] = CapBlock(func_def[1].strip(), parent=self.codeArea)
+                else:
+                    retblocks[func] = CapBlock(func_def[0].strip(), parent=self.codeArea)
             f = f + 1
         return retblocks
 
     def generate_code_blocks(self, funcs_list):
         f = 0
         retblocks = {}
-        funcs = funcs_list
-        retblocks['test'] = []
+        # We need a fresh copy of funcs_list due to mutations that occur during function run
+        funcs = copy.deepcopy(funcs_list)
+        print(funcs_list, "funcslist")
+        retblocks['comments'] = []
         retblocks['ctrlbar'] = []
+        retblocks['func-widths'] = []
         ctrl_bar_count = 0
         for func, code in funcs.items():
             f = 0
+            maxwidth = 0
             retblocks[func] = []
             control_block_map = {}
+            not_done = True
             for line in code:
-                if func != "" and "def " not in line:
+                if code.index(line) == 0:
+                    # Skip first line (which, by spec, contains function header)
+                    continue
+                if func != "":
+                    if line.lstrip().startswith("#"):
+                        self.lint[2][line.lstrip()] = self.lines.index(line.lstrip())+1
                     line_leading_whitespace = len(line) - len(line.lstrip())
                     if line_leading_whitespace in control_block_map.keys():
                         # CtrlBottom detected (must be before ifblock)
@@ -133,8 +233,7 @@ class Main(MainWindow):
                                         print(l)
                                         line = " " + line
                                         print(line)
-
-                        retblocks[func].append(CtrlBottom(line, parent=self.codeArea))
+                        retblocks[func].append(CtrlBottom(line.lstrip(), parent=self.codeArea))
                         code.insert(f+1, line)
                         retblocks['ctrlbar'].append(CtrlBar(parent=self.codeArea))
                         retblocks['ctrlbar'][ctrl_bar_count].attach_top(control_block_map[len(line) - len(line.lstrip())])
@@ -142,19 +241,63 @@ class Main(MainWindow):
                         print(control_block_map, 'controlmap in prog')
                         ctrl_bar_count = ctrl_bar_count + 1
                         del control_block_map[len(line) - len(line.lstrip())]
-                    elif line.strip()[-1] == ':':
+                    elif line.strip()[-1] == ':' and not line.lstrip().startswith("#"):
                         # Indented Block - use CtrlTop block
-                        retblocks[func].append(CtrlTop(line, parent=self.codeArea))
+                        retblocks[func].append(CtrlTop(line.lstrip(), parent=self.codeArea))
                         # Store [whitespace, satisfied] values for ctrltop
                         control_block_map[len(line) - len(line.lstrip())] = retblocks[func][f]
                     else:
                         # Just a regular CodeBlock
-                        retblocks[func].append(CodeBlock(line, parent=self.codeArea))
+                        try:
+                            if self.lines.index(line.lstrip())+1 in self.lint[0].values():
+                                color = "red"
+                                lintline = list(self.lint[0].keys())[list(self.lint[0].values()).index(self.lines.index(line.lstrip())+1)]
+                            elif self.lines.index(line.lstrip())+1 in self.lint[1].values():
+                                color = "#FFBB33"
+                                lintline = list(self.lint[1].keys())[list(self.lint[1].values()).index(self.lines.index(line.lstrip())+1)]
+                            else:
+                                color = "#496BD3"
+                                lintline = None
+                        except ValueError as v:
+                            print(line, "thisislinevalue")
+                            color = "#496BD3"
+                            lintline = None
+                            print(v, "ValeError")
+                        print(lintline, "lintline")
+                        retblocks[func].append(CodeBlock(line.lstrip(), color, parent=self.codeArea))
+                        if lintline is not None:
+                            retblocks['comments'].append(CommentBubble(lintline, retblocks[func][f], parent=self.codeArea))
                     if f != 0:
                         retblocks[func][f-1].attach_child(retblocks[func][f])
-                    f = f + 1
                     print(line)
-        print(control_block_map, "controlmap remain")
+                if retblocks[func][f].geometry().width() > maxwidth:
+                    maxwidth = retblocks[func][f].geometry().width()
+                f = f + 1
+                if f == len(code)-1 and len(control_block_map) > 0 and not_done:
+                    # CtrlBottom detected (must be before ifblock)
+                    print(line, line_leading_whitespace, control_block_map, "control_map")
+                    sorted_keys = list(control_block_map.keys())
+                    sorted_keys.sort()
+                    if not line_leading_whitespace == \
+                            sorted_keys[-1]:
+                                print(sorted_keys[-1], line_leading_whitespace, "sorted keys")
+                                line = line.lstrip()
+                                for l in range(sorted_keys[-1]):
+                                    print(l)
+                                    line = " " + line
+                                    print(line)
+
+                    retblocks[func].append(CtrlBottom(line, parent=self.codeArea))
+                    code.insert(f+1, line)
+                    retblocks['ctrlbar'].append(CtrlBar(parent=self.codeArea))
+                    retblocks['ctrlbar'][ctrl_bar_count].attach_top(control_block_map[len(line) - len(line.lstrip())])
+                    retblocks['ctrlbar'][ctrl_bar_count].attach_bottom(retblocks[func][f])
+                    print(control_block_map, 'controlmap in prog')
+                    ctrl_bar_count = ctrl_bar_count + 1
+                    del control_block_map[len(line) - len(line.lstrip())]
+                    not_done = False
+            retblocks['func-widths'].append(maxwidth)
+
         return retblocks
 
     def get_imports(self, file):
@@ -163,6 +306,7 @@ class Main(MainWindow):
         im = []
         for name, mod in finder.modules.items():
             im.append(name)
+        print(im, "imports")
         return im
 
     def get_functions(self, file, class_name):

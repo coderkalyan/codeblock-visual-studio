@@ -9,10 +9,12 @@
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QSizePolicy, QTabWidget, QMenuBar, QStatusBar, QApplication, QTreeWidget, \
     QTreeWidgetItem, QVBoxLayout, QScrollArea, QFrame, QSplitter, QPushButton, QMenu, QAction, QDesktopWidget
+from PyQt5.QtGui import QIcon, QPixmap
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__(flags=QtCore.Qt.Window)
+        self.setWindowIcon(QIcon(QPixmap(":/icon/codeblock_icon.svg")))
         scale_x = QDesktopWidget().screenGeometry().width()/1920
         scale_y = QDesktopWidget().screenGeometry().height()/1080
         self.resize(1280*scale_x, 720*scale_y)
@@ -25,7 +27,7 @@ class MainWindow(QMainWindow):
 
         self.tabWidget = QTabWidget(self.centralwidget)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(3)
+        sizePolicy.setHorizontalStretch(4)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.tabWidget.sizePolicy().hasHeightForWidth())
 
@@ -44,62 +46,16 @@ class MainWindow(QMainWindow):
 
         self.tabWidget.addTab(self.tab, "")
 
-        self.tab_2 = QWidget()
-        self.tab_2.setObjectName("tab_2")
-
-        self.tabWidget.addTab(self.tab_2, "")
-
         self.splitter.addWidget(self.tabWidget)
 
-        self.tabWidget_3 = QTabWidget(self.centralwidget)
-        self.tabWidget_3.setTabsClosable(False)
-        self.tabWidget_3.setMovable(True)
-        self.tabWidget_3.setObjectName("tabWidget_3")
-
-        self.tab_5 = QWidget()
-        self.tab_5.setObjectName("tab_5")
-
-        self.tabWidget_3.addTab(self.tab_5, "")
-
-        self.tab_6 = QWidget()
-        self.tab_6.setObjectName("tab_6")
-
-        self.tabWidget_3.addTab(self.tab_6, "")
-
-        self.splitter.addWidget(self.tabWidget_3)
-
         self.tabWidget_2 = QTabWidget(self.centralwidget)
+        self.tab_3 = QWidget()
+        self.tab_3.setObjectName("tab_3")
+        self.tabWidget_2.addTab(self.tab_3, "")
 
-        self.verticalLayout = QVBoxLayout(self.tab_5)
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.scrollArea = QScrollArea(self.tab_5)
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(1)
-        sizePolicy.setHeightForWidth(self.scrollArea.sizePolicy().hasHeightForWidth())
-        self.scrollArea.setSizePolicy(sizePolicy)
-        self.scrollArea.setWidgetResizable(True)
-        self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 184, 148))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
-        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
-        self.verticalLayout.addWidget(self.scrollArea)
-        self.treeWidget = QTreeWidget(self.tab_5)
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(3)
-        sizePolicy.setHeightForWidth(self.treeWidget.sizePolicy().hasHeightForWidth())
-        self.treeWidget.setSizePolicy(sizePolicy)
-        self.treeWidget.setObjectName("treeWidget")
-        item_0 = QTreeWidgetItem(self.treeWidget)
-        item_0.setText(0, "item0")
-        item_1 = QTreeWidgetItem(self.treeWidget)
-        item_1.setText(0, "item1")
-        item_2 = QTreeWidgetItem(item_1)
-        item_2.setText(0, "item2")
-        self.treeWidget.header().setVisible(False)
-        self.verticalLayout.addWidget(self.treeWidget)
 
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(7)
@@ -111,13 +67,6 @@ class MainWindow(QMainWindow):
         self.tabWidget_2.setMovable(True)
         self.tabWidget_2.setObjectName("tabWidget_2")
 
-        self.tab_3 = QWidget()
-        self.tab_3.setObjectName("tab_3")
-        self.tabWidget_2.addTab(self.tab_3, "")
-        self.tab_4 = QWidget()
-        self.tab_4.setObjectName("tab_4")
-        self.tabWidget_2.addTab(self.tab_4, "")
-
         self.splitter.addWidget(self.tabWidget_2)
 
         self.horizontalLayout.addWidget(self.splitter)
@@ -127,17 +76,26 @@ class MainWindow(QMainWindow):
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1280, 23))
         self.menubar.setObjectName("menubar")
         self.menuFile = QMenu(self.menubar)
-
-        self.actionNew = QAction(self)
-        self.actionNew.setText("New")
+        self.menuHelp = QMenu(self.menubar)
 
         self.actionOpen = QAction(self)
         self.actionOpen.setText("Open")
 
-        self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.setTitle("File")
-        self.menubar.addAction(self.menuFile.menuAction())
+        self.menubar.addAction(self.actionOpen)
+
+        self.actionAbout = QAction(self)
+        self.actionAbout.setText("About Codeblock Visual Studio")
+
+        self.actionTutorial = QAction(self)
+        self.actionTutorial.setText("Rerun Tutorial")
+
+        self.menuHelp.addAction(self.actionAbout)
+        self.menuHelp.addAction(self.actionTutorial)
+        self.menuHelp.setTitle("Help")
+        self.menubar.addAction(self.menuHelp.menuAction())
+
         self.setMenuBar(self.menubar)
 
         self.statusbar = QStatusBar()
@@ -150,18 +108,14 @@ class MainWindow(QMainWindow):
         self.scrollContents.setGeometry(QtCore.QRect(0, 0, 5000, 50000))
         self.scrollLayout = QHBoxLayout(self.scrollContents)
 
-        self.codeArea = QFrame(self.scrollAreaWidgetContents)
-        self.codeArea.setMinimumSize(QtCore.QSize(2000, 2000))
+        self.codeArea = QFrame(self.scrollContents)
+        self.codeArea.setMinimumSize(QtCore.QSize(200, 2000))
         self.scrollLayout.addWidget(self.codeArea)
         self.frameLayout.addWidget(self.scroll)
         self.scroll.setWidget(self.scrollContents)
 
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), "Class View")
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), "Tab 2")
-        self.tabWidget_3.setTabText(self.tabWidget_2.indexOf(self.tab_3), "Code Area")
-        self.tabWidget_3.setTabText(self.tabWidget_2.indexOf(self.tab_4), "Tab 2")
-        self.tabWidget_2.setTabText(self.tabWidget_3.indexOf(self.tab_5), "Tab 1")
-        self.tabWidget_2.setTabText(self.tabWidget_3.indexOf(self.tab_6), "Tab 2")
+        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_3), "Code Area")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,46 @@
+from tkinter import *
+import sys, os
+
+root = Tk()
+root.title("Tkinter Test GUI!")
+root.geometry('350x200')
+
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> iss10
+def peekaboo(((((()))))):
+    label2.grid(column=0, row=2)
+
+def sayhi():
+    print("hi")
+    print("hello")
+    print("greetings")
+
+    print("bonjour")
+    print("hola")
+    print("konichiwa")
+    print("hallo")
+
+def saybye():
+    print("bye")
+<<<<<<< HEAD
+=======
+=======
+def peekaboo():
+    label2.grid(column=0, row=2)
+
+>>>>>>> cb951d2f87e69778078fe7f08a01f389cca5be0d
+>>>>>>> iss10
+
+label1 = Label(root, text="Hello!", font=("Ubuntu", 45))
+label1.grid(column=0, row=0)
+
+button = Button(root, command=peekaboo, text="Press me!", font=("Ubuntu", 25))
+button.grid(column=0, row=1)
+
+label2 = Label(root, text="Peek-a-boo!")
+label2.grid(column=0, row=2)
+label2.grid_forget()
+
+root.mainloop()
