@@ -89,7 +89,7 @@ class Main(MainWindow):
                     self.lines.append(l.lstrip())
         except UnicodeDecodeError:
             self.source_warning.show()
-            return 1
+            return 0
 
         if len(self.lines) > 2000:
             self.size_warning.exec_()
