@@ -121,14 +121,12 @@ class Main(MainWindow):
             try:
                 filename = list(self.class_list[2].keys())[list(self.class_list[2].values()).index(k)]
             except ValueError:
-                print("assuming main file, skipping")
                 filename = file.split("/")[-1]
             if len(filename.split(".")) < 2:
                 # Use module-style naming (.py or .so extension)
                 filename = filename+"."+k.split(".")[-1]
 
             class_list_sorted[filename] = {}
-            print(v)
             for i,j in v.items():
                 class_list_sorted[filename][i] = None
             # for i, j in self.class_list[0].items():
@@ -139,7 +137,6 @@ class Main(MainWindow):
             #     if filecompare in str(j):
             #         class_list_sorted[filename][i] = j
         class_tree_index = {}
-        print("generating tree view...")
         self.classView.clear()
         ind0 = 0
         # class_list_sorted should be in the format {module_name: {class_name:[arbitrary val]}}
@@ -155,11 +152,9 @@ class Main(MainWindow):
         for child in self.codeArea.children():
             child.deleteLater()
         self.codeArea.setUpdatesEnabled(True)
-        print(funcs, "funcs")
         self.function_blocks = self.generate_function_blocks(funcs)
         self.code_blocks = self.generate_code_blocks(funcs)
         for k, v in self.function_blocks.items():
-            print(v, self.code_blocks[k][-1].content, "attach_child")
             v.attach_child(self.code_blocks[k][0])
             v.raiseEvent()
             self.code_blocks[k].append(v)
@@ -168,12 +163,9 @@ class Main(MainWindow):
         # self.function_blocks.append(svgWidget)
         # svgWidget.show()
         for c,i in enumerate(self.function_blocks.values()):
-            print(self.code_blocks['func-widths'], "sum")
             i.move_recurse(sum(self.code_blocks['func-widths'][0:c]), i.geometry().y())
             i.raiseEvent()
-            print(i, "eye")
 
-        print(self.code_blocks['ctrlbar'], "ctrlbar")
         for bar in self.code_blocks['ctrlbar']:
             bar.adjust_bar()
             bar.show()
@@ -188,7 +180,6 @@ class Main(MainWindow):
         retblocks = {}
         for func, func_def in funcs.items():
             if func != "":
-                print(funcs, "thesearefunctions")
                 if func_def[0].startswith("@"):
                     retblocks[func] = CapBlock(func_def[1].strip(), parent=self.codeArea)
                 else:
@@ -201,7 +192,6 @@ class Main(MainWindow):
         retblocks = {}
         # We need a fresh copy of funcs_list due to mutations that occur during function run
         funcs = copy.deepcopy(funcs_list)
-        print(funcs_list, "funcslist")
         retblocks['comments'] = []
         retblocks['ctrlbar'] = []
         retblocks['func-widths'] = []
@@ -222,23 +212,18 @@ class Main(MainWindow):
                     line_leading_whitespace = len(line) - len(line.lstrip())
                     if line_leading_whitespace in control_block_map.keys():
                         # CtrlBottom detected (must be before ifblock)
-                        print(line, line_leading_whitespace, control_block_map, "control_map")
                         sorted_keys = list(control_block_map.keys())
                         sorted_keys.sort()
                         if not line_leading_whitespace == \
                                 sorted_keys[-1]:
-                                    print(sorted_keys[-1], line_leading_whitespace, "sorted keys")
                                     line = line.lstrip()
                                     for l in range(sorted_keys[-1]):
-                                        print(l)
                                         line = " " + line
-                                        print(line)
                         retblocks[func].append(CtrlBottom(line.lstrip(), parent=self.codeArea))
                         code.insert(f+1, line)
                         retblocks['ctrlbar'].append(CtrlBar(parent=self.codeArea))
                         retblocks['ctrlbar'][ctrl_bar_count].attach_top(control_block_map[len(line) - len(line.lstrip())])
                         retblocks['ctrlbar'][ctrl_bar_count].attach_bottom(retblocks[func][f])
-                        print(control_block_map, 'controlmap in prog')
                         ctrl_bar_count = ctrl_bar_count + 1
                         del control_block_map[len(line) - len(line.lstrip())]
                     elif line.strip()[-1] == ':' and not line.lstrip().startswith("#"):
@@ -259,40 +244,31 @@ class Main(MainWindow):
                                 color = "#496BD3"
                                 lintline = None
                         except ValueError as v:
-                            print(line, "thisislinevalue")
                             color = "#496BD3"
                             lintline = None
-                            print(v, "ValeError")
-                        print(lintline, "lintline")
                         retblocks[func].append(CodeBlock(line.lstrip(), color, parent=self.codeArea))
                         if lintline is not None:
                             retblocks['comments'].append(CommentBubble(lintline, retblocks[func][f], parent=self.codeArea))
                     if f != 0:
                         retblocks[func][f-1].attach_child(retblocks[func][f])
-                    print(line)
                 if retblocks[func][f].geometry().width() > maxwidth:
                     maxwidth = retblocks[func][f].geometry().width()
                 f = f + 1
                 if f == len(code)-1 and len(control_block_map) > 0 and not_done:
                     # CtrlBottom detected (must be before ifblock)
-                    print(line, line_leading_whitespace, control_block_map, "control_map")
                     sorted_keys = list(control_block_map.keys())
                     sorted_keys.sort()
                     if not line_leading_whitespace == \
                             sorted_keys[-1]:
-                                print(sorted_keys[-1], line_leading_whitespace, "sorted keys")
                                 line = line.lstrip()
                                 for l in range(sorted_keys[-1]):
-                                    print(l)
                                     line = " " + line
-                                    print(line)
 
                     retblocks[func].append(CtrlBottom(line, parent=self.codeArea))
                     code.insert(f+1, line)
                     retblocks['ctrlbar'].append(CtrlBar(parent=self.codeArea))
                     retblocks['ctrlbar'][ctrl_bar_count].attach_top(control_block_map[len(line) - len(line.lstrip())])
                     retblocks['ctrlbar'][ctrl_bar_count].attach_bottom(retblocks[func][f])
-                    print(control_block_map, 'controlmap in prog')
                     ctrl_bar_count = ctrl_bar_count + 1
                     del control_block_map[len(line) - len(line.lstrip())]
                     not_done = False
@@ -306,7 +282,6 @@ class Main(MainWindow):
         im = []
         for name, mod in finder.modules.items():
             im.append(name)
-        print(im, "imports")
         return im
 
     def get_functions(self, file, class_name):
@@ -320,8 +295,6 @@ class Main(MainWindow):
                 try:
                     functions[i] = list(filter(None, inspect.getsource(
                         getattr(dirvar, i)).splitlines()))
-                    print([s for s in functions[i]
-                           if "            " in s], "function_list")
                 except TypeError:
                     pass
         return functions
@@ -330,7 +303,6 @@ class Main(MainWindow):
         classes = {}
         try:
             sys.path.append("/".join(file.split("/")[:-1]))
-            print(file)
             spec = importlib.util.spec_from_file_location(
                 file.split("/")[-1], file)
             foo = importlib.util.module_from_spec(spec)
@@ -338,17 +310,14 @@ class Main(MainWindow):
             for name, obj in inspect.getmembers(foo):
                 if inspect.isclass(obj):
                     classes[name] = obj
-                    print(str(classes[name]).split("'")[1::2][0], "objc")
                     try:
                         self.classViewFileIndex[
                             str(classes[name]).split("'")[1::2][0]] = inspect.getfile(obj)
                     except TypeError:
-                        print(
-                            obj, "is likely main file, using circumventation measures.")
                         self.classViewFileIndex[
                             str(classes[name]).split("'")[1::2][0].replace(".py", "")] = file
         except FileNotFoundError:
-            print("invalid file")
+            pass
             # do stuff
         return classes
 
@@ -366,8 +335,6 @@ class Main(MainWindow):
         for attr in returnvar:
             if not callable(getattr(dirvar, attr)):
                 defined.append(attr)
-            else:
-                print(attr)
         returnvar = defined
         return returnvar
 
@@ -376,7 +343,6 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     maine = Main()
     maine.show()
-    print(dir("mainwindow_controller.py"))
     sys.exit(app.exec_())
 
 

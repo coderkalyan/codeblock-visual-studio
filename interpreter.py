@@ -11,12 +11,10 @@ def get_imports_kai(file):
 
     for line in filetxt:
         if " import " in line or line.startswith("import "): importsfull.append(line)
-    print(imports)
 
 # this is what you meant to do, kai...
 # Reference Implementation of get_imports
 def get_imports(file):
-    print(file, "file to search")
     # Initialize variables for storage
     imports = {}
     curpath = file
@@ -40,8 +38,6 @@ def get_imports(file):
                 mod = line.split("from ")[-1].split("import")[0]
             else:
                 continue
-            print(mod, "mod")
-            print(mod.split("."))
             if mod.split(".")[0] != '':
                 # Import is absolute
                 for path in paths_to_search:
@@ -59,7 +55,6 @@ def get_imports(file):
                                     # TODO: Optimize this code
                                     # (could try adapting relative import code)
                                     if len(mod.split(".")) > 1:
-                                        print(mod, "package")
                                         path = os.path.join(path, file)
                                         # Search for each part of package
                                         # split by . and go through directory
@@ -73,7 +68,6 @@ def get_imports(file):
                                                     break
                                     else:
                                         # User imported whole package, treat as __init__.py
-                                        print(mod.split("."), "modsplit")
                                         imports[mod.rstrip()] = os.path.join(path, file)+"/__init__.py"
                                         break
                             elif mod.rstrip() in sys.builtin_module_names:
@@ -82,27 +76,20 @@ def get_imports(file):
                                 pass
             else:
                 # Import is relative
-                print("relative")
                 os.chdir("/".join(curpath.split("/")[:-1]))
                 for part in mod.split(".")[1:]:
-                    print(part, "part")
                     try:
                         os.chdir(part.rstrip())
-                        print("attempt chdir")
                     except NotADirectoryError:
-                        print("found module", part)
                         for file in os.listdir():
                             if file.split(".")[0] == mod.split(".")[-1].rstrip() and \
                                     file.split(".")[1] in [".py", ".so"]:
                                         imports[mod.rstrip()] = os.path.join(path, file)
                     except FileNotFoundError:
-                        print("found module", part, os.listdir())
                         for file in os.listdir():
                             if file.split(".")[0] == mod.split(".")[-1].rstrip() and \
                                     file.split(".")[-1] in ["py", "so"]:
                                         imports[mod.rstrip()] = os.path.join(os.getcwd(), file)
-                            else:
-                                print("not found")
     return imports
 
 
@@ -132,27 +119,19 @@ def get_classes_kai(file):
         if "class " in line:
             linenumofclass.append(current_line)
             classnames.append(line)
-            print(classnames, "classnames")
 
     for loc in linenumofclass:
-        print(loc, "classlines")
         clsname = [filetxt[loc-1]]
-        print(clsname, "whichclass")
         top_leading_whitespace = len(filetxt[loc]) - len(filetxt[loc].lstrip())
-        print(top_leading_whitespace, "topclasswhitespace")
         for body in filetxt[loc:]:
             leading_whitespace = len(body) - len(body.lstrip())
-            print(leading_whitespace)
             if leading_whitespace < top_leading_whitespace:
-                print(body)
                 if body != "\n" and len(body) - len(body.lstrip()) != top_leading_whitespace:
                     break
             classlines.append(body)
         fullclasslines.append(classlines)
-        print(fullclasslines)
         classlines = []
     classes = dict(zip(classnames, fullclasslines))
-    print("\n\n\n", classes, "totlayfinalclass")
     return classes
 
 # this is what you meant to do, kai...
@@ -171,13 +150,11 @@ def get_classes(file):
         for line in f:
             indent_level = len(line) - len(line.lstrip())
             if line.strip() == '':
-                print("newline", line)
                 continue
 
             if saved_indent_func != -1 and indent_level > saved_indent_func:
                 # Found line within function
                 cache.append(line)
-                print(line)
             elif saved_indent_func != -1 and indent_level <= saved_indent_func:
                 # Found end of function
                 saved_indent_func = -1
@@ -189,13 +166,11 @@ def get_classes(file):
                 classes[class_name] = funcs
                 funcs = {}
                 saved_indent_class = -1
-                print("end of class")
             elif saved_indent_class == -1 and saved_indent_func == 0:
                 # Found toplevel funcs (no class), append to ++main++ class
                 classes["++main++"] = funcs
 
             if line.lstrip().startswith("class "):
-                print("found class!")
                 if saved_indent_class != -1 and indent_level <= saved_indent_class:
                     classes[class_name] = funcs
                     funcs = {}
@@ -224,24 +199,14 @@ def get_classes(file):
             cache = []
             funcs = {}
             saved_indent_class = -1
-            print("EOF")
 
         if "++main++" in classes.keys():
             classes["++main++"]["on run"] = toplvlcache
         else:
             if len(toplvlcache) != 0:
                 classes["++main++"] = {"on run": toplvlcache}
-            else:
-                print("toplvl empty")
 
 
-    """
-    for k, v in classes.items():
-        print(k)
-        for a, b in v.items():
-             print(a)
-             print("".join(b))
-    """
     return classes
 
 def get_functions_kai(file):
@@ -259,31 +224,23 @@ def get_functions_kai(file):
         current_line = current_line + 1
         if "def " in line:
             funcnumlines.append(current_line)
-            print(funcnumlines, "linenumoffuncs")
             finalfuncnames.append(line)
-            print(finalfuncnames, "funcnamesfinallist")
 
     for lof in funcnumlines:
-        print(lof, "forlines")
         funcname = filetxt[lof-1]
         top_leading_whitespace = len(filetxt[lof]) - len(filetxt[lof].lstrip())
-        print(top_leading_whitespace, "initalwhitespace")
         funcbody = filetxt[lof]
         for body in filetxt[lof:]:
             leading_whitespace = len(body) - len(body.lstrip())
-            print(whitespaceforchecking, "whitespacebody")
             if leading_whitespace < top_leading_whitespace:
                 if body != "\n" and len(body) - len(body.lstrip()) != top_leading_whitespace:
                     break
             funclines.append(body)
-        print(funclines, "finalfunclines")
         fullfunclines.append(funclines)
-        print(fullfunclines, "fullfunclines")
         funclines = []
 
     funcs = dict(zip(finalfuncnames, fullfunclines))
 
-    print(funcs, "totalyfinal")
     return funcs
 
 # this is what you meant to do, kai...
@@ -303,49 +260,39 @@ def get_functions(file):
             current_line = current_line + 1
             if "def " in line:
                 funcnumlines.append(current_line)
-                print(funcnumlines, "linenumoffuncs")
                 finalfuncnames.append(line)
-                print(finalfuncnames, "funcnamesfinallist")
 
     for lof in funcnumlines:
-        print(lof, "forlines")
         funcname = filetxt[lof-1]
         top_leading_whitespace = len(filetxt[lof]) - len(filetxt[lof].lstrip())
-        print(top_leading_whitespace, "initalwhitespace")
         funcbody = filetxt[lof]
         for body in filetxt[lof:]:
             leading_whitespace = len(body) - len(body.lstrip())
-            print(whitespaceforchecking, "whitespacebody")
             if leading_whitespace < top_leading_whitespace:
                 if body != "\n" and len(body) - len(body.lstrip()) != top_leading_whitespace:
                     break
             funclines.append(body)
-        print(funclines, "finalfunclines")
         fullfunclines.append(funclines)
-        print(fullfunclines, "fullfunclines")
         funclines = []
 
     funcs = dict(zip(finalfuncnames, fullfunclines))
 
-    print(funcs, "totalyfinal")
     return funcs
 
 def get_classes_all(file):
     imports = get_imports(file)
     ret_classes = {}
     ret_lint = {}
-    print(imports, "imports")
     for i,v in imports.items():
         if v.endswith(".so") or v.endswith("builtin"):
             uninspectable_classes = {}
-            print(i, "uninspecting")
             foo = importlib.import_module(i)
             for name, obj in inspect.getmembers(foo):
                 if inspect.isclass(obj):
                     try:
                         uninspectable_classes[name] = None
                     except:
-                        print(i, "uninspectable")
+                        print("Class is not inspectable")
             ret_classes[v] = uninspectable_classes
             continue
         ret_classes[v] = get_classes(v)
@@ -353,5 +300,3 @@ def get_classes_all(file):
     return ret_classes, (), imports
 
 # get_imports(file)
-if __name__ == "__main__":
-    print(get_classes_all("mainwindow_controller.py"))

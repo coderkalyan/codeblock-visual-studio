@@ -24,7 +24,6 @@ def get_lint(file):
     sys.path.append("/".join(file.split("/")[:-1]))
     for i in lint.split("\n"):
         try:
-            print(i)
             if any(error in i for error in ["F402",
                                             "F403",
                                             "F404",
@@ -35,17 +34,14 @@ def get_lint(file):
                                             "F901",
                                             "E999"]):
                 if "F403" in i:
-                    print((i))
                     if not scan_import(i):
                         i = ":".join(i.split(":")[:3]) + ": F403 Package not installed or is unavailable."
                     else:
                         verified_packages.append(i.split("'")[1].split()[1])
                         continue
-                        print("skipped")
                 elif "F405" in i:
                     if any(pkg in verified_packages for pkg in i.split(":")[-1][1:].split(", ")):
                         continue
-                        print("skipped")
                     else:
                         i = ":".join(i.split(":")[:3]) + ": F405 '" + i.split("'")[1] + "'" + "is undefined."
                 i = "E: " + i
@@ -59,8 +55,6 @@ def get_lint(file):
 
 
 def scan_import(line):
-    print(line, "KABOOOOOM")
-    print(line.split("'")[1])
     line = line.split("'")[1]
     try:
         if line.startswith("from"):

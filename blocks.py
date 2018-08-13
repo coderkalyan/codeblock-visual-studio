@@ -68,7 +68,6 @@ class BasicBlock(QWidget):
         """
 
         geom = self.geometry()
-        print(self.height)
         self.setGeometry(x, y, self.width, self.height)
 
     def attach_child(self, child):
@@ -137,11 +136,8 @@ class BasicBlock(QWidget):
 
     def mouseReleaseEvent(self, event):
         self.dragging = -10
-        print(self.parentWidget().geometry(), "parentgeom")
         self.parentWidget().adjustSize()
-        print(self.parentWidget().geometry(), "parentgeom")
         self.parentWidget().parentWidget().resize(self.parentWidget().geometry().size())
-        print(self.parentWidget().parentWidget().geometry(), "parentgeomgeom")
 
     def raiseEvent(self):
         self.raise_()
@@ -166,7 +162,6 @@ class CodeBlock(BasicBlock):
         else:
             self.width = 150*self.scale
         self.height = metric.height() + 30*self.scale
-        print(self.height, "hight")
         self.text_size = 50
 
         temp = self.geometry()
@@ -203,7 +198,6 @@ class CommentBubble(QWidget):
 
         self.minimized = True
         self.content = text
-        print(self.content, "selfcontent")
         self.block = block
         self.block.comment = self
         font = QFont("Comic Sans MS", 15)
@@ -211,12 +205,10 @@ class CommentBubble(QWidget):
         self.bounding_rect = metric.boundingRect(QRect(0, 0, 400, 900),
                 Qt.TextWordWrap,
                 self.content)
-        print(self.bounding_rect, "boundrect")
         self.width = self.bounding_rect.width() + 40
         self.height = self.bounding_rect.height()
         self.height_minimized = metric.height()
         self.toggle_collapsed(self.geometry().x(), self.geometry().y())
-        print(self.width, self.height, "dimension")
         self.repaint()
 
     def move_to(self, x, y):
@@ -227,7 +219,6 @@ class CommentBubble(QWidget):
         """
 
         geom = self.geometry()
-        print(self.height)
         if self.minimized:
             self.setGeometry(x, y, self.width, self.height_minimized)
         else:
@@ -276,9 +267,7 @@ class CapBlock(BasicBlock):
         self.color = "dark green"
         font = QFont("Comic Sans MS", 15)
         metric = QFontMetrics(font)
-        print(self.scale, QDesktopWidget().screenGeometry(), "scale")
         self.height = metric.height() + 56*self.scale
-        print(self.height)
         if QFontMetrics.width(metric, self.content) + 30 > 150*self.scale:
             self.width = QFontMetrics.width(metric, self.content) + 30
         else:
@@ -323,7 +312,6 @@ class CtrlTop(BasicBlock):
         else:
             self.width = 150
         self.height = (metric.height() + 50)*self.scale
-        print(self.height, "hight")
         self.text_size = 50
 
         temp = self.geometry()
@@ -349,8 +337,6 @@ class CtrlTop(BasicBlock):
     def move_recurse(self, x, y):
         self.move_to(x, y)
         if self.bar is not None:
-            print(x, y)
-            print(self.bar.geometry(), "bargeom report")
             self.bar.move_to(x, y+self.geometry().height()-18)
         if self.child is not None:
             self.child.move_recurse(x + 20, y + self.geometry().height() - 15)
@@ -359,7 +345,6 @@ class CtrlTop(BasicBlock):
         pass
 
     def paintEvent(self, QPaintEvent):
-        print("paintevent")
         painter = QPainter()
         painter.begin(self)
         painter.setPen(QColor(self.color))
@@ -399,11 +384,8 @@ class CtrlBar(QWidget):
                 block.geometry().y() - self.top.geometry().y())
         self.bottom = block
         self.height = block.geometry().y() - self.top.geometry().y() + 25 - self.top.geometry().height()
-        print(self.geometry(), "bargeom")
-        print(self.top.geometry(), self.bottom.geometry())
 
     def adjust_bar(self):
-        print(self.top.geometry(), self.bottom.geometry(), "newbot")
         global_pos_top = self.mapToGlobal(self.top.pos())
         global_pos_bottom = self.mapToGlobal(self.bottom.pos())
         self.height = self.bottom.geometry().y() - self.top.geometry().y() + 25 - self.top.geometry().height()
@@ -450,7 +432,6 @@ class CtrlBottom(BasicBlock):
         else:
             self.width = 150
         self.height = (metric.height() + 30)*self.scale
-        print(self.height, "hight")
         self.text_size = 50
 
         temp = self.geometry()
