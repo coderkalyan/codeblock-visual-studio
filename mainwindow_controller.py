@@ -98,6 +98,7 @@ class Main(MainWindow):
                 return 0
 
         # Get output from linter and use the read code to generate the code blocks
+        print(error_catcher.get_lint(self.class_list[2][inspect_typed]), "inspect")
         self.lint = error_catcher.get_lint(self.class_list[2][inspect_typed])
         self.create_blocks(self.class_list[0][self.class_list[2][inspect_typed]][self.classView.selectedItems()[0].text(0)])
 

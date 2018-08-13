@@ -10,7 +10,7 @@ def get_lint(file):
 
     # Get output using Flake8's "legacy" API
     guide = flake8.api.legacy.get_style_guide()
-    guide.check_files(["mainwindow_controller.py"])
+    guide.check_files([file])
 
     # Reset stdout
     sys.stdout = oldstdout
