@@ -1,0 +1,35 @@
+* Codeblock Visual Studio Roadmap for Version 1.0
+** IN PROGRESS - iss1 (Flow/CtrlBlock Implementation) - 6/22 [8/9]
+ - [X] Write CtrlTop class
+ - [X] Write CtrlBar class
+ - [X] Write CtrlBottom class
+ - [X] Implement CtrlTop class
+ - [X] Implement CtrlBar class
+ - [X] Implement CtrlBottom class
+ - [X] Debug & tie up loose ends
+ - [X] Submit for test
+ - [ ] Submit PR 
+
+** IN PROGRESS - iss8 (HiDPI Scaling) 6/22 [4/5]
+ - [X] Implement HiDPI Scaling for CodeBlock
+ - [X] Implement HiDPI Scaling for CapBlock
+ - [X] Debug & tie up loose ends
+ - [X] Submit for testing
+ - [ ] Submit PR 
+** TODO - iss6 (Support for Non-Object Oriented Files) 7/20 [0/5]
+ - [ ] Merge text interpreter (requires text interpreter to be finished)
+ - [ ] Possibly patch text interpreter to place non object oriented code into
+       catch-all "__main__" class
+ - [ ] Debug & tie up loose ends
+ - [ ] Submit for testing
+ - [ ] Submit PR
+** TODO - iss7 (Final Stuff) 7/20 [0/8]
+ - [ ] Patch CodeBlocks and CapBlocks to be undraggable (will be undone with implementation of iss4)
+ - [ ] Test CVS thoroughly
+ - [ ] Debug where needed
+ - [ ] Implement features/bugfixes as descriped in iss #7 on issue tracker
+ - [ ] Test some more
+ - [ ] Submit PR
+ - [ ] Build & freeze application
+ - [ ] Test frozen application
+ - [ ] Release Version 1.0!

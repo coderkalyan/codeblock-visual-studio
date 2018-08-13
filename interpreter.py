@@ -3,7 +3,6 @@ import _ast
 import importlib
 import inspect
 import sys, os
-import error_catcher
 
 def get_imports_kai(file):
     # filetxt = open(file).readlines()
@@ -351,9 +350,8 @@ def get_classes_all(file):
             continue
         ret_classes[v] = get_classes(v)
     ret_classes[file] = get_classes(file)
-    ret_lint[file] = error_catcher.get_lint(file)
     return ret_classes, (), imports
 
 # get_imports(file)
 if __name__ == "__main__":
-    print(get_classes("/usr/lib/python3.5/importlib/util.py")["++main++"])
+    print(get_classes_all("mainwindow_controller.py"))
